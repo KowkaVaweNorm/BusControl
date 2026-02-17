@@ -392,10 +392,6 @@ export class InputService {
       worldX,
       worldY,
     });
-
-    if (this.config.enableLogging) {
-      console.log('[InputService] Mouse down:', button, worldX, worldY);
-    }
   }
 
   private handleMouseUp(event: MouseEvent): void {
@@ -421,10 +417,6 @@ export class InputService {
     // Если не был драгом — это клик
     if (!wasDragging) {
       this.handleClick(button, x, y, worldX, worldY);
-    }
-
-    if (this.config.enableLogging) {
-      console.log('[InputService] Mouse up:', button, worldX, worldY);
     }
   }
 
@@ -474,10 +466,6 @@ export class InputService {
       const currentScale = canvasRendererService.getViewport().scale;
       const newScale = Math.max(0.1, Math.min(3, currentScale + zoomDelta));
       canvasRendererService.setCameraScale(newScale);
-
-      if (this.config.enableLogging) {
-        console.log('[InputService] Zoom:', newScale);
-      }
     }
 
     this.publishEvent(InputEventType.MOUSE_WHEEL, {
@@ -543,10 +531,6 @@ export class InputService {
       });
 
       this.clickTimeouts.delete(button);
-
-      if (this.config.enableLogging) {
-        console.log('[InputService] Click:', button, worldX, worldY);
-      }
     }, this.config.clickDelay);
 
     this.clickTimeouts.set(button, timeout);
@@ -567,10 +551,6 @@ export class InputService {
       code: event.code,
       repeat: event.repeat,
     });
-
-    if (this.config.enableLogging) {
-      console.log('[InputService] Key down:', event.key);
-    }
   }
 
   private handleKeyUp(event: KeyboardEvent): void {
@@ -583,10 +563,6 @@ export class InputService {
       key: event.key,
       code: event.code,
     });
-
-    if (this.config.enableLogging) {
-      console.log('[InputService] Key up:', event.key);
-    }
   }
 
   private updateModifiers(event: KeyboardEvent | MouseEvent): void {
@@ -708,8 +684,6 @@ export class InputService {
     // НЕ очищаем таймеры кликов — иначе клик не сработает при потере фокуса
     // this.clickTimeouts.forEach((timeout) => clearTimeout(timeout));
     // this.clickTimeouts.clear();
-
-    console.log('[InputService] Window blur - input state reset');
   }
 
   // ============================================

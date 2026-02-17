@@ -75,8 +75,9 @@ export class MapEditorService {
   public initialize(): void {
     if (this.isInitialized) return;
 
+    // Используем MOUSE_UP для мгновенной реакции (MOUSE_CLICK имеет задержку 250мс)
     this.unsubscribeClick = inputService.subscribe(
-      InputEventType.MOUSE_CLICK,
+      InputEventType.MOUSE_UP,
       this.boundHandleMouseClick!
     );
 
@@ -92,12 +93,9 @@ export class MapEditorService {
     );
 
     this.isInitialized = true;
-    console.log('[MapEditorService] Initialized');
   }
 
   public setMode(mode: EditorMode): void {
-    console.log(`[MapEditorService] Switching mode to: ${mode}`);
-
     // Если сменили режим и был черновик маршрута - сбрасываем его
     if (mode !== EditorMode.DRAWING_ROUTE && this.draftRoute) {
       this.cancelDraftRoute();
@@ -165,7 +163,6 @@ export class MapEditorService {
     });
 
     gameEventBusService.publish(GameEventType.STOP_CREATED, { stopId, name: stopName });
-    console.log(`[MapEditor] Stop created: ${stopName}`);
   }
 
   // --- Логика Маршрутов ---
@@ -175,9 +172,6 @@ export class MapEditorService {
     const clickedStopId = this.findStopAtPosition(x, y);
 
     if (!clickedStopId) {
-      console.warn(
-        '[MapEditor] Clicked on empty space while drawing route. Click on a green stop!'
-      );
       // Можно добавить визуальный фидбек "ошибки"
       return;
     }
@@ -185,26 +179,16 @@ export class MapEditorService {
     // 2. Инициализируем черновик, если это первая точка
     if (!this.draftRoute) {
       this.draftRoute = { stopIds: [] };
-      console.log('[MapEditor] Started new route draft');
     }
 
     // 3. Добавляем ID остановки (проверка на дубликаты подряд опциональна)
     if (this.draftRoute.stopIds[this.draftRoute.stopIds.length - 1] !== clickedStopId) {
       this.draftRoute.stopIds.push(clickedStopId);
-      console.log(
-        `[MapEditor] Added stop ${clickedStopId} to route. Total points: ${this.draftRoute.stopIds.length}`
-      );
-
-      // Здесь можно добавить временную отрисовку линии "призрака" от последней точки до курсора
-      // Но для MVP оставим так: линия появится только после завершения.
-    } else {
-      console.log('[MapEditor] Same stop clicked twice, ignoring');
     }
   }
 
   private finishDraftRoute(): void {
     if (!this.draftRoute || this.draftRoute.stopIds.length < 2) {
-      console.warn('[MapEditor] Cannot finish route: need at least 2 stops.');
       if (this.draftRoute) this.cancelDraftRoute();
       return;
     }
@@ -225,16 +209,12 @@ export class MapEditorService {
     });
 
     gameEventBusService.publish(GameEventType.ROUTE_CREATED, { routeId, name: routeName });
-    console.log(
-      `[MapEditor] Route created: ${routeName} with ${this.draftRoute.stopIds.length} stops.`
-    );
 
     this.cancelDraftRoute(); // Сброс черновика
   }
 
   private cancelDraftRoute(): void {
     this.draftRoute = null;
-    console.log('[MapEditor] Route draft cancelled/reset');
   }
 
   /**

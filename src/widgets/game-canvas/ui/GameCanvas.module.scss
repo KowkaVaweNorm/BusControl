@@ -4,7 +4,7 @@
   height: 100vh; /* На весь экран */
   overflow: hidden;
   background-color: #1a1a2e; /* Цвет фона, если канвас еще не загрузился */
-  
+
   /* Важно: отключаем стандартные действия браузера внутри игры */
   touch-action: none;
   user-select: none;
