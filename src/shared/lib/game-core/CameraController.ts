@@ -73,11 +73,14 @@ export class CameraController {
    */
   private handleMouseMove(event: any): void {
     const mouseState = inputService.getMouseState();
+    const viewport = canvasRendererService.getViewport();
 
     // Используем ТОЛЬКО среднюю кнопку (MouseButton.MIDDLE = 1) для драга карты
     if (mouseState.buttons.has(MouseButton.MIDDLE)) {
-      const deltaX = event.payload.deltaX * this.config.panSensitivity;
-      const deltaY = event.payload.deltaY * this.config.panSensitivity;
+      // Учитываем масштаб: при зуме движение должно быть медленнее
+      // Делим на scale, чтобы на любом зуме мышь передвигала карту на одинаковое расстояние
+      const deltaX = (event.payload.deltaX * this.config.panSensitivity) / viewport.scale;
+      const deltaY = (event.payload.deltaY * this.config.panSensitivity) / viewport.scale;
 
       this.pan(-deltaX, -deltaY);
     }

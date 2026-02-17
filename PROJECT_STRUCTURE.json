@@ -1,8 +1,8 @@
 {
   "projectName": "Bus Control",
-  "generatedAt": "2026-02-17",
+  "generatedAt": "2026-02-18",
   "rootDirectory": "d:\\domains\\Pets\\GameStudio\\Bus Control\\ProjectBusControl",
-  "totalFiles": 42,
+  "totalFiles": 46,
   "architecture": "Feature-Sliced Design (FSD)",
   "structure": [
     {
@@ -136,9 +136,24 @@
       "description": "Камера: панорамирование (СКМ), зум (колесо)"
     },
     {
-      "path": "src/entities/Bus/BusEntity.ts",
+      "path": "src/entities/Bus/model/BusComponents.ts",
       "type": "source",
-      "description": "Сущность автобуса (физика, пассажиры)"
+      "description": "Компоненты автобуса: POSITION, VELOCITY, DATA"
+    },
+    {
+      "path": "src/entities/Bus/model/BusMovementSystem.ts",
+      "type": "source",
+      "description": "Движение: ускорение, плавное торможение по формуле d=v²/(2*a)"
+    },
+    {
+      "path": "src/entities/Bus/model/BusLogicSystem.ts",
+      "type": "source",
+      "description": "Логика: состояния IDLE, MOVING_TO_STOP, STOPPED"
+    },
+    {
+      "path": "src/entities/Bus/model/BusRenderSystem.ts",
+      "type": "source",
+      "description": "Рендеринг: жёлтый прямоугольник 40×20 с фарами"
     },
     {
       "path": "src/entities/Bus/index.ts",
@@ -173,7 +188,7 @@
     {
       "path": "src/entities/Route/model/RouteRenderSystem.ts",
       "type": "source",
-      "description": "Рендеринг маршрутов (линии на слое roads)"
+      "description": "Рендеринг маршрутов (линии на слое roads, название посередине)"
     },
     {
       "path": "src/entities/stop/model/StopComponents.ts",
@@ -188,7 +203,7 @@
     {
       "path": "src/features/map-editor/model/MapEditorService.ts",
       "type": "source",
-      "description": "Редактор карт: режимы остановок/маршрутов (1/2)"
+      "description": "Редактор карт: режимы остановок/маршрутов (1/2), ПКМ = автобус"
     },
     {
       "path": "src/widgets/game-canvas/index.ts",
@@ -244,6 +259,7 @@
   "gameplay": {
     "controls": {
       "ЛКМ": "Создать остановку / Добавить точку в маршрут",
+      "ПКМ (по линии)": "Создать автобус на маршруте",
       "СКМ (зажать)": "Перемещение карты (панорамирование)",
       "Колесо": "Зум в точку курсора",
       "Клавиша 1": "Режим строительства остановок",
@@ -256,10 +272,12 @@
       "implemented": [
         "Создание остановок (зелёные круги)",
         "Построение маршрутов (синие линии)",
+        "Создание автобуса (ПКМ по маршруту)",
+        "Движение автобуса с ускорением и торможением",
         "Перемещение камеры (СКМ)",
         "Зум камеры (колесо)"
       ],
-      "planned": ["Автобусы", "Пассажиры (NPC)", "Экономика", "UI"]
+      "planned": ["Пассажиры (NPC)", "Экономика", "UI"]
     }
   }
 }
