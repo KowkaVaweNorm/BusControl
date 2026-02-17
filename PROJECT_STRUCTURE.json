@@ -188,19 +188,12 @@
     "entities": {
       "path": "src/entities",
       "description": "Игровые сущности (Business Entities по FSD)",
-      "items": [
-        "Bus",
-        "NPC",
-        "Route",
-        "Stop"
-      ]
+      "items": ["Bus", "NPC", "Route", "Stop"]
     },
     "features": {
       "path": "src/features",
       "description": "Фичи (user actions по FSD)",
-      "items": [
-        "map-editor"
-      ]
+      "items": ["map-editor"]
     }
   }
 }
