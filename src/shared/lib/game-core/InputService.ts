@@ -752,7 +752,7 @@ export class InputService {
    */
   private publishToGameEventBus<T extends InputEventType>(
     type: T,
-    payload: InputEventMap[T]
+    _payload: InputEventMap[T]
   ): void {
     // Маппинг InputEventType на GameEventType
     const eventMap: Partial<Record<InputEventType, GameEventType>> = {

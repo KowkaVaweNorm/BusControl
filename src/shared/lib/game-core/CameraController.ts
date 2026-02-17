@@ -147,7 +147,7 @@ export class CameraController {
     // Новая позиция = Старая позиция + (МирДо - МирПосле) * Масштаб (упрощенно)
     // Более точно через экранные координаты:
 
-    const viewportAfter = canvasRendererService.getViewport();
+    // const viewportAfter = canvasRendererService.getViewport();
     const worldAfter = canvasRendererService.screenToWorld(screenX, screenY);
 
     const dx = worldBefore.x - worldAfter.x;

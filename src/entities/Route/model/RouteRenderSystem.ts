@@ -23,67 +23,68 @@ export const routeRenderSystem: System = {
 
     if (!ctx) return;
 
-    for (const entityId of entities) {
-      const routeData = entityManager.getComponent<RouteDataComponent>(
-        entityId,
-        ROUTE_COMPONENTS.DATA
-      );
-      if (!routeData || routeData.stopIds.length < 2) continue;
+    try {
+      for (const entityId of entities) {
+        const routeData = entityManager.getComponent<RouteDataComponent>(
+          entityId,
+          ROUTE_COMPONENTS.DATA
+        );
+        if (!routeData || routeData.stopIds.length < 2) continue;
 
-      // Проходим по всем парам остановок и рисуем линии
-      for (let i = 0; i < routeData.stopIds.length - 1; i++) {
-        const startStopId = routeData.stopIds[i];
-        const endStopId = routeData.stopIds[i + 1];
+        // Проходим по всем парам остановок и рисуем линии
+        for (let i = 0; i < routeData.stopIds.length - 1; i++) {
+          const startStopId = routeData.stopIds[i];
+          const endStopId = routeData.stopIds[i + 1];
 
-        const startPos = findStopPosition(startStopId);
-        const endPos = findStopPosition(endStopId);
+          const startPos = findStopPosition(startStopId);
+          const endPos = findStopPosition(endStopId);
 
-        if (startPos && endPos) {
-          // Рисуем основную линию
-          canvasRendererService.drawLine(ctx, startPos.x, startPos.y, endPos.x, endPos.y, {
-            color: routeData.color,
-            width: 4,
-            dashed: false,
-          });
+          if (startPos && endPos) {
+            // Рисуем основную линию
+            canvasRendererService.drawLine(ctx, startPos.x, startPos.y, endPos.x, endPos.y, {
+              color: routeData.color,
+              width: 4,
+              dashed: false,
+            });
 
-          // Рисуем маленькую точку в середине сегмента
-          const midX = (startPos.x + endPos.x) / 2;
-          const midY = (startPos.y + endPos.y) / 2;
-          canvasRendererService.drawCircle(ctx, midX, midY, 3, { fillColor: '#ffffff' });
+            // Рисуем маленькую точку в середине сегмента
+            const midX = (startPos.x + endPos.x) / 2;
+            const midY = (startPos.y + endPos.y) / 2;
+            canvasRendererService.drawCircle(ctx, midX, midY, 3, { fillColor: '#ffffff' });
+          }
+        }
+
+        // Если маршрут зациклен, рисуем линию от последней к первой
+        if (routeData.loop && routeData.stopIds.length > 2) {
+          const lastStopId = routeData.stopIds[routeData.stopIds.length - 1];
+          const firstStopId = routeData.stopIds[0];
+
+          const lastPos = findStopPosition(lastStopId);
+          const firstPos = findStopPosition(firstStopId);
+
+          if (lastPos && firstPos) {
+            canvasRendererService.drawLine(ctx, lastPos.x, lastPos.y, firstPos.x, firstPos.y, {
+              color: routeData.color,
+              width: 4,
+              dashed: true, // Пунктиром покажем замыкание
+            });
+          }
+        }
+
+        // Подпись маршрута — посередине всех сегментов
+        const labelPos = calculateRouteLabelPosition(routeData);
+        if (labelPos) {
+          // Ручная тень для текста
+          ctx.shadowColor = 'black';
+          ctx.shadowBlur = 4;
+          ctx.fillStyle = routeData.color;
+          ctx.font = 'bold 16px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText(routeData.name, labelPos.x, labelPos.y - 20);
         }
       }
-
-      // Если маршрут зациклен, рисуем линию от последней к первой
-      if (routeData.loop && routeData.stopIds.length > 2) {
-        const lastStopId = routeData.stopIds[routeData.stopIds.length - 1];
-        const firstStopId = routeData.stopIds[0];
-
-        const lastPos = findStopPosition(lastStopId);
-        const firstPos = findStopPosition(firstStopId);
-
-        if (lastPos && firstPos) {
-          canvasRendererService.drawLine(ctx, lastPos.x, lastPos.y, firstPos.x, firstPos.y, {
-            color: routeData.color,
-            width: 4,
-            dashed: true, // Пунктиром покажем замыкание
-          });
-        }
-      }
-
-      // Подпись маршрута (в начале пути)
-      const firstStopId = routeData.stopIds[0];
-      const firstPos = findStopPosition(firstStopId);
-      if (firstPos) {
-        // Ручная тень для текста
-        ctx.save();
-        ctx.shadowColor = 'black';
-        ctx.shadowBlur = 4;
-        ctx.fillStyle = routeData.color;
-        ctx.font = 'bold 16px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(routeData.name, firstPos.x, firstPos.y - 20);
-        ctx.restore();
-      }
+    } finally {
+      ctx.restore(); // Восстанавливаем контекст после трансформации камеры
     }
   },
 };
@@ -113,4 +114,32 @@ function findStopPosition(stopId: string): { x: number; y: number } | null {
     }
   }
   return null;
+}
+
+/**
+ * Вычисляет среднюю позицию маршрута для отображения названия
+ * Берёт среднее арифметическое всех остановок маршрута
+ */
+function calculateRouteLabelPosition(routeData: RouteDataComponent): { x: number; y: number } | null {
+  if (routeData.stopIds.length === 0) return null;
+
+  let totalX = 0;
+  let totalY = 0;
+  let count = 0;
+
+  for (const stopId of routeData.stopIds) {
+    const pos = findStopPosition(stopId);
+    if (pos) {
+      totalX += pos.x;
+      totalY += pos.y;
+      count++;
+    }
+  }
+
+  if (count === 0) return null;
+
+  return {
+    x: totalX / count,
+    y: totalY / count,
+  };
 }

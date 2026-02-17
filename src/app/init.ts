@@ -19,6 +19,9 @@ import { cameraController } from '../shared/lib/game-core/CameraController';
 import { mapEditorService } from '../features/map-editor/model/MapEditorService';
 import { stopRenderSystem } from '../entities/stop/model/StopRenderSystem';
 import { routeRenderSystem } from '@/entities/Route/model/RouteRenderSystem';
+import { busMovementSystem } from '@/entities/Bus/model/BusMovementSystem';
+import { busLogicSystem } from '@/entities/Bus/model/BusLogicSystem';
+import { busRenderSystem } from '@/entities/Bus/model/BusRenderSystem';
 
 // Конфигурация игры (можно вынести в отдельный конфиг позже)
 const GAME_CONFIG = {
@@ -59,6 +62,11 @@ export function initGame(containerId: string): InitResult {
     // 5. Регистрация систем
     entityManagerService.registerSystem(stopRenderSystem);
     entityManagerService.registerSystem(routeRenderSystem);
+    
+    // Регистрируем системы автобуса
+    entityManagerService.registerSystem(busMovementSystem); // Движение
+    entityManagerService.registerSystem(busLogicSystem);    // Логика состояний
+    entityManagerService.registerSystem(busRenderSystem);   // Отрисовка
 
     // 6. Запуск контроллера камеры
     cameraController.initialize();
