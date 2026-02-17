@@ -1,0 +1,206 @@
+{
+  "projectName": "Bus Control",
+  "generatedAt": "2026-02-17",
+  "rootDirectory": "d:\\domains\\Pets\\GameStudio\\Bus Control\\ProjectBusControl",
+  "totalFiles": 28,
+  "architecture": "Feature-Sliced Design (FSD)",
+  "structure": [
+    {
+      "path": ".gitignore",
+      "type": "config",
+      "description": "Git ignore file — исключает файлы из версионирования"
+    },
+    {
+      "path": "eslint.config.js",
+      "type": "config",
+      "description": "Конфигурация линтера ESLint для проверки кода"
+    },
+    {
+      "path": "index.html",
+      "type": "template",
+      "description": "HTML-шаблон точки входа приложения"
+    },
+    {
+      "path": "package.json",
+      "type": "config",
+      "description": "Манифест проекта: зависимости, скрипты, метаданные"
+    },
+    {
+      "path": "package-lock.json",
+      "type": "lock",
+      "description": "Зафиксированные версии установленных зависимостей"
+    },
+    {
+      "path": "README.md",
+      "type": "docs",
+      "description": "Документация проекта"
+    },
+    {
+      "path": "instructions.md",
+      "type": "docs",
+      "description": "Инструкции по разработке: MVP-подход, FSD, обработка ошибок"
+    },
+    {
+      "path": "tsconfig.json",
+      "type": "config",
+      "description": "Базовая конфигурация TypeScript"
+    },
+    {
+      "path": "tsconfig.app.json",
+      "type": "config",
+      "description": "Конфигурация TypeScript для приложения"
+    },
+    {
+      "path": "tsconfig.node.json",
+      "type": "config",
+      "description": "Конфигурация TypeScript для Node-окружения"
+    },
+    {
+      "path": "vite.config.ts",
+      "type": "config",
+      "description": "Конфигурация сборщика Vite"
+    },
+    {
+      "path": "public/vite.svg",
+      "type": "asset",
+      "description": "SVG-иконка Vite по умолчанию"
+    },
+    {
+      "path": "src/main.tsx",
+      "type": "source",
+      "description": "Точка входа React-приложения"
+    },
+    {
+      "path": "src/App.tsx",
+      "type": "source",
+      "description": "Корневой компонент приложения"
+    },
+    {
+      "path": "src/index.css",
+      "type": "styles",
+      "description": "Глобальные стили приложения"
+    },
+    {
+      "path": "src/app/store/GameStateStore.ts",
+      "type": "source",
+      "description": "Хранилище глобального состояния игры (счёт, уровень, пауза)"
+    },
+    {
+      "path": "src/shared/lib/game-core/GameLoopService.ts",
+      "type": "source",
+      "description": "Сервис игрового цикла — управляет update/render циклом"
+    },
+    {
+      "path": "src/shared/lib/game-core/CanvasRendererService.ts",
+      "type": "source",
+      "description": "Сервис рендеринга на Canvas — отрисовка игровых объектов"
+    },
+    {
+      "path": "src/shared/lib/game-core/EntityManagerService.ts",
+      "type": "source",
+      "description": "Сервис управления сущностями — создание, удаление, поиск (ECS)"
+    },
+    {
+      "path": "src/shared/lib/game-core/GameEventBusService.ts",
+      "type": "source",
+      "description": "Шина событий игры — публикация и подписка на события"
+    },
+    {
+      "path": "src/shared/lib/game-core/InputService.ts",
+      "type": "source",
+      "description": "Сервис ввода — обработка клавиатуры, мыши, тачей"
+    },
+    {
+      "path": "src/shared/lib/game-core/ResourceLoaderService.ts",
+      "type": "source",
+      "description": "Сервис загрузки ресурсов — кэширование, загрузка ассетов"
+    },
+    {
+      "path": "src/shared/lib/game-core/CameraController.ts",
+      "type": "source",
+      "description": "Контроллер камеры — панорамирование и зум в точку курсора"
+    },
+    {
+      "path": "src/entities/Bus/BusEntity.ts",
+      "type": "source",
+      "description": "Сущность автобуса — управляемый объект игрока"
+    },
+    {
+      "path": "src/entities/Bus/index.ts",
+      "type": "source",
+      "description": "Экспорт сущности Bus"
+    },
+    {
+      "path": "src/entities/NPC/NPCEntity.ts",
+      "type": "source",
+      "description": "Сущность NPC — пешеходы и пассажиры"
+    },
+    {
+      "path": "src/entities/NPC/index.ts",
+      "type": "source",
+      "description": "Экспорт сущности NPC"
+    },
+    {
+      "path": "src/entities/Route/RouteEntity.ts",
+      "type": "source",
+      "description": "Сущность маршрута — путь движения, остановки, контрольные точки"
+    },
+    {
+      "path": "src/entities/Route/index.ts",
+      "type": "source",
+      "description": "Экспорт сущности Route"
+    },
+    {
+      "path": "src/entities/stop/model/StopComponents.ts",
+      "type": "source",
+      "description": "Компоненты для сущности Stop (позиция, данные)"
+    },
+    {
+      "path": "src/entities/stop/model/StopRenderSystem.ts",
+      "type": "source",
+      "description": "Система рендеринга остановок на Canvas"
+    },
+    {
+      "path": "src/features/map-editor/model/MapEditorService.ts",
+      "type": "source",
+      "description": "Сервис строительства объектов на карте (режим редактора)"
+    },
+    {
+      "path": "src/widgets/index.ts",
+      "type": "source",
+      "description": "Экспорт виджетов (UI-компоненты)"
+    }
+  ],
+  "modules": {
+    "game-core": {
+      "path": "src/shared/lib/game-core",
+      "description": "Ядро игрового движка — сервисы для управления циклом, рендерингом, сущностями, событиями, вводом, ресурсами и камерой",
+      "services": [
+        "GameLoopService",
+        "CanvasRendererService",
+        "EntityManagerService",
+        "GameEventBusService",
+        "InputService",
+        "ResourceLoaderService",
+        "CameraController"
+      ]
+    },
+    "entities": {
+      "path": "src/entities",
+      "description": "Игровые сущности (Business Entities по FSD)",
+      "items": [
+        "Bus",
+        "NPC",
+        "Route",
+        "Stop"
+      ]
+    },
+    "features": {
+      "path": "src/features",
+      "description": "Фичи (user actions по FSD)",
+      "items": [
+        "map-editor"
+      ]
+    }
+  }
+}
