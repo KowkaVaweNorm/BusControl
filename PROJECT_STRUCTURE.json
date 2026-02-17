@@ -2,33 +2,43 @@
   "projectName": "Bus Control",
   "generatedAt": "2026-02-17",
   "rootDirectory": "d:\\domains\\Pets\\GameStudio\\Bus Control\\ProjectBusControl",
-  "totalFiles": 28,
+  "totalFiles": 42,
   "architecture": "Feature-Sliced Design (FSD)",
   "structure": [
     {
       "path": ".gitignore",
       "type": "config",
-      "description": "Git ignore file — исключает файлы из версионирования"
+      "description": "Git ignore file"
+    },
+    {
+      "path": ".prettierrc",
+      "type": "config",
+      "description": "Настройки форматирования Prettier (LF, singleQuote, 2 spaces)"
+    },
+    {
+      "path": ".editorconfig",
+      "type": "config",
+      "description": "EditorConfig для единообразия кода (LF endings)"
     },
     {
       "path": "eslint.config.js",
       "type": "config",
-      "description": "Конфигурация линтера ESLint для проверки кода"
+      "description": "Конфигурация линтера ESLint"
     },
     {
       "path": "index.html",
       "type": "template",
-      "description": "HTML-шаблон точки входа приложения"
+      "description": "HTML-шаблон точки входа"
     },
     {
       "path": "package.json",
       "type": "config",
-      "description": "Манифест проекта: зависимости, скрипты, метаданные"
+      "description": "Манифест проекта: зависимости, скрипты"
     },
     {
       "path": "package-lock.json",
       "type": "lock",
-      "description": "Зафиксированные версии установленных зависимостей"
+      "description": "Зафиксированные версии зависимостей"
     },
     {
       "path": "README.md",
@@ -38,7 +48,7 @@
     {
       "path": "instructions.md",
       "type": "docs",
-      "description": "Инструкции по разработке: MVP-подход, FSD, обработка ошибок"
+      "description": "Инструкции по разработке (MVP, FSD, ошибки)"
     },
     {
       "path": "tsconfig.json",
@@ -48,22 +58,22 @@
     {
       "path": "tsconfig.app.json",
       "type": "config",
-      "description": "Конфигурация TypeScript для приложения"
+      "description": "TypeScript для приложения (с алиасом @/*)"
     },
     {
       "path": "tsconfig.node.json",
       "type": "config",
-      "description": "Конфигурация TypeScript для Node-окружения"
+      "description": "TypeScript для Node-окружения"
     },
     {
       "path": "vite.config.ts",
       "type": "config",
-      "description": "Конфигурация сборщика Vite"
+      "description": "Конфигурация Vite (с алиасом @)"
     },
     {
       "path": "public/vite.svg",
       "type": "asset",
-      "description": "SVG-иконка Vite по умолчанию"
+      "description": "SVG-иконка Vite"
     },
     {
       "path": "src/main.tsx",
@@ -73,108 +83,133 @@
     {
       "path": "src/App.tsx",
       "type": "source",
-      "description": "Корневой компонент приложения"
+      "description": "Корневой компонент (GameCanvas + UI)"
     },
     {
       "path": "src/index.css",
       "type": "styles",
-      "description": "Глобальные стили приложения"
+      "description": "Глобальные стили"
+    },
+    {
+      "path": "src/app/init.ts",
+      "type": "source",
+      "description": "Инициализация игрового ядра (все сервисы)"
     },
     {
       "path": "src/app/store/GameStateStore.ts",
       "type": "source",
-      "description": "Хранилище глобального состояния игры (счёт, уровень, пауза)"
+      "description": "Хранилище состояния игры (счёт, уровень, пауза)"
     },
     {
       "path": "src/shared/lib/game-core/GameLoopService.ts",
       "type": "source",
-      "description": "Сервис игрового цикла — управляет update/render циклом"
+      "description": "Игровой цикл (fixed timestep для логики)"
     },
     {
       "path": "src/shared/lib/game-core/CanvasRendererService.ts",
       "type": "source",
-      "description": "Сервис рендеринга на Canvas — отрисовка игровых объектов"
+      "description": "Рендеринг на Canvas (слои, примитивы, камера)"
     },
     {
       "path": "src/shared/lib/game-core/EntityManagerService.ts",
       "type": "source",
-      "description": "Сервис управления сущностями — создание, удаление, поиск (ECS)"
+      "description": "ECS: управление сущностями и системами"
     },
     {
       "path": "src/shared/lib/game-core/GameEventBusService.ts",
       "type": "source",
-      "description": "Шина событий игры — публикация и подписка на события"
+      "description": "Шина событий (Pub/Sub для React ↔ Canvas)"
     },
     {
       "path": "src/shared/lib/game-core/InputService.ts",
       "type": "source",
-      "description": "Сервис ввода — обработка клавиатуры, мыши, тачей"
+      "description": "Ввод: мышь, клавиатура, тач (с конвертацией координат)"
     },
     {
       "path": "src/shared/lib/game-core/ResourceLoaderService.ts",
       "type": "source",
-      "description": "Сервис загрузки ресурсов — кэширование, загрузка ассетов"
+      "description": "Загрузка ресурсов (кэш, placeholders)"
     },
     {
       "path": "src/shared/lib/game-core/CameraController.ts",
       "type": "source",
-      "description": "Контроллер камеры — панорамирование и зум в точку курсора"
+      "description": "Камера: панорамирование (СКМ), зум (колесо)"
     },
     {
       "path": "src/entities/Bus/BusEntity.ts",
       "type": "source",
-      "description": "Сущность автобуса — управляемый объект игрока"
+      "description": "Сущность автобуса (физика, пассажиры)"
     },
     {
       "path": "src/entities/Bus/index.ts",
       "type": "source",
-      "description": "Экспорт сущности Bus"
+      "description": "Экспорт Bus"
     },
     {
       "path": "src/entities/NPC/NPCEntity.ts",
       "type": "source",
-      "description": "Сущность NPC — пешеходы и пассажиры"
+      "description": "NPC: пешеходы, пассажиры"
     },
     {
       "path": "src/entities/NPC/index.ts",
       "type": "source",
-      "description": "Экспорт сущности NPC"
+      "description": "Экспорт NPC"
     },
     {
       "path": "src/entities/Route/RouteEntity.ts",
       "type": "source",
-      "description": "Сущность маршрута — путь движения, остановки, контрольные точки"
+      "description": "Маршрут: путь движения, остановки"
     },
     {
       "path": "src/entities/Route/index.ts",
       "type": "source",
-      "description": "Экспорт сущности Route"
+      "description": "Экспорт Route"
+    },
+    {
+      "path": "src/entities/Route/model/RouteComponents.ts",
+      "type": "source",
+      "description": "Компоненты маршрута (stopIds, color, loop)"
+    },
+    {
+      "path": "src/entities/Route/model/RouteRenderSystem.ts",
+      "type": "source",
+      "description": "Рендеринг маршрутов (линии на слое roads)"
     },
     {
       "path": "src/entities/stop/model/StopComponents.ts",
       "type": "source",
-      "description": "Компоненты для сущности Stop (позиция, данные)"
+      "description": "Компоненты остановки (позиция, данные)"
     },
     {
       "path": "src/entities/stop/model/StopRenderSystem.ts",
       "type": "source",
-      "description": "Система рендеринга остановок на Canvas"
+      "description": "Рендеринг остановок (круги, надписи)"
     },
     {
       "path": "src/features/map-editor/model/MapEditorService.ts",
       "type": "source",
-      "description": "Сервис строительства объектов на карте (режим редактора)"
+      "description": "Редактор карт: режимы остановок/маршрутов (1/2)"
     },
     {
-      "path": "src/widgets/index.ts",
+      "path": "src/widgets/game-canvas/index.ts",
       "type": "source",
-      "description": "Экспорт виджетов (UI-компоненты)"
+      "description": "Экспорт GameCanvas"
+    },
+    {
+      "path": "src/widgets/game-canvas/ui/GameCanvas.tsx",
+      "type": "source",
+      "description": "React-виджет: Canvas-контейнер"
+    },
+    {
+      "path": "src/widgets/game-canvas/ui/GameCanvas.module.scss",
+      "type": "styles",
+      "description": "Стили GameCanvas (100vw, 100vh)"
     }
   ],
   "modules": {
     "game-core": {
       "path": "src/shared/lib/game-core",
-      "description": "Ядро игрового движка — сервисы для управления циклом, рендерингом, сущностями, событиями, вводом, ресурсами и камерой",
+      "description": "Ядро движка: цикл, рендер, ECS, события, ввод, ресурсы, камера",
       "services": [
         "GameLoopService",
         "CanvasRendererService",
@@ -194,6 +229,37 @@
       "path": "src/features",
       "description": "Фичи (user actions по FSD)",
       "items": ["map-editor"]
+    },
+    "widgets": {
+      "path": "src/widgets",
+      "description": "UI-виджеты",
+      "items": ["game-canvas"]
+    },
+    "app": {
+      "path": "src/app",
+      "description": "Слой приложения (инициализация, стейт)",
+      "items": ["init.ts", "store/GameStateStore.ts"]
+    }
+  },
+  "gameplay": {
+    "controls": {
+      "ЛКМ": "Создать остановку / Добавить точку в маршрут",
+      "СКМ (зажать)": "Перемещение карты (панорамирование)",
+      "Колесо": "Зум в точку курсора",
+      "Клавиша 1": "Режим строительства остановок",
+      "Клавиша 2": "Режим построения маршрутов",
+      "Enter": "Завершить маршрут",
+      "Escape": "Отменить построение маршрута"
+    },
+    "layers": ["background", "roads", "entities", "ui"],
+    "features": {
+      "implemented": [
+        "Создание остановок (зелёные круги)",
+        "Построение маршрутов (синие линии)",
+        "Перемещение камеры (СКМ)",
+        "Зум камеры (колесо)"
+      ],
+      "planned": ["Автобусы", "Пассажиры (NPC)", "Экономика", "UI"]
     }
   }
 }

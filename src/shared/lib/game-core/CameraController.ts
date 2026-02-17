@@ -74,8 +74,8 @@ export class CameraController {
   private handleMouseMove(event: any): void {
     const mouseState = inputService.getMouseState();
 
-    // Используем среднюю кнопку (MouseButton.MIDDLE = 1) для драга карты
-    if (mouseState.buttons.has(MouseButton.MIDDLE) || mouseState.isDragging) {
+    // Используем ТОЛЬКО среднюю кнопку (MouseButton.MIDDLE = 1) для драга карты
+    if (mouseState.buttons.has(MouseButton.MIDDLE)) {
       const deltaX = event.payload.deltaX * this.config.panSensitivity;
       const deltaY = event.payload.deltaY * this.config.panSensitivity;
 
