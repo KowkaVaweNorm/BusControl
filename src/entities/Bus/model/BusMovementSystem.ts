@@ -10,6 +10,18 @@ import { BUS_COMPONENTS, BusState, type BusPositionComponent, type BusVelocityCo
 import { ROUTE_COMPONENTS, type RouteDataComponent } from '@/entities/Route/model/RouteComponents';
 import { STOP_COMPONENTS, type StopPositionComponent, type StopDataComponent } from '@/entities/stop/model/StopComponents';
 
+// Кэш для маршрутов (избегаем перебора на каждый кадр)
+let routeCache: Map<string, RouteDataComponent> | null = null;
+let stopCache: Map<string, StopPositionComponent> | null = null;
+
+/**
+ * Очистить кэш (вызывать при изменении маршрутов/остановок)
+ */
+export function clearMovementCache(): void {
+  routeCache = null;
+  stopCache = null;
+}
+
 export const busMovementSystem: System = {
   name: 'BusMovementSystem',
   requiredComponents: [BUS_COMPONENTS.POSITION, BUS_COMPONENTS.VELOCITY, BUS_COMPONENTS.DATA],
@@ -31,6 +43,7 @@ export const busMovementSystem: System = {
 
       if (!targetStopPos) {
         // Маршрут сломан или закончился
+        console.log(`[Bus ${data.id}] No target stop position! routeId=${data.routeId}, index=${data.currentStopIndex}`);
         data.state = BusState.IDLE;
         vel.isMoving = false;
         vel.speed = 0;
@@ -42,8 +55,8 @@ export const busMovementSystem: System = {
       const dy = targetStopPos.y - pos.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      // 3. Проверка достижения цели (радиус остановки ~40, считаем что доехали если < 5 пикселей)
-      if (distance < 5) {
+      // 3. Проверка достижения цели (увеличил порог с 5 до 10 пикселей)
+      if (distance < 10) {
         pos.x = targetStopPos.x;
         pos.y = targetStopPos.y;
         data.state = BusState.STOPPED;
@@ -55,8 +68,8 @@ export const busMovementSystem: System = {
       }
 
       // 4. Нормализация вектора направления
-      const moveX = (dx / distance);
-      const moveY = (dy / distance);
+      const moveX = dx / distance;
+      const moveY = dy / distance;
 
       // 5. Расчет расстояния торможения
       // Формула: d = v² / (2 * a), где v - текущая скорость, a - ускорение торможения
@@ -68,13 +81,10 @@ export const busMovementSystem: System = {
 
       if (distance < brakingStartDistance) {
         // Торможение: уменьшаем скорость пропорционально оставшемуся расстоянию
-        const targetSpeed = Math.sqrt(2 * vel.acceleration * (distance - 5)); // 5 — минимальное расстояние остановки
+        // Защита от отрицательного значения под корнем
+        const safeDistance = Math.max(0, distance - 10); // 10 — минимальное расстояние остановки
+        const targetSpeed = Math.sqrt(2 * vel.acceleration * safeDistance);
         vel.speed = Math.max(0, Math.min(vel.speed, targetSpeed));
-        
-        // Если скорость почти нулевая — останавливаемся полностью
-        if (vel.speed < 5) {
-          vel.speed = 0;
-        }
       } else {
         // Разгон: увеличиваем скорость до максимума
         if (vel.speed < vel.maxSpeed) {
@@ -93,39 +103,56 @@ export const busMovementSystem: System = {
   },
 };
 
-// Вспомогательная функция поиска координат цели
+/**
+ * Вспомогательная функция поиска координат цели
+ * Использует кэширование для производительности
+ */
 function getTargetStopPosition(routeId: string | null, stopIndex: number): { x: number, y: number } | null {
   if (!routeId) return null;
 
-  // Находим сущность маршрута
-  const routes = entityManagerService.getEntitiesWithComponents(ROUTE_COMPONENTS.DATA);
-  let routeData: RouteDataComponent | null = null;
-
-  for (const id of routes) {
-    const r = entityManagerService.getComponent<RouteDataComponent>(id, ROUTE_COMPONENTS.DATA);
-    if (r && r.id === routeId) {
-      routeData = r;
-      break;
+  // Инициализация кэша маршрутов при необходимости
+  if (!routeCache) {
+    routeCache = new Map();
+    const routes = entityManagerService.getEntitiesWithComponents(ROUTE_COMPONENTS.DATA);
+    for (const id of routes) {
+      const r = entityManagerService.getComponent<RouteDataComponent>(id, ROUTE_COMPONENTS.DATA);
+      if (r) {
+        routeCache.set(r.id, r);
+      }
     }
   }
 
-  if (!routeData || stopIndex >= routeData.stopIds.length) {
-    // Если индекс вышел за пределы, можно зациклить или остановить
+  const routeData = routeCache.get(routeId);
+  if (!routeData) {
+    return null;
+  }
+
+  if (stopIndex >= routeData.stopIds.length) {
+    // Если индекс вышел за пределы — проверяем loop
+    if (routeData.loop) {
+      // Зацикливаем маршрут
+      return getTargetStopPosition(routeId, 0);
+    }
     // Для MVP просто вернем null (автобус остановится)
-    // В будущем: если loop=true, то индекс = 0
-    return null; 
+    return null;
   }
 
   const targetStopId = routeData.stopIds[stopIndex];
 
-  // Ищем координаты этой остановки
-  const stops = entityManagerService.getEntitiesWithComponents(STOP_COMPONENTS.POSITION, STOP_COMPONENTS.DATA);
-  for (const id of stops) {
-    const sData = entityManagerService.getComponent<StopDataComponent>(id, STOP_COMPONENTS.DATA);
-    if (sData && sData.id === targetStopId) {
-      return entityManagerService.getComponent<StopPositionComponent>(id, STOP_COMPONENTS.POSITION);
+  // Инициализация кэша остановок при необходимости
+  if (!stopCache) {
+    stopCache = new Map();
+    const stops = entityManagerService.getEntitiesWithComponents(STOP_COMPONENTS.POSITION, STOP_COMPONENTS.DATA);
+    for (const id of stops) {
+      const sData = entityManagerService.getComponent<StopDataComponent>(id, STOP_COMPONENTS.DATA);
+      if (sData) {
+        const pos = entityManagerService.getComponent<StopPositionComponent>(id, STOP_COMPONENTS.POSITION);
+        if (pos) {
+          stopCache.set(sData.id, pos);
+        }
+      }
     }
   }
 
-  return null;
+  return stopCache.get(targetStopId) ?? null;
 }

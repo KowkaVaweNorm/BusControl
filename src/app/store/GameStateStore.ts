@@ -18,6 +18,8 @@ export interface GameState {
   level: number;
   /** Время игры (мс) */
   gameTime: number;
+  /** Деньги игрока */
+  money: number;
 }
 
 export type GameStateListener = (state: GameState) => void;
@@ -29,6 +31,7 @@ export class GameStateStore {
     score: 0,
     level: 1,
     gameTime: 0,
+    money: 100, // Стартовый капитал
   };
 
   private listeners: Set<GameStateListener> = new Set();
@@ -83,6 +86,7 @@ export class GameStateStore {
       score: 0,
       level: 1,
       gameTime: 0,
+      money: 100,
     };
     this.notifyListeners();
   }
@@ -106,6 +110,24 @@ export class GameStateStore {
    */
   public addScore(points: number): void {
     this.setState({ score: this.state.score + points });
+  }
+
+  /**
+   * Добавление денег
+   */
+  public addMoney(amount: number): void {
+    this.setState({ money: this.state.money + amount });
+  }
+
+  /**
+   * Трата денег
+   */
+  public spendMoney(amount: number): boolean {
+    if (this.state.money >= amount) {
+      this.setState({ money: this.state.money - amount });
+      return true;
+    }
+    return false;
   }
 
   /**

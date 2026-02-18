@@ -30,13 +30,29 @@ export const busLogicSystem: System = {
           // Время вышло, едем дальше
           advanceToNextStop(data, vel);
         }
-      } else if (data.state === BusState.IDLE && data.routeId) {
+      } else if (data.state === BusState.IDLE && data.routeId && !isAtFinalStop(data)) {
         // Если назначен маршрут, но стоит (например, только создали) - начинаем движение
+        // НЕ начинаем движение если уже на конечной остановке!
         advanceToNextStop(data, vel);
       }
     }
   },
 };
+
+/**
+ * Проверка, находится ли автобус на конечной остановке маршрута
+ */
+function isAtFinalStop(data: BusDataComponent): boolean {
+  const routes = entityManagerService.getEntitiesWithComponents(ROUTE_COMPONENTS.DATA);
+  for (const id of routes) {
+    const r = entityManagerService.getComponent<RouteDataComponent>(id, ROUTE_COMPONENTS.DATA);
+    if (r && r.id === data.routeId) {
+      // Если это последняя остановка и маршрут не зациклен
+      return data.currentStopIndex >= r.stopIds.length - 1 && !r.loop;
+    }
+  }
+  return false;
+}
 
 function advanceToNextStop(data: BusDataComponent, vel: BusVelocityComponent) {
   if (!data.routeId) {
@@ -63,7 +79,11 @@ function advanceToNextStop(data: BusDataComponent, vel: BusVelocityComponent) {
     return;
   }
 
-  data.currentStopIndex++;
+  // Увеличиваем индекс только если не первая остановка
+  // При старте currentStopIndex = 0, едем к первой остановке
+  if (data.state === BusState.STOPPED) {
+    data.currentStopIndex++;
+  }
 
   if (data.currentStopIndex >= routeLen) {
     if (isLoop) {

@@ -6,7 +6,7 @@
 import type { System, SystemContext } from '@/shared/lib/game-core/EntityManagerService';
 import { canvasRendererService } from '@/shared/lib/game-core/CanvasRendererService';
 import { entityManagerService } from '@/shared/lib/game-core/EntityManagerService';
-import { BUS_COMPONENTS, BusState, type BusPositionComponent, type BusDataComponent } from './BusComponents';
+import { BUS_COMPONENTS, type BusPositionComponent, type BusDataComponent } from './BusComponents';
 
 export const busRenderSystem: System = {
   name: 'BusRenderSystem',
@@ -47,10 +47,8 @@ export const busRenderSystem: System = {
         ctx.fillRect(width / 2 - 2, -height / 2 + 2, 2, 4);
         ctx.fillRect(width / 2 - 2, height / 2 - 6, 2, 4);
 
-        // Полоска загрузки пассажиров (если стоит)
-        if (data.state === BusState.STOPPED) {
-          // Рисуем поверх, но уже без вращения? Или с вращением?
-          // Давайте нарисуем над автобусом (локально Y -height)
+        // Полоска загрузки пассажиров (рисуем всегда, пока есть пассажиры)
+        if (data.passengers > 0) {
           const loadPercent = data.passengers / data.capacity;
           ctx.fillStyle = '#ffffff';
           ctx.fillRect(-width/2, -height/2 - 8, width, 4);

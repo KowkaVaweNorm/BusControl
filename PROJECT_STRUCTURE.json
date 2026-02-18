@@ -2,7 +2,7 @@
   "projectName": "Bus Control",
   "generatedAt": "2026-02-18",
   "rootDirectory": "d:\\domains\\Pets\\GameStudio\\Bus Control\\ProjectBusControl",
-  "totalFiles": 46,
+  "totalFiles": 56,
   "architecture": "Feature-Sliced Design (FSD)",
   "structure": [
     {
@@ -93,12 +93,12 @@
     {
       "path": "src/app/init.ts",
       "type": "source",
-      "description": "Инициализация игрового ядра (все сервисы)"
+      "description": "Инициализация игрового ядра (все сервисы + экономика)"
     },
     {
       "path": "src/app/store/GameStateStore.ts",
       "type": "source",
-      "description": "Хранилище состояния игры (счёт, уровень, пауза)"
+      "description": "Хранилище состояния игры (счёт, деньги, уровень, пауза)"
     },
     {
       "path": "src/shared/lib/game-core/GameLoopService.ts",
@@ -153,7 +153,7 @@
     {
       "path": "src/entities/Bus/model/BusRenderSystem.ts",
       "type": "source",
-      "description": "Рендеринг: жёлтый прямоугольник 40×20 с фарами"
+      "description": "Рендеринг: жёлтый прямоугольник 40×20 с фарами и полоской загрузки"
     },
     {
       "path": "src/entities/Bus/index.ts",
@@ -161,24 +161,29 @@
       "description": "Экспорт Bus"
     },
     {
-      "path": "src/entities/NPC/NPCEntity.ts",
+      "path": "src/entities/NPC/model/NPCComponents.ts",
       "type": "source",
-      "description": "NPC: пешеходы, пассажиры"
+      "description": "Компоненты NPC: POSITION, DATA (состояния WAITING, ON_BUS, ARRIVED)"
+    },
+    {
+      "path": "src/entities/NPC/model/NPCSpawnerSystem.ts",
+      "type": "source",
+      "description": "Спавн пассажиров на остановках каждые 2 секунды"
+    },
+    {
+      "path": "src/entities/NPC/model/NPCInteractionSystem.ts",
+      "type": "source",
+      "description": "Посадка/высадка пассажиров (на конечной — все высаживаются)"
+    },
+    {
+      "path": "src/entities/NPC/model/NPCRenderSystem.ts",
+      "type": "source",
+      "description": "Рендеринг NPC: белые точки (ожидают), синие (в автобусе)"
     },
     {
       "path": "src/entities/NPC/index.ts",
       "type": "source",
       "description": "Экспорт NPC"
-    },
-    {
-      "path": "src/entities/Route/RouteEntity.ts",
-      "type": "source",
-      "description": "Маршрут: путь движения, остановки"
-    },
-    {
-      "path": "src/entities/Route/index.ts",
-      "type": "source",
-      "description": "Экспорт Route"
     },
     {
       "path": "src/entities/Route/model/RouteComponents.ts",
@@ -191,6 +196,11 @@
       "description": "Рендеринг маршрутов (линии на слое roads, название посередине)"
     },
     {
+      "path": "src/entities/Route/index.ts",
+      "type": "source",
+      "description": "Экспорт Route"
+    },
+    {
       "path": "src/entities/stop/model/StopComponents.ts",
       "type": "source",
       "description": "Компоненты остановки (позиция, данные)"
@@ -198,12 +208,27 @@
     {
       "path": "src/entities/stop/model/StopRenderSystem.ts",
       "type": "source",
-      "description": "Рендеринг остановок (круги, надписи)"
+      "description": "Рендеринг остановок (круги, надписи, счётчик пассажиров)"
+    },
+    {
+      "path": "src/entities/stop/index.ts",
+      "type": "source",
+      "description": "Экспорт Stop"
     },
     {
       "path": "src/features/map-editor/model/MapEditorService.ts",
       "type": "source",
       "description": "Редактор карт: режимы остановок/маршрутов (1/2), ПКМ = автобус"
+    },
+    {
+      "path": "src/features/economy/model/EconomyListener.ts",
+      "type": "source",
+      "description": "Слушатель событий экономики (+$5 за пассажира, -$100 за автобус)"
+    },
+    {
+      "path": "src/features/economy/index.ts",
+      "type": "source",
+      "description": "Экспорт экономики"
     },
     {
       "path": "src/widgets/game-canvas/index.ts",
@@ -243,7 +268,7 @@
     "features": {
       "path": "src/features",
       "description": "Фичи (user actions по FSD)",
-      "items": ["map-editor"]
+      "items": ["map-editor", "economy"]
     },
     "widgets": {
       "path": "src/widgets",
@@ -275,9 +300,13 @@
         "Создание автобуса (ПКМ по маршруту)",
         "Движение автобуса с ускорением и торможением",
         "Перемещение камеры (СКМ)",
-        "Зум камеры (колесо)"
+        "Зум камеры (колесо)",
+        "Спавн пассажиров на остановках (каждые 2 сек)",
+        "Посадка пассажиров в автобус",
+        "Высадка пассажиров (на конечной — все)",
+        "Экономика (+$5 за пассажира, -$100 за автобус)"
       ],
-      "planned": ["Пассажиры (NPC)", "Экономика", "UI"]
+      "planned": ["UI отображение денег и статистики", "Сохранение/загрузка карты"]
     }
   }
 }

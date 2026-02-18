@@ -25,6 +25,7 @@ import {
 import { ROUTE_COMPONENTS, type RouteDataComponent } from '@/entities/Route/model/RouteComponents';
 import { STOP_COMPONENTS, type StopPositionComponent, type StopDataComponent } from '@/entities/stop/model/StopComponents';
 import { BUS_COMPONENTS, BusState } from '@/entities/Bus/model/BusComponents';
+import { clearMovementCache } from '@/entities/Bus/model/BusMovementSystem';
 
 export enum EditorMode {
   IDLE = 'idle',
@@ -168,6 +169,9 @@ export class MapEditorService {
       waitingPassengers: 0,
     });
 
+    // Очищаем кэш движения при создании остановки
+    clearMovementCache();
+
     gameEventBusService.publish(GameEventType.STOP_CREATED, { stopId, name: stopName });
   }
 
@@ -213,6 +217,9 @@ export class MapEditorService {
       isActive: true,
       loop: false, // Пока без зацикливания
     });
+
+    // Очищаем кэш движения при создании маршрута
+    clearMovementCache();
 
     gameEventBusService.publish(GameEventType.ROUTE_CREATED, { routeId, name: routeName });
 

@@ -17,11 +17,15 @@ import { entityManagerService } from '../shared/lib/game-core/EntityManagerServi
 import { gameEventBusService } from '../shared/lib/game-core/GameEventBusService';
 import { cameraController } from '../shared/lib/game-core/CameraController';
 import { mapEditorService } from '../features/map-editor/model/MapEditorService';
+import { initEconomyListener, cleanupEconomyListener } from '../features/economy/model/EconomyListener';
 import { stopRenderSystem } from '../entities/stop/model/StopRenderSystem';
 import { routeRenderSystem } from '@/entities/Route/model/RouteRenderSystem';
 import { busMovementSystem } from '@/entities/Bus/model/BusMovementSystem';
 import { busLogicSystem } from '@/entities/Bus/model/BusLogicSystem';
 import { busRenderSystem } from '@/entities/Bus/model/BusRenderSystem';
+import { npcSpawnerSystem } from '@/entities/NPC/model/NPCSpawnerSystem';
+import { npcInteractionSystem } from '@/entities/NPC/model/NPCInteractionSystem';
+import { npcRenderSystem } from '@/entities/NPC/model/NPCRenderSystem';
 
 // Конфигурация игры (можно вынести в отдельный конфиг позже)
 const GAME_CONFIG = {
@@ -44,7 +48,10 @@ export function initGame(containerId: string): InitResult {
     // 1. Инициализация шины событий
     gameEventBusService.initialize();
 
-    // 2. Инициализация Рендерера
+    // 2. Инициализация экономики (слушатели событий)
+    initEconomyListener();
+
+    // 3. Инициализация Рендерера
     configureCanvasRenderer({
       width: window.innerWidth,
       height: window.innerHeight,
@@ -67,6 +74,11 @@ export function initGame(containerId: string): InitResult {
     entityManagerService.registerSystem(busMovementSystem); // Движение
     entityManagerService.registerSystem(busLogicSystem);    // Логика состояний
     entityManagerService.registerSystem(busRenderSystem);   // Отрисовка
+
+    // Регистрируем NPC системы
+    entityManagerService.registerSystem(npcSpawnerSystem);        // Спавн пассажиров
+    entityManagerService.registerSystem(npcInteractionSystem);    // Посадка/высадка
+    entityManagerService.registerSystem(npcRenderSystem);         // Отрисовка
 
     // 6. Запуск контроллера камеры
     cameraController.initialize();
@@ -99,6 +111,7 @@ export function initGame(containerId: string): InitResult {
         cameraController.cleanup();
         mapEditorService.cleanup();
         inputService.cleanup();
+        cleanupEconomyListener();
         // entityManagerService.cleanup() НЕ вызываем — сохраняем сущности и системы
         // gameEventBusService.cleanup() НЕ вызываем — сохраняем подписчиков
         // Рендерер не чистим полностью, чтобы не удалять DOM, просто останавливаем

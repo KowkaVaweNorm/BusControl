@@ -483,28 +483,30 @@ export class CanvasRendererService {
   /**
    * Получить контекст слоя (для прямого доступа)
    * Возвращает контекст с уже применённой трансформацией камеры
-   * Система рендеринга должна вызвать ctx.restore() после завершения рисования
+   * Система рендеринга должна вызвать ctx.save() перед рисованием
+   * и ctx.restore() после завершения рисования
    */
   public getLayerContext(layerName: string): CanvasRenderingContext2D | null {
     const layer = this.layers.get(layerName);
     if (!layer) return null;
+
+    // Сохраняем текущее состояние (без трансформации камеры)
+    layer.ctx.save();
     
     // Применяем трансформацию камеры к контексту слоя
     this.applyLayerTransform(layer.ctx);
-    
+
     return layer.ctx;
   }
 
   /**
    * Применение трансформаций камеры к контексту слоя
-   * Вызывается перед рисованием объектов на слое
-   * После рисования необходимо вызвать ctx.restore()
+   * Вызывается внутри getLayerContext после ctx.save()
    */
   private applyLayerTransform(ctx: CanvasRenderingContext2D): void {
     const centerX = this.config.width / 2;
     const centerY = this.config.height / 2;
 
-    ctx.save();
     ctx.translate(centerX, centerY);
     ctx.scale(this.viewport.scale, this.viewport.scale);
     ctx.translate(-centerX - this.viewport.x, -centerY - this.viewport.y);

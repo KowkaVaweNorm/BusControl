@@ -50,8 +50,12 @@ export const stopRenderSystem: System = {
         ctx.fillStyle = '#fff';
         ctx.font = 'bold 14px Arial';
         ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
         ctx.fillText(data.name, pos.x, pos.y - data.radius - 8);
         ctx.restore();
+        
+        // Сбрасываем shadowBlur после рисования текста (важно для следующих итераций!)
+        ctx.shadowBlur = 0;
 
         // 4. Если есть пассажиры, рисуем счетчик
         if (data.waitingPassengers > 0) {
@@ -64,6 +68,7 @@ export const stopRenderSystem: System = {
               color: '#ffff00',
               fontSize: 14,
               align: 'center',
+              baseline: 'top',
             }
           );
         }

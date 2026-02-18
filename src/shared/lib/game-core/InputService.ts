@@ -460,14 +460,7 @@ export class InputService {
 
     event.preventDefault();
 
-    // Зум колесиком
-    if (event.ctrlKey || event.metaKey) {
-      const zoomDelta = -event.deltaY * this.config.zoomSensitivity;
-      const currentScale = canvasRendererService.getViewport().scale;
-      const newScale = Math.max(0.1, Math.min(3, currentScale + zoomDelta));
-      canvasRendererService.setCameraScale(newScale);
-    }
-
+    // Публикуем событие для CameraController (он сам обработает зум)
     this.publishEvent(InputEventType.MOUSE_WHEEL, {
       deltaX: event.deltaX,
       deltaY: event.deltaY,
