@@ -748,10 +748,12 @@ export class InputService {
     _payload: InputEventMap[T]
   ): void {
     // Маппинг InputEventType на GameEventType
+    // Убрал спам уведомлений для клавиш и кликов
     const eventMap: Partial<Record<InputEventType, GameEventType>> = {
-      [InputEventType.MOUSE_CLICK]: GameEventType.UI_NOTIFICATION,
-      [InputEventType.MOUSE_DOUBLE_CLICK]: GameEventType.UI_NOTIFICATION,
-      [InputEventType.KEY_DOWN]: GameEventType.UI_NOTIFICATION,
+      // Оставил только важные события (если нужны)
+      // [InputEventType.MOUSE_CLICK]: GameEventType.UI_NOTIFICATION,
+      // [InputEventType.MOUSE_DOUBLE_CLICK]: GameEventType.UI_NOTIFICATION,
+      // [InputEventType.KEY_DOWN]: GameEventType.UI_NOTIFICATION,
     };
 
     const gameEventType = eventMap[type];

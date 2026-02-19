@@ -8,30 +8,46 @@ import type { System, SystemContext } from '@/shared/lib/game-core/EntityManager
 import { entityManagerService } from '@/shared/lib/game-core/EntityManagerService';
 import { STOP_COMPONENTS, type StopDataComponent, type StopPositionComponent } from '@/entities/stop/model/StopComponents';
 import { NPC_COMPONENTS, NPCState } from './NPCComponents';
+import { ROUTE_COMPONENTS, type RouteDataComponent } from '@/entities/Route/model/RouteComponents';
 
 export interface SpawnerConfig {
   spawnInterval: number; // Секунды между попытками спавна
   maxPassengersPerStop: number; // Лимит очереди на остановке
 }
 
-// Кэш всех остановок для выбора цели
-let allStopsCache: Array<{ id: string; entityId: number }> | null = null;
-
 // Локальный таймер системы (вне объекта для избежания проблем с типами)
 let spawnTimer = 0;
-
-/**
- * Очистить кэш остановок (вызывать при создании/удалении остановок)
- */
-export function clearStopsCache(): void {
-  allStopsCache = null;
-}
 
 /**
  * Сбросить таймер спавна
  */
 export function resetSpawnTimer(): void {
   spawnTimer = 0;
+}
+
+/**
+ * Найти все остановки, которые находятся дальше по маршруту от текущей
+ * Возвращает массив ID остановок, до которых можно доехать из текущей точки
+ */
+function getFutureStopsFromStop(currentStopId: string): string[] {
+  const futureStops = new Set<string>();
+  const routes = entityManagerService.getEntitiesWithComponents(ROUTE_COMPONENTS.DATA);
+
+  for (const routeEntityId of routes) {
+    const routeData = entityManagerService.getComponent<RouteDataComponent>(routeEntityId, ROUTE_COMPONENTS.DATA);
+    if (!routeData) continue;
+
+    // Находим индекс текущей остановки в маршруте
+    const currentIndex = routeData.stopIds.indexOf(currentStopId);
+    if (currentIndex === -1) continue; // Эта остановка не на данном маршруте
+
+    // Добавляем все остановки, которые идут после текущей
+    for (let i = currentIndex + 1; i < routeData.stopIds.length; i++) {
+      futureStops.add(routeData.stopIds[i]);
+    }
+  }
+
+  return Array.from(futureStops);
 }
 
 export const npcSpawnerSystem: System = {
@@ -77,35 +93,29 @@ function spawnNPC(stopId: string, x: number, y: number): void {
 
   const npcId = `npc_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
 
-  // Инициализация кэша остановок при необходимости
-  if (!allStopsCache) {
-    allStopsCache = [];
-    const stops = entityManagerService.getEntitiesWithComponents(STOP_COMPONENTS.DATA, STOP_COMPONENTS.POSITION);
-    for (const id of stops) {
-      const sData = entityManagerService.getComponent<StopDataComponent>(id, STOP_COMPONENTS.DATA);
-      if (sData) {
-        allStopsCache.push({ id: sData.id, entityId: id });
-      }
-    }
-  }
+  // Находим остановки, до которых можно доехать из текущей (только дальше по маршруту!)
+  const futureStops = getFutureStopsFromStop(stopId);
 
-  // Случайная цель (любая другая остановка)
+  // Случайная цель (только из остановок дальше по маршруту)
   let targetStopId: string | null = null;
 
-  if (allStopsCache.length > 1) {
-    // Выбираем случайную остановку, отличную от текущей
-    let attempts = 0;
-    while (attempts < 5) {
-      const randomEntry = allStopsCache[Math.floor(Math.random() * allStopsCache.length)];
-      if (randomEntry.id !== stopId) {
-        targetStopId = randomEntry.id;
-        break;
-      }
-      attempts++;
-    }
-    // Если не удалось выбрать другую остановку, берём любую (баг фича для MVP)
-    if (!targetStopId && allStopsCache.length > 0) {
-      targetStopId = allStopsCache[0]?.id ?? null;
+  if (futureStops.length > 0) {
+    // Выбираем случайную остановку из доступных
+    const randomIndex = Math.floor(Math.random() * futureStops.length);
+    targetStopId = futureStops[randomIndex];
+  } else {
+    // Если нет маршрутов из этой остановки — пассажир не появится (нет спроса)
+    // Или можно выбрать любую другую остановку как fallback
+    const allStops = entityManagerService.getEntitiesWithComponents(STOP_COMPONENTS.DATA, STOP_COMPONENTS.POSITION);
+    const otherStops = allStops.filter((id) => {
+      const data = entityManagerService.getComponent<StopDataComponent>(id, STOP_COMPONENTS.DATA);
+      return data && data.id !== stopId;
+    });
+
+    if (otherStops.length > 0) {
+      const randomIndex = Math.floor(Math.random() * otherStops.length);
+      const data = entityManagerService.getComponent<StopDataComponent>(otherStops[randomIndex], STOP_COMPONENTS.DATA);
+      targetStopId = data?.id ?? null;
     }
   }
 
@@ -123,6 +133,4 @@ function spawnNPC(stopId: string, x: number, y: number): void {
     patience: 30 + Math.random() * 30,
     spawnTime: Date.now(),
   });
-
-  // console.log(`[NPC] Spawned ${npcId} at ${stopId}, wants to go to ${targetStopId}`);
 }

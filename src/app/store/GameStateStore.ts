@@ -20,6 +20,14 @@ export interface GameState {
   gameTime: number;
   /** Деньги игрока */
   money: number;
+  /** Перевезено пассажиров */
+  totalPassengersDelivered: number;
+  /** Активных автобусов */
+  activeBuses: number;
+  /** Всего остановок */
+  totalStops: number;
+  /** Сообщение для отображения */
+  message: string;
 }
 
 export type GameStateListener = (state: GameState) => void;
@@ -32,6 +40,10 @@ export class GameStateStore {
     level: 1,
     gameTime: 0,
     money: 100, // Стартовый капитал
+    totalPassengersDelivered: 0,
+    activeBuses: 0,
+    totalStops: 0,
+    message: '',
   };
 
   private listeners: Set<GameStateListener> = new Set();
@@ -87,6 +99,10 @@ export class GameStateStore {
       level: 1,
       gameTime: 0,
       money: 100,
+      totalPassengersDelivered: 0,
+      activeBuses: 0,
+      totalStops: 0,
+      message: '',
     };
     this.notifyListeners();
   }
@@ -142,6 +158,69 @@ export class GameStateStore {
    */
   public updateGameTime(deltaTime: number): void {
     this.setState({ gameTime: this.state.gameTime + deltaTime });
+  }
+
+  /**
+   * Увеличить счётчик перевезённых пассажиров
+   */
+  public addPassengerDelivered(): void {
+    this.setState({ totalPassengersDelivered: this.state.totalPassengersDelivered + 1 });
+  }
+
+  /**
+   * Установить количество активных автобусов
+   */
+  public setActiveBuses(count: number): void {
+    this.setState({ activeBuses: count });
+  }
+
+  /**
+   * Увеличить количество активных автобусов
+   */
+  public incrementActiveBuses(): void {
+    this.setState({ activeBuses: this.state.activeBuses + 1 });
+  }
+
+  /**
+   * Уменьшить количество активных автобусов
+   */
+  public decrementActiveBuses(): void {
+    this.setState({ activeBuses: Math.max(0, this.state.activeBuses - 1) });
+  }
+
+  /**
+   * Установить количество остановок
+   */
+  public setTotalStops(count: number): void {
+    this.setState({ totalStops: count });
+  }
+
+  /**
+   * Увеличить количество остановок
+   */
+  public incrementTotalStops(): void {
+    this.setState({ totalStops: this.state.totalStops + 1 });
+  }
+
+  /**
+   * Уменьшить количество остановок
+   */
+  public decrementTotalStops(): void {
+    this.setState({ totalStops: Math.max(0, this.state.totalStops - 1) });
+  }
+
+  /**
+   * Установить сообщение
+   */
+  public setMessage(message: string): void {
+    this.setState({ message });
+  }
+
+  /**
+   * Очистить сообщение
+   */
+  public clearMessage(): void {
+    this.setState({ message: '' });
   }
 }
 

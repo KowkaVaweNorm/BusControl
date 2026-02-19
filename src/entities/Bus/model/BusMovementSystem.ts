@@ -63,7 +63,6 @@ export const busMovementSystem: System = {
         vel.isMoving = false;
         vel.speed = 0;
         data.waitTimer = data.waitTimeRequired; // Начинаем таймер ожидания
-        console.log(`[Bus ${data.id}] Arrived at stop index ${data.currentStopIndex}`);
         continue;
       }
 

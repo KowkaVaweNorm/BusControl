@@ -57,6 +57,7 @@ export class MapEditorService {
 
   private mode: EditorMode = EditorMode.PLACING_STOP; // По умолчанию ставим остановки
   private draftRoute: DraftRoute | null = null;
+  private routeLoopMode: boolean = false; // Режим зацикливания маршрута (по умолчанию выкл)
 
   private config: MapEditorConfig;
 
@@ -143,6 +144,11 @@ export class MapEditorService {
       if (event.payload.key === 'Enter') {
         this.finishDraftRoute();
       }
+      // L - переключение режима зацикливания
+      if (event.payload.key === 'l' || event.payload.key === 'L' || event.payload.key === 'к' || event.payload.key === 'К') {
+        this.routeLoopMode = !this.routeLoopMode;
+        console.log(`[MapEditor] Route loop mode: ${this.routeLoopMode ? 'ON ♻️' : 'OFF'}`);
+      }
     }
 
     // Быстрое переключение режимов цифрами (для удобства)
@@ -215,13 +221,15 @@ export class MapEditorService {
       stopIds: [...this.draftRoute.stopIds],
       color: this.config.defaultRouteColor,
       isActive: true,
-      loop: false, // Пока без зацикливания
+      loop: this.routeLoopMode, // Используем текущий режим зацикливания
     });
 
     // Очищаем кэш движения при создании маршрута
     clearMovementCache();
 
     gameEventBusService.publish(GameEventType.ROUTE_CREATED, { routeId, name: routeName });
+    
+    console.log(`[MapEditor] Route created: ${routeName}, loop=${this.routeLoopMode ? 'YES ♻️' : 'NO'}`);
 
     this.cancelDraftRoute(); // Сброс черновика
   }
@@ -248,15 +256,19 @@ export class MapEditorService {
     }
   }
 
-  private createBusOnRoute(routeId: string): void {
+  /**
+   * Создать автобус на конкретный маршрут
+   * @returns ID созданного автобуса
+   */
+  private createBusOnRoute(routeId: string): string | null {
     const entityId = entityManagerService.createEntity();
-    if (entityId === -1) return;
+    if (entityId === -1) return null;
 
     const busId = `bus_${Date.now()}`;
-    
+
     // Находим первую остановку маршрута, чтобы поставить туда автобус
     const startPos = this.getFirstStopPosition(routeId);
-    
+
     const startX = startPos ? startPos.x : 0;
     const startY = startPos ? startPos.y : 0;
 
@@ -287,6 +299,8 @@ export class MapEditorService {
 
     gameEventBusService.publish(GameEventType.BUS_CREATED, { busId, entityId });
     console.log(`[MapEditor] Bus created on route ${routeId}`);
+    
+    return busId;
   }
 
   /**
@@ -380,6 +394,27 @@ export class MapEditorService {
       }
     }
     return null;
+  }
+
+  /**
+   * Создать автобус на первый доступный маршрут (публичный метод для UI)
+   * @returns ID созданного автобуса или null если не удалось
+   */
+  public createBusOnFirstRoute(): string | null {
+    const routes = entityManagerService.getEntitiesWithComponents(ROUTE_COMPONENTS.DATA);
+    
+    if (routes.length === 0) {
+      console.warn('[MapEditor] No routes available to spawn bus');
+      return null;
+    }
+
+    // Берём первый маршрут
+    const firstRouteId = routes[0];
+    const routeData = entityManagerService.getComponent<RouteDataComponent>(firstRouteId, ROUTE_COMPONENTS.DATA);
+    
+    if (!routeData) return null;
+
+    return this.createBusOnRoute(routeData.id);
   }
 
   /**

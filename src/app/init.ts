@@ -66,10 +66,10 @@ export function initGame(containerId: string): InitResult {
     // 4. Инициализация ECS Менеджера
     entityManagerService.initialize();
 
-    // 5. Регистрация систем
+    // 5. Регистрация систем (с проверкой на повторную регистрацию)
     entityManagerService.registerSystem(stopRenderSystem);
     entityManagerService.registerSystem(routeRenderSystem);
-    
+
     // Регистрируем системы автобуса
     entityManagerService.registerSystem(busMovementSystem); // Движение
     entityManagerService.registerSystem(busLogicSystem);    // Логика состояний
@@ -112,9 +112,9 @@ export function initGame(containerId: string): InitResult {
         mapEditorService.cleanup();
         inputService.cleanup();
         cleanupEconomyListener();
-        // entityManagerService.cleanup() НЕ вызываем — сохраняем сущности и системы
-        // gameEventBusService.cleanup() НЕ вызываем — сохраняем подписчиков
-        // Рендерер не чистим полностью, чтобы не удалять DOM, просто останавливаем
+        entityManagerService.cleanup(); // Очищаем ECS
+        gameEventBusService.cleanup();  // Очищаем шину событий
+        canvasRendererService.cleanup(); // Очищаем рендерер
       },
     };
   } catch (error) {

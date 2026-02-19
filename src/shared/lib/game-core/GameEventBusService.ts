@@ -60,8 +60,10 @@ export enum GameEventType {
   // === Остановки и маршруты ===
   STOP_CREATED = 'stop:created',
   STOP_UPDATED = 'stop:updated',
+  STOP_DESTROYED = 'stop:destroyed',
   ROUTE_CREATED = 'route:created',
   ROUTE_UPDATED = 'route:updated',
+  ROUTE_DESTROYED = 'route:destroyed',
 
   // === События мира ===
   EVENT_STARTED = 'world:event_started',
@@ -106,8 +108,10 @@ export interface GameEventMap {
 
   [GameEventType.STOP_CREATED]: { stopId: string; name: string };
   [GameEventType.STOP_UPDATED]: { stopId: string; changes: Record<string, unknown> };
+  [GameEventType.STOP_DESTROYED]: { stopId: string };
   [GameEventType.ROUTE_CREATED]: { routeId: string; name: string };
   [GameEventType.ROUTE_UPDATED]: { routeId: string; changes: Record<string, unknown> };
+  [GameEventType.ROUTE_DESTROYED]: { routeId: string };
 
   [GameEventType.EVENT_STARTED]: { eventId: string; eventName: string; duration: number };
   [GameEventType.EVENT_ENDED]: { eventId: string; eventName: string };

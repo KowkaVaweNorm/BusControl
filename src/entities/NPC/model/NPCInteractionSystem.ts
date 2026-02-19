@@ -28,14 +28,11 @@ export const npcInteractionSystem: System = {
       const currentStopId = getCurrentStopId(busData);
       if (!currentStopId) continue;
 
-      // Проверяем, является ли эта остановка конечной для данного маршрута
-      const isFinalStop = isFinalStopForRoute(busData);
-
-      // 1. ВЫСАДКА (Alighting)
-      // Ищем пассажиров ВНУТРИ автобуса, у которых эта остановка - цель
+      // 1. ВЫСАДКА (Alighting) - пассажиры выходят на своей остановке
       unloadPassengers(busEntityId, busData, currentStopId);
 
-      // 2. ПОСАДКА (Boarding) - НЕ сажаем на конечной остановке!
+      // 2. ПОСАДКА (Boarding) - сажаем пассажиров на всех остановках кроме конечной
+      const isFinalStop = isFinalStopForRoute(busData);
       if (!isFinalStop) {
         loadPassengers(busEntityId, busData, currentStopId);
       }
@@ -97,14 +94,23 @@ function unloadPassengers(busEntityId: number, busData: BusDataComponent, stopId
     // Если пассажир в этом автобусе
     if (npcData.state === NPCState.ON_BUS && npcData.busEntityId === busEntityId) {
       // На конечной остановке высаживаем ВСЕХ, иначе только тех, у кого цель - эта остановка
-      if (isFinalStop || npcData.targetStopId === stopId) {
+      if (isFinalStop || npcPos.targetStopId === stopId) {
         // Высаживаем
         npcData.state = NPCState.ARRIVED;
         npcData.busEntityId = null;
-        npcData.currentStopId = stopId;
+        npcData.currentStopId = null; // Важно: не присваиваем stopId, чтобы не считался ожидающим
         unloadedCount++;
 
-        // ЭКОНОМИКА: Начисляем деньги! ($5 за поездку)
+        // Уменьшаем счётчик пассажиров в автобусе на 1
+        busData.passengers = Math.max(0, busData.passengers - 1);
+
+        // ЭКОНОМИКА: Начисляем деньги! ($5 бонус за доставку)
+        const reward = 5;
+        gameEventBusService.publish(GameEventType.MONEY_CHANGED, {
+          amount: reward,
+          total: 0, // Total вычислит стор
+          source: 'passenger_delivery',
+        });
         gameEventBusService.publish(GameEventType.NPC_ARRIVED_AT_DESTINATION, {
           npcId: npcData.id,
           stopId: stopId,
@@ -124,9 +130,7 @@ function unloadPassengers(busEntityId: number, busData: BusDataComponent, stopId
   }
 
   if (unloadedCount > 0) {
-    // Обнуляем счётчик пассажиров в автобусе
-    busData.passengers = 0;
-    console.log(`[Bus ${busData.id}] Unloaded ${unloadedCount} passengers at stop ${stopId}. Earned $${unloadedCount * 5}`);
+    console.log(`[Bus ${busData.id}] Unloaded ${unloadedCount} passengers at stop ${stopId}`);
   }
 }
 
@@ -170,6 +174,13 @@ function loadPassengers(busEntityId: number, busData: BusDataComponent, stopId: 
         npcPos.y = busPos.y;
       }
 
+      // ОПЛАТА ПРИ ПОСАДКЕ: $2 за поездку
+      const fare = 2;
+      gameEventBusService.publish(GameEventType.MONEY_CHANGED, {
+        amount: fare,
+        total: 0,
+        source: 'passenger_fare',
+      });
       gameEventBusService.publish(GameEventType.NPC_BOARDED_BUS, {
         npcId: npcData.id,
         busId: busData.id,

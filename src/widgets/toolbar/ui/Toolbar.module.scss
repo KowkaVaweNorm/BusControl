@@ -1,0 +1,91 @@
+.toolbar {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(26, 26, 46, 0.95);
+  border: 2px solid #4a4a6a;
+  border-radius: 12px;
+  padding: 15px 25px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  font-family: 'Arial', sans-serif;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+
+  .section {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .title {
+    color: #aaaaaa;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-right: 5px;
+  }
+
+  .button {
+    background: #2a2a4a;
+    border: 1px solid #5a5a7a;
+    color: #ffffff;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    &:hover:not(:disabled) {
+      background: #3a3a5a;
+      border-color: #7a7a9a;
+      transform: translateY(-2px);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &.active {
+      background: #4a4a8a;
+      border-color: #00aaff;
+      box-shadow: 0 0 8px rgba(0, 170, 255, 0.4);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      filter: grayscale(1);
+    }
+  }
+
+  .buyButton {
+    background: #2e7d32;
+    border-color: #4caf50;
+    
+    &:hover:not(:disabled) {
+      background: #388e3c;
+    }
+  }
+
+  .separator {
+    width: 1px;
+    height: 30px;
+    background: #4a4a6a;
+  }
+
+  .hint {
+    position: absolute;
+    bottom: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #888;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+}

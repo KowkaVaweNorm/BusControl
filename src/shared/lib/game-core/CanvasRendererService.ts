@@ -547,6 +547,15 @@ export class CanvasRendererService {
   public getConfig(): CanvasRendererConfig {
     return { ...this.config };
   }
+
+  /**
+   * Очистка сервиса (для React Strict Mode)
+   */
+  public cleanup(): void {
+    this.renderCallbacks.clear();
+    this.isInitialized = false;
+    console.log('[CanvasRendererService] Cleaned up');
+  }
 }
 
 // Экспорт единственного экземпляра для использования в приложении

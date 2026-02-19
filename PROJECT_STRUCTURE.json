@@ -1,8 +1,8 @@
 {
   "projectName": "Bus Control",
-  "generatedAt": "2026-02-18",
+  "generatedAt": "2026-02-19",
   "rootDirectory": "d:\\domains\\Pets\\GameStudio\\Bus Control\\ProjectBusControl",
-  "totalFiles": 56,
+  "totalFiles": 72,
   "architecture": "Feature-Sliced Design (FSD)",
   "structure": [
     {
@@ -83,7 +83,7 @@
     {
       "path": "src/App.tsx",
       "type": "source",
-      "description": "Корневой компонент (GameCanvas + UI)"
+      "description": "Корневой компонент (GameCanvas + UI виджеты)"
     },
     {
       "path": "src/index.css",
@@ -98,7 +98,7 @@
     {
       "path": "src/app/store/GameStateStore.ts",
       "type": "source",
-      "description": "Хранилище состояния игры (счёт, деньги, уровень, пауза)"
+      "description": "Хранилище состояния игры (деньги, статистика, пауза)"
     },
     {
       "path": "src/shared/lib/game-core/GameLoopService.ts",
@@ -148,12 +148,12 @@
     {
       "path": "src/entities/Bus/model/BusLogicSystem.ts",
       "type": "source",
-      "description": "Логика: состояния IDLE, MOVING_TO_STOP, STOPPED"
+      "description": "Логика: состояния IDLE, MOVING_TO_STOP, STOPPED (зацикленные маршруты)"
     },
     {
       "path": "src/entities/Bus/model/BusRenderSystem.ts",
       "type": "source",
-      "description": "Рендеринг: жёлтый прямоугольник 40×20 с фарами и полоской загрузки"
+      "description": "Рендеринг: жёлтый прямоугольник 40×20 с фарами"
     },
     {
       "path": "src/entities/Bus/index.ts",
@@ -163,22 +163,22 @@
     {
       "path": "src/entities/NPC/model/NPCComponents.ts",
       "type": "source",
-      "description": "Компоненты NPC: POSITION, DATA (состояния WAITING, ON_BUS, ARRIVED)"
+      "description": "Компоненты NPC: POSITION (с targetStopId), DATA"
     },
     {
       "path": "src/entities/NPC/model/NPCSpawnerSystem.ts",
       "type": "source",
-      "description": "Спавн пассажиров на остановках каждые 2 секунды"
+      "description": "Спавн пассажиров с выбором цели из остановок дальше по маршруту"
     },
     {
       "path": "src/entities/NPC/model/NPCInteractionSystem.ts",
       "type": "source",
-      "description": "Посадка/высадка пассажиров (на конечной — все высаживаются)"
+      "description": "Посадка/высадка: оплата $2 при посадке, высадка на своей остановке"
     },
     {
       "path": "src/entities/NPC/model/NPCRenderSystem.ts",
       "type": "source",
-      "description": "Рендеринг NPC: белые точки (ожидают), синие (в автобусе)"
+      "description": "Рендеринг NPC: белые (ожидают), синие (в автобусе)"
     },
     {
       "path": "src/entities/NPC/index.ts",
@@ -193,7 +193,7 @@
     {
       "path": "src/entities/Route/model/RouteRenderSystem.ts",
       "type": "source",
-      "description": "Рендеринг маршрутов (линии на слое roads, название посередине)"
+      "description": "Рендеринг маршрутов (линии на слое roads, название)"
     },
     {
       "path": "src/entities/Route/index.ts",
@@ -218,12 +218,12 @@
     {
       "path": "src/features/map-editor/model/MapEditorService.ts",
       "type": "source",
-      "description": "Редактор карт: режимы остановок/маршрутов (1/2), ПКМ = автобус"
+      "description": "Редактор карт: режимы остановок/маршрутов, ПКМ=автобус, L=зацикливание"
     },
     {
       "path": "src/features/economy/model/EconomyListener.ts",
       "type": "source",
-      "description": "Слушатель событий экономики (+$5 за пассажира, -$100 за автобус)"
+      "description": "Слушатель экономики: $2 за посадку, $5 за доставку, -$100 за автобус"
     },
     {
       "path": "src/features/economy/index.ts",
@@ -244,6 +244,51 @@
       "path": "src/widgets/game-canvas/ui/GameCanvas.module.scss",
       "type": "styles",
       "description": "Стили GameCanvas (100vw, 100vh)"
+    },
+    {
+      "path": "src/widgets/stats-panel/index.ts",
+      "type": "source",
+      "description": "Экспорт StatsPanel"
+    },
+    {
+      "path": "src/widgets/stats-panel/ui/StatsPanel.tsx",
+      "type": "source",
+      "description": "Виджет статистики: баланс, перевезено, автобусов, остановок"
+    },
+    {
+      "path": "src/widgets/stats-panel/ui/StatsPanel.module.scss",
+      "type": "styles",
+      "description": "Стили StatsPanel (левый верхний угол)"
+    },
+    {
+      "path": "src/widgets/toolbar/index.ts",
+      "type": "source",
+      "description": "Экспорт Toolbar"
+    },
+    {
+      "path": "src/widgets/toolbar/ui/Toolbar.tsx",
+      "type": "source",
+      "description": "Панель инструментов: режимы, покупка автобуса"
+    },
+    {
+      "path": "src/widgets/toolbar/ui/Toolbar.module.scss",
+      "type": "styles",
+      "description": "Стили Toolbar (внизу по центру)"
+    },
+    {
+      "path": "src/widgets/notifications/index.ts",
+      "type": "source",
+      "description": "Экспорт Notifications"
+    },
+    {
+      "path": "src/widgets/notifications/ui/Notifications.tsx",
+      "type": "source",
+      "description": "Виджет уведомлений: успех, предупреждения, информация"
+    },
+    {
+      "path": "src/widgets/notifications/ui/Notifications.module.scss",
+      "type": "styles",
+      "description": "Стили Notifications (правый верхний угол)"
     }
   ],
   "modules": {
@@ -273,7 +318,7 @@
     "widgets": {
       "path": "src/widgets",
       "description": "UI-виджеты",
-      "items": ["game-canvas"]
+      "items": ["game-canvas", "stats-panel", "toolbar", "notifications"]
     },
     "app": {
       "path": "src/app",
@@ -289,6 +334,7 @@
       "Колесо": "Зум в точку курсора",
       "Клавиша 1": "Режим строительства остановок",
       "Клавиша 2": "Режим построения маршрутов",
+      "Клавиша L": "Переключить зацикливание маршрута (в режиме построения)",
       "Enter": "Завершить маршрут",
       "Escape": "Отменить построение маршрута"
     },
@@ -297,16 +343,38 @@
       "implemented": [
         "Создание остановок (зелёные круги)",
         "Построение маршрутов (синие линии)",
-        "Создание автобуса (ПКМ по маршруту)",
+        "Зацикленные маршруты (клавиша L)",
+        "Создание автобуса (ПКМ по маршруту или кнопка)",
+        "Покупка автобуса через Toolbar ($100)",
         "Движение автобуса с ускорением и торможением",
         "Перемещение камеры (СКМ)",
         "Зум камеры (колесо)",
         "Спавн пассажиров на остановках (каждые 2 сек)",
+        "Пассажиры выбирают цель из остановок дальше по маршруту",
         "Посадка пассажиров в автобус",
-        "Высадка пассажиров (на конечной — все)",
-        "Экономика (+$5 за пассажира, -$100 за автобус)"
+        "Оплата проезда при посадке ($2)",
+        "Высадка пассажиров на своей остановке",
+        "Бонус за доставку пассажира ($5)",
+        "Экономика (+$7 за пассажира, -$100 за автобус)",
+        "UI: StatsPanel (статистика слева сверху)",
+        "UI: Toolbar (панель инструментов внизу)",
+        "UI: Notifications (уведомления справа сверху)"
       ],
-      "planned": ["UI отображение денег и статистики", "Сохранение/загрузка карты"]
+      "planned": [
+        "Сохранение/загрузка карты",
+        "Визуальное отображение зацикленности маршрута",
+        "Настройки игры"
+      ]
+    }
+  },
+  "economy": {
+    "income": {
+      "passengerFare": 2,
+      "deliveryBonus": 5,
+      "totalPerPassenger": 7
+    },
+    "expenses": {
+      "busPurchase": 100
     }
   }
 }

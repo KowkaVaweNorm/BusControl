@@ -30,9 +30,14 @@ export const busLogicSystem: System = {
           // Время вышло, едем дальше
           advanceToNextStop(data, vel);
         }
-      } else if (data.state === BusState.IDLE && data.routeId && !isAtFinalStop(data)) {
-        // Если назначен маршрут, но стоит (например, только создали) - начинаем движение
-        // НЕ начинаем движение если уже на конечной остановке!
+      } else if (data.state === BusState.IDLE && data.routeId) {
+        // Если назначен маршрут, но стоит (например, только создали или на конечной)
+        // Для зацикленных маршрутов - продолжаем движение
+        if (isAtFinalStopNonLoop(data)) {
+          // На конечной нециклического маршрута - стоим
+          continue;
+        }
+        // Начинаем/продолжаем движение
         advanceToNextStop(data, vel);
       }
     }
@@ -40,14 +45,15 @@ export const busLogicSystem: System = {
 };
 
 /**
- * Проверка, находится ли автобус на конечной остановке маршрута
+ * Проверка, находится ли автобус на конечной остановке НЕ зацикленного маршрута
+ * Возвращает true только если маршрут НЕ зациклен и автобус на последней остановке
  */
-function isAtFinalStop(data: BusDataComponent): boolean {
+function isAtFinalStopNonLoop(data: BusDataComponent): boolean {
   const routes = entityManagerService.getEntitiesWithComponents(ROUTE_COMPONENTS.DATA);
   for (const id of routes) {
     const r = entityManagerService.getComponent<RouteDataComponent>(id, ROUTE_COMPONENTS.DATA);
     if (r && r.id === data.routeId) {
-      // Если это последняя остановка и маршрут не зациклен
+      // Если это последняя остановка и маршрут НЕ зациклен
       return data.currentStopIndex >= r.stopIds.length - 1 && !r.loop;
     }
   }
