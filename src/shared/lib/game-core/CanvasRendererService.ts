@@ -549,6 +549,26 @@ export class CanvasRendererService {
   }
 
   /**
+   * Получить viewport камеры
+   */
+  public getCamera(): { getViewport: () => Viewport } {
+    return {
+      getViewport: () => ({ ...this.viewport }),
+    };
+  }
+
+  /**
+   * Получить Canvas элемент (для изменения курсора)
+   */
+  public getCanvas(): HTMLCanvasElement {
+    const layer = this.layers.get('entities');
+    if (!layer) {
+      throw new Error('[CanvasRendererService] entities layer not found');
+    }
+    return layer.canvas;
+  }
+
+  /**
    * Очистка сервиса (для React Strict Mode)
    */
   public cleanup(): void {

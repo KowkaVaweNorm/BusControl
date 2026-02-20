@@ -5,6 +5,7 @@
 
 import type { System, SystemContext } from '../../../shared/lib/game-core/EntityManagerService';
 import { canvasRendererService } from '../../../shared/lib/game-core/CanvasRendererService';
+import { inputService } from '../../../shared/lib/game-core/InputService';
 import {
   STOP_COMPONENTS,
   type StopPositionComponent,
@@ -21,6 +22,15 @@ export const stopRenderSystem: System = {
 
     if (!ctx) return;
 
+    // Получаем позицию курсора в мировых координатах
+    const mouseState = inputService.getMouseState();
+    const viewport = canvasRendererService.getCamera().getViewport();
+    const worldMouseX = (mouseState.x - viewport.x) / viewport.scale;
+    const worldMouseY = (mouseState.y - viewport.y) / viewport.scale;
+
+    // Отслеживаем, находится ли курсор над остановкой
+    let hoveredStopId: string | null = null;
+
     try {
       for (const entityId of entities) {
         const pos = entityManager.getComponent<StopPositionComponent>(
@@ -31,11 +41,21 @@ export const stopRenderSystem: System = {
 
         if (!pos || !data) continue;
 
+        // Проверяем, находится ли курсор над этой остановкой
+        const dx = worldMouseX - pos.x;
+        const dy = worldMouseY - pos.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const isHovered = distance <= data.radius;
+
+        if (isHovered) {
+          hoveredStopId = data.id;
+        }
+
         // 1. Рисуем зону остановки (полупрозрачный круг)
         canvasRendererService.drawCircle(ctx, pos.x, pos.y, data.radius, {
           fillColor: data.color + '40',
-          strokeColor: data.color,
-          strokeWidth: 2,
+          strokeColor: isHovered ? '#ffffff' : data.color,
+          strokeWidth: isHovered ? 4 : 2,
         });
 
         // 2. Рисуем центр (маркер)
@@ -53,7 +73,7 @@ export const stopRenderSystem: System = {
         ctx.textBaseline = 'bottom';
         ctx.fillText(data.name, pos.x, pos.y - data.radius - 8);
         ctx.restore();
-        
+
         // Сбрасываем shadowBlur после рисования текста (важно для следующих итераций!)
         ctx.shadowBlur = 0;
 
@@ -72,6 +92,27 @@ export const stopRenderSystem: System = {
             }
           );
         }
+
+        // 5. Визуальная подсказка при наведении (иконка карандаша)
+        if (isHovered) {
+          ctx.save();
+          ctx.shadowColor = 'black';
+          ctx.shadowBlur = 4;
+          ctx.fillStyle = '#ffff00';
+          ctx.font = '16px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('✏️', pos.x + data.radius - 15, pos.y - data.radius + 15);
+          ctx.restore();
+          ctx.shadowBlur = 0;
+        }
+      }
+
+      // Меняем курсор при наведении на остановку
+      if (hoveredStopId) {
+        canvasRendererService.getCanvas().style.cursor = 'pointer';
+      } else {
+        canvasRendererService.getCanvas().style.cursor = 'default';
       }
     } finally {
       // Восстанавливаем контекст после трансформации камеры

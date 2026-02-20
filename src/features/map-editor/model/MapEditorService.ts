@@ -179,6 +179,9 @@ export class MapEditorService {
     clearMovementCache();
 
     gameEventBusService.publish(GameEventType.STOP_CREATED, { stopId, name: stopName });
+
+    // Автосохранение карты (только остановки и маршруты, без автобусов)
+    // mapSaveService.saveCurrentMap(); // Автосохранение работает по таймеру
   }
 
   // --- Логика Маршрутов ---
@@ -228,8 +231,11 @@ export class MapEditorService {
     clearMovementCache();
 
     gameEventBusService.publish(GameEventType.ROUTE_CREATED, { routeId, name: routeName });
-    
+
     console.log(`[MapEditor] Route created: ${routeName}, loop=${this.routeLoopMode ? 'YES ♻️' : 'NO'}`);
+
+    // Автосохранение карты (только остановки и маршруты, без автобусов)
+    // mapSaveService.saveCurrentMap(); // Автосохранение работает по таймеру
 
     this.cancelDraftRoute(); // Сброс черновика
   }
@@ -243,12 +249,20 @@ export class MapEditorService {
   private handleMouseRightClick(_event: any): void {
     // Реагируем только на ПКМ
     if (_event.payload.button !== MouseButton.RIGHT) return;
-    
+
     const { worldX, worldY } = _event.payload;
-    
-    // Проверяем, попали ли в маршрут
+
+    // 1. Сначала проверяем, попали ли в остановку (для переименования)
+    const clickedStopId = this.findStopAtPosition(worldX, worldY);
+
+    if (clickedStopId) {
+      this.renameStop(clickedStopId);
+      return;
+    }
+
+    // 2. Если не в остановку, проверяем, попали ли в маршрут (для создания автобуса)
     const clickedRouteId = this.findRouteAtPosition(worldX, worldY);
-    
+
     if (clickedRouteId) {
       this.createBusOnRoute(clickedRouteId);
     } else {
@@ -299,7 +313,10 @@ export class MapEditorService {
 
     gameEventBusService.publish(GameEventType.BUS_CREATED, { busId, entityId });
     console.log(`[MapEditor] Bus created on route ${routeId}`);
-    
+
+    // Автосохранение карты (опционально, не сохраняем автобусы)
+    // mapSaveService.saveCurrentMap();
+
     return busId;
   }
 
@@ -448,6 +465,39 @@ export class MapEditorService {
       }
     }
     return null;
+  }
+
+  /**
+   * Переименовать остановку
+   */
+  private renameStop(stopId: string): void {
+    const stops = entityManagerService.getEntitiesWithComponents(
+      STOP_COMPONENTS.POSITION,
+      STOP_COMPONENTS.DATA
+    );
+
+    // Находим сущность остановки по ID
+    for (const entityId of stops) {
+      const data = entityManagerService.getComponent<StopDataComponent>(
+        entityId,
+        STOP_COMPONENTS.DATA
+      );
+
+      if (data && data.id === stopId) {
+        // Открываем prompt для ввода нового названия
+        const newName = prompt('Введите название остановки:', data.name);
+
+        // Если пользователь ввёл название и не отменил
+        if (newName !== null && newName.trim() !== '') {
+          data.name = newName.trim();
+          console.log(`[MapEditor] Stop renamed: "${newName}"`);
+
+          // Автосохранение карты после переименования
+          // mapSaveService.saveCurrentMap(); // Автосохранение работает по таймеру
+        }
+        return;
+      }
+    }
   }
 
   public cleanup(): void {

@@ -1,8 +1,8 @@
 {
   "projectName": "Bus Control",
-  "generatedAt": "2026-02-19",
+  "generatedAt": "2026-02-21",
   "rootDirectory": "d:\\domains\\Pets\\GameStudio\\Bus Control\\ProjectBusControl",
-  "totalFiles": 72,
+  "totalFiles": 82,
   "architecture": "Feature-Sliced Design (FSD)",
   "structure": [
     {
@@ -93,7 +93,7 @@
     {
       "path": "src/app/init.ts",
       "type": "source",
-      "description": "Инициализация игрового ядра (все сервисы + экономика)"
+      "description": "Инициализация игрового ядра (все сервисы + экономика + сохранение)"
     },
     {
       "path": "src/app/store/GameStateStore.ts",
@@ -108,7 +108,7 @@
     {
       "path": "src/shared/lib/game-core/CanvasRendererService.ts",
       "type": "source",
-      "description": "Рендеринг на Canvas (слои, примитивы, камера)"
+      "description": "Рендеринг на Canvas (слои, примитивы, камера, getCamera/getCanvas)"
     },
     {
       "path": "src/shared/lib/game-core/EntityManagerService.ts",
@@ -133,7 +133,7 @@
     {
       "path": "src/shared/lib/game-core/CameraController.ts",
       "type": "source",
-      "description": "Камера: панорамирование (СКМ), зум (колесо)"
+      "description": "Камера: панорамирование (СКМ), зум (колесо), getViewport/setViewport"
     },
     {
       "path": "src/entities/Bus/model/BusComponents.ts",
@@ -208,7 +208,7 @@
     {
       "path": "src/entities/stop/model/StopRenderSystem.ts",
       "type": "source",
-      "description": "Рендеринг остановок (круги, надписи, счётчик пассажиров)"
+      "description": "Рендеринг остановок (круги, надписи, счётчик пассажиров, hover-подсветка, ✏️ иконка)"
     },
     {
       "path": "src/entities/stop/index.ts",
@@ -218,7 +218,27 @@
     {
       "path": "src/features/map-editor/model/MapEditorService.ts",
       "type": "source",
-      "description": "Редактор карт: режимы остановок/маршрутов, ПКМ=автобус, L=зацикливание"
+      "description": "Редактор карт: режимы остановок/маршрутов, ПКМ=автобус/переименование, L=зацикливание"
+    },
+    {
+      "path": "src/features/map-save/model/MapSaveService.ts",
+      "type": "source",
+      "description": "Сохранение карт: localStorage, автосохранение, пресеты, экспорт/импорт JSON"
+    },
+    {
+      "path": "src/features/map-save/model/types.ts",
+      "type": "source",
+      "description": "Типы для сохранения (MapSaveData, SavedStop, SavedRoute, SavedBus)"
+    },
+    {
+      "path": "src/features/map-save/model/preset-maps.ts",
+      "type": "source",
+      "description": "Пресетные карты (simple, city, complex, grid)"
+    },
+    {
+      "path": "src/features/map-save/index.ts",
+      "type": "source",
+      "description": "Экспорт map-save"
     },
     {
       "path": "src/features/economy/model/EconomyListener.ts",
@@ -289,6 +309,21 @@
       "path": "src/widgets/notifications/ui/Notifications.module.scss",
       "type": "styles",
       "description": "Стили Notifications (правый верхний угол)"
+    },
+    {
+      "path": "src/widgets/map-manager/index.ts",
+      "type": "source",
+      "description": "Экспорт MapManager"
+    },
+    {
+      "path": "src/widgets/map-manager/ui/MapManager.tsx",
+      "type": "source",
+      "description": "Виджет управления картой: пресеты, сохранение/загрузка, экспорт/импорт"
+    },
+    {
+      "path": "src/widgets/map-manager/ui/MapManager.module.scss",
+      "type": "styles",
+      "description": "Стили MapManager (правый нижний угол)"
     }
   ],
   "modules": {
@@ -313,12 +348,12 @@
     "features": {
       "path": "src/features",
       "description": "Фичи (user actions по FSD)",
-      "items": ["map-editor", "economy"]
+      "items": ["map-editor", "map-save", "economy"]
     },
     "widgets": {
       "path": "src/widgets",
       "description": "UI-виджеты",
-      "items": ["game-canvas", "stats-panel", "toolbar", "notifications"]
+      "items": ["game-canvas", "stats-panel", "toolbar", "notifications", "map-manager"]
     },
     "app": {
       "path": "src/app",
@@ -329,6 +364,7 @@
   "gameplay": {
     "controls": {
       "ЛКМ": "Создать остановку / Добавить точку в маршрут",
+      "ПКМ (по остановке)": "Переименовать остановку",
       "ПКМ (по линии)": "Создать автобус на маршруте",
       "СКМ (зажать)": "Перемещение карты (панорамирование)",
       "Колесо": "Зум в точку курсора",
@@ -346,6 +382,8 @@
         "Зацикленные маршруты (клавиша L)",
         "Создание автобуса (ПКМ по маршруту или кнопка)",
         "Покупка автобуса через Toolbar ($100)",
+        "Переименование остановок (ПКМ по остановке → prompt)",
+        "Визуальная подсказка переименования (✏️ иконка, hover-подсветка)",
         "Движение автобуса с ускорением и торможением",
         "Перемещение камеры (СКМ)",
         "Зум камеры (колесо)",
@@ -356,14 +394,18 @@
         "Высадка пассажиров на своей остановке",
         "Бонус за доставку пассажира ($5)",
         "Экономика (+$7 за пассажира, -$100 за автобус)",
+        "Сохранение/загрузка карты (localStorage, автосохранение)",
+        "Пресетные карты (simple, city, complex, grid)",
+        "Экспорт/импорт карты (JSON)",
         "UI: StatsPanel (статистика слева сверху)",
         "UI: Toolbar (панель инструментов внизу)",
-        "UI: Notifications (уведомления справа сверху)"
+        "UI: Notifications (уведомления справа сверху)",
+        "UI: MapManager (управление картой справа снизу)"
       ],
       "planned": [
-        "Сохранение/загрузка карты",
         "Визуальное отображение зацикленности маршрута",
-        "Настройки игры"
+        "Настройки игры",
+        "Редактирование маршрутов (удаление остановок)"
       ]
     }
   },

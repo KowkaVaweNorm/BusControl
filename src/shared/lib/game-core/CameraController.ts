@@ -182,6 +182,21 @@ export class CameraController {
   public getIsInitialized(): boolean {
     return this.isInitialized;
   }
+
+  /**
+   * Получить текущий viewport
+   */
+  public getViewport(): { x: number; y: number; scale: number } {
+    return canvasRendererService.getViewport();
+  }
+
+  /**
+   * Установить viewport
+   */
+  public setViewport(x: number, y: number, scale: number): void {
+    canvasRendererService.setCameraPosition(x, y);
+    canvasRendererService.setCameraScale(scale);
+  }
 }
 
 // Экспорт единственного экземпляра

@@ -18,6 +18,7 @@ import { gameEventBusService } from '../shared/lib/game-core/GameEventBusService
 import { cameraController } from '../shared/lib/game-core/CameraController';
 import { mapEditorService } from '../features/map-editor/model/MapEditorService';
 import { initEconomyListener, cleanupEconomyListener } from '../features/economy/model/EconomyListener';
+import { mapSaveService } from '../features/map-save/model/MapSaveService';
 import { stopRenderSystem } from '../entities/stop/model/StopRenderSystem';
 import { routeRenderSystem } from '@/entities/Route/model/RouteRenderSystem';
 import { busMovementSystem } from '@/entities/Bus/model/BusMovementSystem';
@@ -80,6 +81,18 @@ export function initGame(containerId: string): InitResult {
     entityManagerService.registerSystem(npcInteractionSystem);    // Посадка/высадка
     entityManagerService.registerSystem(npcRenderSystem);         // Отрисовка
 
+    // 6. Автозагрузка сохранённой карты и запуск автосохранения
+    const savedMap = mapSaveService.loadFromLocalStorage();
+    if (savedMap) {
+      console.log('[App] Loading saved map...');
+      mapSaveService.loadMap(savedMap);
+    } else {
+      console.log('[App] No saved map found, starting with empty map');
+    }
+
+    // Запуск автосохранения (каждую минуту)
+    mapSaveService.startAutoSave();
+
     // 6. Запуск контроллера камеры
     cameraController.initialize();
 
@@ -112,6 +125,7 @@ export function initGame(containerId: string): InitResult {
         mapEditorService.cleanup();
         inputService.cleanup();
         cleanupEconomyListener();
+        mapSaveService.stopAutoSave(); // Останавливаем автосохранение
         entityManagerService.cleanup(); // Очищаем ECS
         gameEventBusService.cleanup();  // Очищаем шину событий
         canvasRendererService.cleanup(); // Очищаем рендерер
