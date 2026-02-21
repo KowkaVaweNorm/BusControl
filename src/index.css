@@ -3,6 +3,19 @@
 }
 
 body {
+  margin: 0;
+  padding: 0;
   min-width: 320px;
   min-height: 100vh;
+  overflow: hidden; /* Отключаем скролл страницы */
+}
+
+html {
+  overflow: hidden; /* Отключаем скролл на уровне html */
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }

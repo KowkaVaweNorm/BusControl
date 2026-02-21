@@ -22,11 +22,10 @@ export const stopRenderSystem: System = {
 
     if (!ctx) return;
 
-    // Получаем позицию курсора в мировых координатах
+    // Получаем позицию курсора в мировых координатах (уже конвертировано в InputService)
     const mouseState = inputService.getMouseState();
-    const viewport = canvasRendererService.getCamera().getViewport();
-    const worldMouseX = (mouseState.x - viewport.x) / viewport.scale;
-    const worldMouseY = (mouseState.y - viewport.y) / viewport.scale;
+    const worldMouseX = mouseState.worldX;
+    const worldMouseY = mouseState.worldY;
 
     // Отслеживаем, находится ли курсор над остановкой
     let hoveredStopId: string | null = null;

@@ -19,6 +19,7 @@ import { cameraController } from '../shared/lib/game-core/CameraController';
 import { mapEditorService } from '../features/map-editor/model/MapEditorService';
 import { initEconomyListener, cleanupEconomyListener } from '../features/economy/model/EconomyListener';
 import { mapSaveService } from '../features/map-save/model/MapSaveService';
+import { timeService, skyRenderSystem } from '../features/time-of-day';
 import { stopRenderSystem } from '../entities/stop/model/StopRenderSystem';
 import { routeRenderSystem } from '@/entities/Route/model/RouteRenderSystem';
 import { busMovementSystem } from '@/entities/Bus/model/BusMovementSystem';
@@ -68,6 +69,7 @@ export function initGame(containerId: string): InitResult {
     entityManagerService.initialize();
 
     // 5. Регистрация систем (с проверкой на повторную регистрацию)
+    entityManagerService.registerSystem(skyRenderSystem); // Небо и время суток
     entityManagerService.registerSystem(stopRenderSystem);
     entityManagerService.registerSystem(routeRenderSystem);
 
@@ -93,7 +95,10 @@ export function initGame(containerId: string): InitResult {
     // Запуск автосохранения (каждую минуту)
     mapSaveService.startAutoSave();
 
-    // 6. Запуск контроллера камеры
+    // 7. Инициализация сервиса времени
+    timeService.initialize();
+
+    // 8. Запуск контроллера камеры
     cameraController.initialize();
 
     // 7. Запуск редактора карт
@@ -126,6 +131,7 @@ export function initGame(containerId: string): InitResult {
         inputService.cleanup();
         cleanupEconomyListener();
         mapSaveService.stopAutoSave(); // Останавливаем автосохранение
+        timeService.cleanup(); // Останавливаем время
         entityManagerService.cleanup(); // Очищаем ECS
         gameEventBusService.cleanup();  // Очищаем шину событий
         canvasRendererService.cleanup(); // Очищаем рендерер

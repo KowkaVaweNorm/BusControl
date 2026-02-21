@@ -3,6 +3,7 @@ import { StatsPanel } from './widgets/stats-panel';
 import { Toolbar } from './widgets/toolbar';
 import { Notifications } from './widgets/notifications';
 import { MapManager } from './widgets/map-manager';
+import { TimeDisplay } from './widgets/time-display';
 import './index.css';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
       <Notifications />
       <Toolbar />
       <MapManager />
+      <TimeDisplay />
     </div>
   );
 }

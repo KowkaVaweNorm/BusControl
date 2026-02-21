@@ -1,6 +1,6 @@
 .container {
   position: absolute;
-  top: 20px;
+  top: 80px; /* Сдвинул ниже, чтобы не перекрывать TimeDisplay */
   right: 20px;
   z-index: 1002;
 }

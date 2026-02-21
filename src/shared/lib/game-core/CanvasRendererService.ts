@@ -172,14 +172,18 @@ export class CanvasRendererService {
     this.layers.forEach((layer) => {
       if (layer.visible) {
         layer.ctx.clearRect(0, 0, this.config.width, this.config.height);
-
-        // Закраска фона для background слоя
-        if (layer.name === 'background') {
-          layer.ctx.fillStyle = this.config.backgroundColor;
-          layer.ctx.fillRect(0, 0, this.config.width, this.config.height);
-        }
+        // Фон теперь рисуется через skyRenderSystem
       }
     });
+  }
+
+  /**
+   * Получить "сырой" контекст слоя (без трансформации камеры)
+   * Используется для рендеринга фона неба
+   */
+  public getRawLayerContext(layerName: string): CanvasRenderingContext2D | null {
+    const layer = this.layers.get(layerName);
+    return layer ? layer.ctx : null;
   }
 
   /**
