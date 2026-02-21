@@ -8,7 +8,8 @@
  */
 
 import { entityManagerService } from '@/shared/lib/game-core/EntityManagerService';
-import { STOP_COMPONENTS, type StopDataComponent, type StopPositionComponent } from '@/entities/stop/model/StopComponents';
+import { gameEventBusService, GameEventType } from '@/shared/lib/game-core/GameEventBusService';
+import { STOP_COMPONENTS, type StopDataComponent, type StopPositionComponent, DEFAULT_SPAWN_RATES } from '@/entities/stop/model/StopComponents';
 import { ROUTE_COMPONENTS, type RouteDataComponent } from '@/entities/Route/model/RouteComponents';
 import { BUS_COMPONENTS, type BusDataComponent } from '@/entities/Bus/model/BusComponents';
 import { NPC_COMPONENTS } from '@/entities/NPC/model/NPCComponents';
@@ -307,6 +308,12 @@ export class MapSaveService {
           name: data.name,
           x: pos.x,
           y: pos.y,
+          spawnRates: {
+            morning: data.spawnRates.morning,
+            day: data.spawnRates.day,
+            evening: data.spawnRates.evening,
+            night: data.spawnRates.night,
+          },
         });
       }
     }
@@ -418,7 +425,16 @@ export class MapSaveService {
       radius: 40,
       color: '#00ff00',
       waitingPassengers: 0,
+      spawnRates: stopData.spawnRates ? {
+        morning: stopData.spawnRates.morning,
+        day: stopData.spawnRates.day,
+        evening: stopData.spawnRates.evening,
+        night: stopData.spawnRates.night,
+      } : { ...DEFAULT_SPAWN_RATES },
     });
+
+    // Отправляем событие для обновления счётчика в GameStateStore
+    gameEventBusService.publish(GameEventType.STOP_CREATED, { stopId: stopData.id, name: stopData.name });
   }
 
   /**
@@ -471,6 +487,9 @@ export class MapSaveService {
       waitTimer: 0,
       waitTimeRequired: 3.0,
     });
+
+    // Отправляем событие для обновления счётчика в GameStateStore
+    gameEventBusService.publish(GameEventType.BUS_CREATED, { busId: busData.id, entityId });
   }
 }
 
