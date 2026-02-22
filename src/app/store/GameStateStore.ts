@@ -39,7 +39,7 @@ export class GameStateStore {
     score: 0,
     level: 1,
     gameTime: 0,
-    money: 100, // Стартовый капитал
+    money: 5000, // Стартовый капитал (5000₽)
     totalPassengersDelivered: 0,
     activeBuses: 0,
     totalStops: 0,
@@ -98,7 +98,7 @@ export class GameStateStore {
       score: 0,
       level: 1,
       gameTime: 0,
-      money: 100,
+      money: 5000,
       totalPassengersDelivered: 0,
       activeBuses: 0,
       totalStops: 0,

@@ -14,6 +14,12 @@ export interface SavedStop {
   name: string;
   x: number;
   y: number;
+  spawnRates?: { // Настройки спавна пассажиров (опционально, для обратной совместимости)
+    morning: number;
+    day: number;
+    evening: number;
+    night: number;
+  };
 }
 
 /**

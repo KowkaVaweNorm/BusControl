@@ -5,7 +5,7 @@ import { gameStateStore } from '@/app/store/GameStateStore';
 import cls from './Toolbar.module.scss';
 
 // Константа стоимости автобуса
-const BUS_COST = 100;
+const BUS_COST = 1000;
 
 export const Toolbar = () => {
   const [currentMode, setCurrentMode] = useState<EditorMode>(mapEditorService.getMode());
@@ -70,6 +70,12 @@ export const Toolbar = () => {
       <div className={cls.section}>
         <span className={cls.title}>Режимы:</span>
         <button
+          className={`${cls.button} ${currentMode === EditorMode.IDLE ? cls.active : ''}`}
+          onClick={() => handleSetMode(EditorMode.IDLE)}
+        >
+          🖱️ Просмотр
+        </button>
+        <button
           className={`${cls.button} ${currentMode === EditorMode.PLACING_STOP ? cls.active : ''}`}
           onClick={() => handleSetMode(EditorMode.PLACING_STOP)}
         >
@@ -92,12 +98,12 @@ export const Toolbar = () => {
           onClick={handleBuyBus}
           disabled={money < BUS_COST}
         >
-          🚌 Купить (${BUS_COST})
+          🚌 Купить ({BUS_COST}₽)
         </button>
       </div>
       
       <div className={cls.hint}>
-        💡 ПКМ по маршруту — создать автобус вручную
+        💡 ЛКМ по остановке — редактировать | ПКМ по маршруту — создать автобус
       </div>
     </div>
   );

@@ -10,9 +10,9 @@
 import { gameEventBusService, GameEventType } from '@/shared/lib/game-core/GameEventBusService';
 import { gameStateStore } from '@/app/store/GameStateStore';
 
-const FARE_PER_PASSENGER = 2; // $2 за посадку
-const REWARD_PER_PASSENGER = 5; // $5 бонус за доставку
-const BUS_PURCHASE_COST = 100;  // $100 за автобус
+const FARE_PER_PASSENGER = 35; // 35₽ за посадку
+const REWARD_PER_PASSENGER = 5; // 5₽ бонус за доставку
+const BUS_PURCHASE_COST = 1000;  // 1000₽ за автобус
 
 let unsubscribeBoarded: (() => void) | null = null;
 let unsubscribeArrived: (() => void) | null = null;
@@ -36,7 +36,7 @@ export function initEconomyListener(): void {
 
       console.log(
         `[Economy] Passenger ${npcId} boarded bus ${busId} at ${stopId}. ` +
-        `Fare: $${FARE_PER_PASSENGER}. Balance: $${gameStateStore.getState().money}`
+        `Fare: ${FARE_PER_PASSENGER}₽. Balance: ${gameStateStore.getState().money}₽`
       );
     }
   );
@@ -52,7 +52,7 @@ export function initEconomyListener(): void {
 
       console.log(
         `[Economy] Passenger ${npcId} arrived at ${stopId}. ` +
-        `Reward: $${REWARD_PER_PASSENGER}. Balance: $${gameStateStore.getState().money}`
+        `Reward: ${REWARD_PER_PASSENGER}₽. Balance: ${gameStateStore.getState().money}₽`
       );
     }
   );
@@ -65,8 +65,8 @@ export function initEconomyListener(): void {
 
       if (gameStateStore.spendMoney(BUS_PURCHASE_COST)) {
         console.log(
-          `[Economy] Bus ${busId} purchased. Cost: $${BUS_PURCHASE_COST}. ` +
-          `Balance: $${gameStateStore.getState().money}`
+          `[Economy] Bus ${busId} purchased. Cost: ${BUS_PURCHASE_COST}₽. ` +
+          `Balance: ${gameStateStore.getState().money}₽`
         );
       } else {
         console.warn(`[Economy] Not enough money to buy bus ${busId}`);

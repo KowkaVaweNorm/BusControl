@@ -71,6 +71,13 @@ export enum GameEventType {
   TRAFFIC_JAM = 'world:traffic_jam',
   ACCIDENT = 'world:accident',
   PEAK_HOURS = 'world:peak_hours',
+  TIME_CHANGED = 'time:changed',
+  TIME_PERIOD_CHANGED = 'time:period_changed',
+
+  // === Редактор остановок ===
+  STOP_EDITOR_OPENED = 'stop_editor:opened',
+  STOP_EDITOR_CLOSED = 'stop_editor:closed',
+  STOP_EDITOR_UPDATED = 'stop_editor:updated',
 
   // === UI ===
   UI_NOTIFICATION = 'ui:notification',
@@ -118,6 +125,12 @@ export interface GameEventMap {
   [GameEventType.TRAFFIC_JAM]: { location: string; severity: number };
   [GameEventType.ACCIDENT]: { location: string; severity: number };
   [GameEventType.PEAK_HOURS]: { startTime: number; endTime: number };
+  [GameEventType.TIME_CHANGED]: { time: number; period: string };
+  [GameEventType.TIME_PERIOD_CHANGED]: { period: string };
+
+  [GameEventType.STOP_EDITOR_OPENED]: { stopId: string };
+  [GameEventType.STOP_EDITOR_CLOSED]: undefined;
+  [GameEventType.STOP_EDITOR_UPDATED]: { stopId: string; changes: Record<string, unknown> };
 
   [GameEventType.UI_NOTIFICATION]: { message: string; type: 'info' | 'success' | 'warning' };
   [GameEventType.UI_ERROR]: { message: string; code: string };
@@ -154,6 +167,17 @@ export class GameEventBusService {
       maxHistorySize: config?.maxHistorySize ?? 100,
       enableLogging: config?.enableLogging ?? false,
     };
+  }
+
+  /**
+   * Проверка на spam-событие (частые события, которые не нужно логировать)
+   */
+  private isSpamEvent(eventType: GameEventType): boolean {
+    // События, которые генерируются слишком часто (каждый кадр)
+    const spamEvents: GameEventType[] = [
+      GameEventType.TIME_CHANGED,
+    ];
+    return spamEvents.includes(eventType);
   }
 
   /**
@@ -237,8 +261,8 @@ export class GameEventBusService {
       timestamp: Date.now(),
     };
 
-    // Логирование (в режиме разработки)
-    if (this.config.enableLogging) {
+    // Логирование (в режиме разработки, кроме spam-событий)
+    if (this.config.enableLogging && !this.isSpamEvent(eventType)) {
       console.log('[GameEventBusService] Event published:', event);
     }
 

@@ -6,6 +6,7 @@
 import type { System, SystemContext } from '../../../shared/lib/game-core/EntityManagerService';
 import { canvasRendererService } from '../../../shared/lib/game-core/CanvasRendererService';
 import { inputService } from '../../../shared/lib/game-core/InputService';
+import { stopEditorService } from '@/features/stop-editor';
 import {
   STOP_COMPONENTS,
   type StopPositionComponent,
@@ -30,6 +31,9 @@ export const stopRenderSystem: System = {
     // Отслеживаем, находится ли курсор над остановкой
     let hoveredStopId: string | null = null;
 
+    // Получаем ID выделенной остановки (открыт редактор)
+    const selectedStopId = stopEditorService.getSelectedStopId();
+
     try {
       for (const entityId of entities) {
         const pos = entityManager.getComponent<StopPositionComponent>(
@@ -45,6 +49,7 @@ export const stopRenderSystem: System = {
         const dy = worldMouseY - pos.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         const isHovered = distance <= data.radius;
+        const isSelected = selectedStopId === data.id;
 
         if (isHovered) {
           hoveredStopId = data.id;
@@ -53,8 +58,8 @@ export const stopRenderSystem: System = {
         // 1. Рисуем зону остановки (полупрозрачный круг)
         canvasRendererService.drawCircle(ctx, pos.x, pos.y, data.radius, {
           fillColor: data.color + '40',
-          strokeColor: isHovered ? '#ffffff' : data.color,
-          strokeWidth: isHovered ? 4 : 2,
+          strokeColor: isSelected ? '#00ffff' : (isHovered ? '#ffffff' : data.color),
+          strokeWidth: isSelected ? 5 : (isHovered ? 4 : 2),
         });
 
         // 2. Рисуем центр (маркер)
@@ -109,9 +114,9 @@ export const stopRenderSystem: System = {
 
       // Меняем курсор при наведении на остановку
       if (hoveredStopId) {
-        canvasRendererService.getCanvas().style.cursor = 'pointer';
+        canvasRendererService.setCursor('pointer');
       } else {
-        canvasRendererService.getCanvas().style.cursor = 'default';
+        canvasRendererService.setCursor('default');
       }
     } finally {
       // Восстанавливаем контекст после трансформации камеры

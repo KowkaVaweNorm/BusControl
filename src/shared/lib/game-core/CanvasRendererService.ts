@@ -573,6 +573,21 @@ export class CanvasRendererService {
   }
 
   /**
+   * Установить курсор для всех canvas слоёв
+   */
+  public setCursor(cursor: string): void {
+    this.layers.forEach((layer) => {
+      if (layer.canvas) {
+        layer.canvas.style.cursor = cursor;
+      }
+    });
+    // Также устанавливаем на container для надёжности
+    if (this.container) {
+      this.container.style.cursor = cursor;
+    }
+  }
+
+  /**
    * Очистка сервиса (для React Strict Mode)
    */
   public cleanup(): void {

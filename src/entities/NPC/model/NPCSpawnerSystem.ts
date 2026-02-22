@@ -9,20 +9,21 @@ import { entityManagerService } from '@/shared/lib/game-core/EntityManagerServic
 import { STOP_COMPONENTS, type StopDataComponent, type StopPositionComponent } from '@/entities/stop/model/StopComponents';
 import { NPC_COMPONENTS, NPCState } from './NPCComponents';
 import { ROUTE_COMPONENTS, type RouteDataComponent } from '@/entities/Route/model/RouteComponents';
+import { timeService } from '@/features/time-of-day';
 
 export interface SpawnerConfig {
-  spawnInterval: number; // Секунды между попытками спавна
   maxPassengersPerStop: number; // Лимит очереди на остановке
 }
 
 // Локальный таймер системы (вне объекта для избежания проблем с типами)
-let spawnTimer = 0;
+// Хранит время до следующего спавна для каждой остановки
+const spawnTimers: Map<string, number> = new Map();
 
 /**
- * Сбросить таймер спавна
+ * Сбросить таймеры спавна
  */
 export function resetSpawnTimer(): void {
-  spawnTimer = 0;
+  spawnTimers.clear();
 }
 
 /**
@@ -56,15 +57,10 @@ export const npcSpawnerSystem: System = {
 
   update: (context: SystemContext, entities: number[]) => {
     const { deltaTime } = context;
-    const config: SpawnerConfig = { spawnInterval: 2.0, maxPassengersPerStop: 10 };
+    const config: SpawnerConfig = { maxPassengersPerStop: 100 }; // Лимит: 100 пассажиров на остановке
 
-    spawnTimer += deltaTime;
-
-    if (spawnTimer < config.spawnInterval) {
-      return;
-    }
-
-    spawnTimer = 0;
+    // Получаем текущий период суток
+    const currentPeriod = timeService.getPeriod();
 
     // Проходим по всем остановкам
     for (const stopEntityId of entities) {
@@ -78,11 +74,25 @@ export const npcSpawnerSystem: System = {
         continue;
       }
 
-      // Шанс спавна (100% пока интервал большой)
-      spawnNPC(stopData.id, stopPos.x, stopPos.y);
+      // Получаем интервал спавна для текущего периода
+      const spawnInterval = stopData.spawnRates[currentPeriod] || 5.0;
 
-      // Обновляем счетчик в остановке (визуально)
-      stopData.waitingPassengers++;
+      // Инициализируем таймер если нужно
+      if (!spawnTimers.has(stopData.id)) {
+        spawnTimers.set(stopData.id, 0);
+      }
+
+      // Обновляем таймер
+      let timer = spawnTimers.get(stopData.id)! + deltaTime;
+
+      if (timer >= spawnInterval) {
+        // Время спавна!
+        timer = 0;
+        spawnNPC(stopData.id, stopPos.x, stopPos.y);
+        stopData.waitingPassengers++;
+      }
+
+      spawnTimers.set(stopData.id, timer);
     }
   },
 };

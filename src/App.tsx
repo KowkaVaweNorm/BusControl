@@ -4,6 +4,7 @@ import { Toolbar } from './widgets/toolbar';
 import { Notifications } from './widgets/notifications';
 import { MapManager } from './widgets/map-manager';
 import { TimeDisplay } from './widgets/time-display';
+import { StopEditor } from './widgets/stop-editor';
 import './index.css';
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
       <Toolbar />
       <MapManager />
       <TimeDisplay />
+      <StopEditor />
     </div>
   );
 }

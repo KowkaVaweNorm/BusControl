@@ -23,12 +23,13 @@ import {
   GameEventType,
 } from '../../../shared/lib/game-core/GameEventBusService';
 import { ROUTE_COMPONENTS, type RouteDataComponent } from '@/entities/Route/model/RouteComponents';
-import { STOP_COMPONENTS, type StopPositionComponent, type StopDataComponent } from '@/entities/stop/model/StopComponents';
+import { STOP_COMPONENTS, type StopPositionComponent, type StopDataComponent, DEFAULT_SPAWN_RATES } from '@/entities/stop/model/StopComponents';
 import { BUS_COMPONENTS, BusState } from '@/entities/Bus/model/BusComponents';
 import { clearMovementCache } from '@/entities/Bus/model/BusMovementSystem';
+import { stopEditorService } from '@/features/stop-editor';
 
 export enum EditorMode {
-  IDLE = 'idle',
+  IDLE = 'idle',              // Выделение и редактирование остановок
   PLACING_STOP = 'placing_stop',
   DRAWING_ROUTE = 'drawing_route',
 }
@@ -55,7 +56,7 @@ export class MapEditorService {
   private boundHandleKeyDown?: (event: any) => void;
   private boundHandleMouseRightClick?: (event: any) => void;
 
-  private mode: EditorMode = EditorMode.PLACING_STOP; // По умолчанию ставим остановки
+  private mode: EditorMode = EditorMode.IDLE; // По умолчанию режим выделения
   private draftRoute: DraftRoute | null = null;
   private routeLoopMode: boolean = false; // Режим зацикливания маршрута (по умолчанию выкл)
 
@@ -104,6 +105,11 @@ export class MapEditorService {
   }
 
   public setMode(mode: EditorMode): void {
+    // При переключении режима закрываем редактор остановок
+    if (stopEditorService.getIsOpen()) {
+      stopEditorService.close();
+    }
+
     // Если сменили режим и был черновик маршрута - сбрасываем его
     if (mode !== EditorMode.DRAWING_ROUTE && this.draftRoute) {
       this.cancelDraftRoute();
@@ -117,11 +123,26 @@ export class MapEditorService {
   }
 
   private handleMouseClick(event: any): void {
+    if (this.mode === EditorMode.IDLE) {
+      // В режиме выделения ЛКМ по остановке открывает редактор
+      if (event.payload.button !== MouseButton.LEFT) return;
+      const { worldX, worldY } = event.payload;
+      
+      const clickedStopId = this.findStopAtPosition(worldX, worldY);
+      if (clickedStopId) {
+        stopEditorService.open(clickedStopId);
+      }
+      return;
+    }
+
     if (this.mode === EditorMode.PLACING_STOP) {
       if (event.payload.button !== MouseButton.LEFT) return;
       const { worldX, worldY } = event.payload;
       this.createStop(worldX, worldY);
-    } else if (this.mode === EditorMode.DRAWING_ROUTE) {
+      return;
+    }
+
+    if (this.mode === EditorMode.DRAWING_ROUTE) {
       if (event.payload.button !== MouseButton.LEFT) return;
       const { worldX, worldY } = event.payload;
       this.addStopToDraftRoute(worldX, worldY);
@@ -173,6 +194,7 @@ export class MapEditorService {
       radius: this.config.defaultStopRadius,
       color: '#00ff00',
       waitingPassengers: 0,
+      spawnRates: { ...DEFAULT_SPAWN_RATES },
     });
 
     // Очищаем кэш движения при создании остановки
@@ -252,15 +274,7 @@ export class MapEditorService {
 
     const { worldX, worldY } = _event.payload;
 
-    // 1. Сначала проверяем, попали ли в остановку (для переименования)
-    const clickedStopId = this.findStopAtPosition(worldX, worldY);
-
-    if (clickedStopId) {
-      this.renameStop(clickedStopId);
-      return;
-    }
-
-    // 2. Если не в остановку, проверяем, попали ли в маршрут (для создания автобуса)
+    // Проверяем, попали ли в маршрут (для создания автобуса)
     const clickedRouteId = this.findRouteAtPosition(worldX, worldY);
 
     if (clickedRouteId) {
@@ -465,39 +479,6 @@ export class MapEditorService {
       }
     }
     return null;
-  }
-
-  /**
-   * Переименовать остановку
-   */
-  private renameStop(stopId: string): void {
-    const stops = entityManagerService.getEntitiesWithComponents(
-      STOP_COMPONENTS.POSITION,
-      STOP_COMPONENTS.DATA
-    );
-
-    // Находим сущность остановки по ID
-    for (const entityId of stops) {
-      const data = entityManagerService.getComponent<StopDataComponent>(
-        entityId,
-        STOP_COMPONENTS.DATA
-      );
-
-      if (data && data.id === stopId) {
-        // Открываем prompt для ввода нового названия
-        const newName = prompt('Введите название остановки:', data.name);
-
-        // Если пользователь ввёл название и не отменил
-        if (newName !== null && newName.trim() !== '') {
-          data.name = newName.trim();
-          console.log(`[MapEditor] Stop renamed: "${newName}"`);
-
-          // Автосохранение карты после переименования
-          // mapSaveService.saveCurrentMap(); // Автосохранение работает по таймеру
-        }
-        return;
-      }
-    }
   }
 
   public cleanup(): void {

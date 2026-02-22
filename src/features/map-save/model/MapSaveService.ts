@@ -9,6 +9,7 @@
 
 import { entityManagerService } from '@/shared/lib/game-core/EntityManagerService';
 import { gameEventBusService, GameEventType } from '@/shared/lib/game-core/GameEventBusService';
+import { gameStateStore } from '@/app/store/GameStateStore';
 import { STOP_COMPONENTS, type StopDataComponent, type StopPositionComponent, DEFAULT_SPAWN_RATES } from '@/entities/stop/model/StopComponents';
 import { ROUTE_COMPONENTS, type RouteDataComponent } from '@/entities/Route/model/RouteComponents';
 import { BUS_COMPONENTS, type BusDataComponent } from '@/entities/Bus/model/BusComponents';
@@ -153,7 +154,12 @@ export class MapSaveService {
     }
 
     this.currentSaveData = saveData;
-    console.log(`[MapSaveService] Map loaded: ${saveData.mapName}`);
+    
+    // Явно устанавливаем счётчики в GameStateStore
+    gameStateStore.setTotalStops(saveData.stops.length);
+    gameStateStore.setActiveBuses(saveData.buses.length);
+    
+    console.log(`[MapSaveService] Map loaded: ${saveData.mapName} (stops: ${saveData.stops.length}, buses: ${saveData.buses.length})`);
   }
 
   /**
@@ -237,12 +243,17 @@ export class MapSaveService {
     const data = this.currentSaveData || this.loadFromLocalStorage();
     if (!data) return null;
 
+    // Считаем реальное количество сущностей на карте
+    const actualStopsCount = entityManagerService.getEntitiesWithComponents(STOP_COMPONENTS.DATA).length;
+    const actualRoutesCount = entityManagerService.getEntitiesWithComponents(ROUTE_COMPONENTS.DATA).length;
+    const actualBusesCount = entityManagerService.getEntitiesWithComponents(BUS_COMPONENTS.DATA).length;
+
     return {
       mapName: data.mapName,
       modifiedAt: data.modifiedAt,
-      stopsCount: data.stops.length,
-      routesCount: data.routes.length,
-      busesCount: data.buses.length,
+      stopsCount: actualStopsCount,
+      routesCount: actualRoutesCount,
+      busesCount: actualBusesCount,
     };
   }
 
