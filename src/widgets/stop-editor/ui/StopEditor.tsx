@@ -149,43 +149,41 @@ export const StopEditor = () => {
           <label className={cls.label}>👥 Спавн пассажиров</label>
           <div className={cls.sliderGroup}>
             {/* Используем значения enum, а не ключи */}
-            {[TimePeriod.MORNING, TimePeriod.DAY, TimePeriod.EVENING, TimePeriod.NIGHT].map((period) => {
-              const rate = spawnRates[period as keyof SpawnRates] ?? 20;
-              // Конвертируем интервал (сек) в пассажиров в минуту
-              const passengersPerMinute = Math.round(60 / rate);
-              return (
-                <div key={period} className={cls.sliderItem}>
-                  <div className={cls.sliderHeader}>
-                    <span className={cls.sliderLabel}>
-                      <span className={cls.icon}>{PERIOD_ICONS[period]}</span>
-                      {PERIOD_NAMES[period]}
-                    </span>
-                    <span className={cls.sliderValue}>
-                      {passengersPerMinute} пасс/мин
-                    </span>
+            {[TimePeriod.MORNING, TimePeriod.DAY, TimePeriod.EVENING, TimePeriod.NIGHT].map(
+              (period) => {
+                const rate = spawnRates[period as keyof SpawnRates] ?? 20;
+                // Конвертируем интервал (сек) в пассажиров в минуту
+                const passengersPerMinute = Math.round(60 / rate);
+                return (
+                  <div key={period} className={cls.sliderItem}>
+                    <div className={cls.sliderHeader}>
+                      <span className={cls.sliderLabel}>
+                        <span className={cls.icon}>{PERIOD_ICONS[period]}</span>
+                        {PERIOD_NAMES[period]}
+                      </span>
+                      <span className={cls.sliderValue}>{passengersPerMinute} пасс/мин</span>
+                    </div>
+                    <input
+                      type="range"
+                      className={cls.slider}
+                      min="0"
+                      max="120"
+                      step="1"
+                      value={String(passengersPerMinute)}
+                      onChange={(e) => {
+                        const newPassengersPerMin = parseInt(e.target.value, 10);
+                        // Конвертируем обратно в интервал: 60 / passengersPerMinute
+                        const newInterval = newPassengersPerMin > 0 ? 60 / newPassengersPerMin : 60;
+                        const newRates = { ...spawnRates, [period]: newInterval };
+                        setSpawnRates(newRates);
+                        stopEditorService.updateSpawnRates(newRates);
+                      }}
+                    />
+                    <div className={cls.sliderSubtext}>Интервал: {rate.toFixed(1)} сек</div>
                   </div>
-                  <input
-                    type="range"
-                    className={cls.slider}
-                    min="0"
-                    max="120"
-                    step="1"
-                    value={String(passengersPerMinute)}
-                    onChange={(e) => {
-                      const newPassengersPerMin = parseInt(e.target.value, 10);
-                      // Конвертируем обратно в интервал: 60 / passengersPerMinute
-                      const newInterval = newPassengersPerMin > 0 ? 60 / newPassengersPerMin : 60;
-                      const newRates = { ...spawnRates, [period]: newInterval };
-                      setSpawnRates(newRates);
-                      stopEditorService.updateSpawnRates(newRates);
-                    }}
-                  />
-                  <div className={cls.sliderSubtext}>
-                    Интервал: {rate.toFixed(1)} сек
-                  </div>
-                </div>
-              );
-            })}
+                );
+              }
+            )}
           </div>
         </div>
 

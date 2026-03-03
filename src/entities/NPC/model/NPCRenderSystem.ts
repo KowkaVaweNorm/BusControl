@@ -6,7 +6,12 @@
 import type { System, SystemContext } from '@/shared/lib/game-core/EntityManagerService';
 import { canvasRendererService } from '@/shared/lib/game-core/CanvasRendererService';
 import { entityManagerService } from '@/shared/lib/game-core/EntityManagerService';
-import { NPC_COMPONENTS, NPCState, type NPCDataComponent, type NPCPositionComponent } from './NPCComponents';
+import {
+  NPC_COMPONENTS,
+  NPCState,
+  type NPCDataComponent,
+  type NPCPositionComponent,
+} from './NPCComponents';
 
 export const npcRenderSystem: System = {
   name: 'NPCRenderSystem',
@@ -18,8 +23,14 @@ export const npcRenderSystem: System = {
 
     try {
       for (const entityId of entities) {
-        const pos = entityManagerService.getComponent<NPCPositionComponent>(entityId, NPC_COMPONENTS.POSITION);
-        const data = entityManagerService.getComponent<NPCDataComponent>(entityId, NPC_COMPONENTS.DATA);
+        const pos = entityManagerService.getComponent<NPCPositionComponent>(
+          entityId,
+          NPC_COMPONENTS.POSITION
+        );
+        const data = entityManagerService.getComponent<NPCDataComponent>(
+          entityId,
+          NPC_COMPONENTS.DATA
+        );
 
         if (!pos || !data) continue;
 

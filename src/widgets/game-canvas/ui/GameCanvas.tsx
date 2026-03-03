@@ -1,6 +1,17 @@
 import { useEffect, useRef } from 'react';
 import { initGame } from '../../../app/init';
+import { canvasRendererService } from '@/shared/lib/game-core/CanvasRendererService';
 import cls from './GameCanvas.module.scss';
+
+// Глобальная переменная для хранения ID выбранной карты
+let SELECTED_MAP_ID: string | null = null;
+
+/**
+ * Установить ID карты для загрузки при инициализации игры
+ */
+export function setSelectedMapId(mapId: string): void {
+  SELECTED_MAP_ID = mapId;
+}
 
 export const GameCanvas = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -11,14 +22,13 @@ export const GameCanvas = () => {
 
     const containerId = containerRef.current.id;
 
-    // Инициализация игры
-    const result = initGame(containerId);
+    // Инициализация игры с загрузкой выбранной карты
+    const result = initGame(containerId, SELECTED_MAP_ID);
     cleanupRef.current = result.cleanup;
 
     // Обработка ресайза окна
     const handleResize = () => {
-      // Можно добавить вызов resize в canvasRendererService
-      // canvasRendererService.resize(window.innerWidth, window.innerHeight);
+      canvasRendererService.resize(window.innerWidth, window.innerHeight);
     };
     window.addEventListener('resize', handleResize);
 

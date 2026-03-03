@@ -18,8 +18,14 @@ export const busRenderSystem: System = {
 
     try {
       for (const entityId of entities) {
-        const pos = entityManagerService.getComponent<BusPositionComponent>(entityId, BUS_COMPONENTS.POSITION);
-        const data = entityManagerService.getComponent<BusDataComponent>(entityId, BUS_COMPONENTS.DATA);
+        const pos = entityManagerService.getComponent<BusPositionComponent>(
+          entityId,
+          BUS_COMPONENTS.POSITION
+        );
+        const data = entityManagerService.getComponent<BusDataComponent>(
+          entityId,
+          BUS_COMPONENTS.DATA
+        );
 
         if (!pos || !data) continue;
 
@@ -28,7 +34,7 @@ export const busRenderSystem: System = {
 
         // Сохраняем контекст для трансформации
         ctx.save();
-        
+
         // Перемещаем pivot point в центр автобуса
         ctx.translate(pos.x, pos.y);
         ctx.rotate(pos.rotation);
@@ -51,19 +57,25 @@ export const busRenderSystem: System = {
         if (data.passengers > 0) {
           const loadPercent = data.passengers / data.capacity;
           ctx.fillStyle = '#ffffff';
-          ctx.fillRect(-width/2, -height/2 - 8, width, 4);
+          ctx.fillRect(-width / 2, -height / 2 - 8, width, 4);
           ctx.fillStyle = '#00ff00';
-          ctx.fillRect(-width/2, -height/2 - 8, width * loadPercent, 4);
+          ctx.fillRect(-width / 2, -height / 2 - 8, width * loadPercent, 4);
         }
 
         ctx.restore();
 
         // Подпись ID или кол-ва пассажиров (не вращается)
-        canvasRendererService.drawText(ctx, `${data.passengers}/${data.capacity}`, pos.x, pos.y - 25, {
-          color: '#ffffff',
-          fontSize: 12,
-          align: 'center',
-        });
+        canvasRendererService.drawText(
+          ctx,
+          `${data.passengers}/${data.capacity}`,
+          pos.x,
+          pos.y - 25,
+          {
+            color: '#ffffff',
+            fontSize: 12,
+            align: 'center',
+          }
+        );
       }
     } finally {
       ctx.restore(); // Восстанавливаем контекст после трансформации камеры

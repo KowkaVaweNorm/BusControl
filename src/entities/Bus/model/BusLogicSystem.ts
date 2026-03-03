@@ -6,7 +6,12 @@
 
 import type { System, SystemContext } from '@/shared/lib/game-core/EntityManagerService';
 import { entityManagerService } from '@/shared/lib/game-core/EntityManagerService';
-import { BUS_COMPONENTS, BusState, type BusDataComponent, type BusVelocityComponent } from './BusComponents';
+import {
+  BUS_COMPONENTS,
+  BusState,
+  type BusDataComponent,
+  type BusVelocityComponent,
+} from './BusComponents';
 import { ROUTE_COMPONENTS, type RouteDataComponent } from '@/entities/Route/model/RouteComponents';
 
 export const busLogicSystem: System = {
@@ -17,8 +22,14 @@ export const busLogicSystem: System = {
     const { deltaTime } = context;
 
     for (const entityId of entities) {
-      const data = entityManagerService.getComponent<BusDataComponent>(entityId, BUS_COMPONENTS.DATA);
-      const vel = entityManagerService.getComponent<BusVelocityComponent>(entityId, BUS_COMPONENTS.VELOCITY);
+      const data = entityManagerService.getComponent<BusDataComponent>(
+        entityId,
+        BUS_COMPONENTS.DATA
+      );
+      const vel = entityManagerService.getComponent<BusVelocityComponent>(
+        entityId,
+        BUS_COMPONENTS.VELOCITY
+      );
 
       if (!data || !vel) continue;
 

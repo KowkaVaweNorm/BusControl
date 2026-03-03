@@ -20,7 +20,7 @@ export const MapManager = () => {
 
   const handleLoadPreset = () => {
     if (!selectedPreset) return;
-    
+
     if (confirm('Загрузка пресета очистит текущую карту. Продолжить?')) {
       const success = mapSaveService.loadPreset(selectedPreset);
       if (success) {
@@ -51,7 +51,7 @@ export const MapManager = () => {
     if (confirm('Вы уверены? Это удалит сохранение и очистит карту.')) {
       mapSaveService.clearLocalStorage();
       setHasSave(false);
-      
+
       // Очистка всех сущностей
       const confirmReload = confirm('Перезагрузить страницу для применения?');
       if (confirmReload) {
@@ -93,7 +93,7 @@ export const MapManager = () => {
       }
     };
     reader.readAsText(file);
-    
+
     // Сброс input для возможности повторной загрузки того же файла
     event.target.value = '';
   };
@@ -119,7 +119,13 @@ export const MapManager = () => {
               <option value="">-- Выберите пресет --</option>
               {presets.map((preset) => (
                 <option key={preset.id} value={preset.id}>
-                  {preset.name} ({preset.difficulty === 'easy' ? 'Лёгкий' : preset.difficulty === 'medium' ? 'Средний' : 'Сложный'})
+                  {preset.name} (
+                  {preset.difficulty === 'easy'
+                    ? 'Лёгкий'
+                    : preset.difficulty === 'medium'
+                      ? 'Средний'
+                      : 'Сложный'}
+                  )
                 </option>
               ))}
             </select>
@@ -149,7 +155,11 @@ export const MapManager = () => {
             <button className={cls.button} onClick={handleLoad} disabled={!hasSave}>
               📂 Загрузить
             </button>
-            <button className={`${cls.button} ${cls.danger}`} onClick={handleClear} disabled={!hasSave}>
+            <button
+              className={`${cls.button} ${cls.danger}`}
+              onClick={handleClear}
+              disabled={!hasSave}
+            >
               🗑️ Очистить
             </button>
           </div>
@@ -163,12 +173,7 @@ export const MapManager = () => {
             </button>
             <label className={`${cls.button} ${cls.fileInput}`}>
               📥 Импорт JSON
-              <input
-                type="file"
-                accept=".json"
-                onChange={handleImport}
-                hidden
-              />
+              <input type="file" accept=".json" onChange={handleImport} hidden />
             </label>
           </div>
 

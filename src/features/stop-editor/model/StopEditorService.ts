@@ -9,7 +9,11 @@
  */
 
 import { entityManagerService } from '@/shared/lib/game-core/EntityManagerService';
-import { STOP_COMPONENTS, type StopDataComponent, type SpawnRates } from '@/entities/stop/model/StopComponents';
+import {
+  STOP_COMPONENTS,
+  type StopDataComponent,
+  type SpawnRates,
+} from '@/entities/stop/model/StopComponents';
 import { gameEventBusService } from '@/shared/lib/game-core/GameEventBusService';
 
 export enum StopEditorEventType {
@@ -43,9 +47,12 @@ export class StopEditorService {
     this.selectedStopId = stopId;
     this.isOpen = true;
 
-    gameEventBusService.publish(StopEditorEventType.OPENED as any, {
-      stopId,
-    } as StopEditorOpenedEvent);
+    gameEventBusService.publish(
+      StopEditorEventType.OPENED as any,
+      {
+        stopId,
+      } as StopEditorOpenedEvent
+    );
   }
 
   /**
@@ -82,10 +89,13 @@ export class StopEditorService {
     if (data) {
       data.name = name;
 
-      gameEventBusService.publish(StopEditorEventType.UPDATED as any, {
-        stopId: this.selectedStopId,
-        name,
-      } as StopEditorUpdatedEvent);
+      gameEventBusService.publish(
+        StopEditorEventType.UPDATED as any,
+        {
+          stopId: this.selectedStopId,
+          name,
+        } as StopEditorUpdatedEvent
+      );
     }
   }
 
@@ -106,10 +116,13 @@ export class StopEditorService {
     if (data) {
       data.spawnRates = { ...spawnRates };
 
-      gameEventBusService.publish(StopEditorEventType.UPDATED as any, {
-        stopId: this.selectedStopId,
-        spawnRates,
-      } as StopEditorUpdatedEvent);
+      gameEventBusService.publish(
+        StopEditorEventType.UPDATED as any,
+        {
+          stopId: this.selectedStopId,
+          spawnRates,
+        } as StopEditorUpdatedEvent
+      );
     }
   }
 
@@ -140,10 +153,7 @@ export class StopEditorService {
       return null;
     }
 
-    return entityManagerService.getComponent<StopDataComponent>(
-      stopEntity,
-      STOP_COMPONENTS.DATA
-    );
+    return entityManagerService.getComponent<StopDataComponent>(stopEntity, STOP_COMPONENTS.DATA);
   }
 
   /**
@@ -163,9 +173,7 @@ export class StopEditorService {
       return null;
     }
 
-    const stopEntities = entityManagerService.getEntitiesWithComponents(
-      STOP_COMPONENTS.DATA
-    );
+    const stopEntities = entityManagerService.getEntitiesWithComponents(STOP_COMPONENTS.DATA);
 
     for (const entityId of stopEntities) {
       const data = entityManagerService.getComponent<StopDataComponent>(

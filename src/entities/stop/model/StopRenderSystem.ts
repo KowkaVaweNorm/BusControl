@@ -58,8 +58,8 @@ export const stopRenderSystem: System = {
         // 1. Рисуем зону остановки (полупрозрачный круг)
         canvasRendererService.drawCircle(ctx, pos.x, pos.y, data.radius, {
           fillColor: data.color + '40',
-          strokeColor: isSelected ? '#00ffff' : (isHovered ? '#ffffff' : data.color),
-          strokeWidth: isSelected ? 5 : (isHovered ? 4 : 2),
+          strokeColor: isSelected ? '#00ffff' : isHovered ? '#ffffff' : data.color,
+          strokeWidth: isSelected ? 5 : isHovered ? 4 : 2,
         });
 
         // 2. Рисуем центр (маркер)

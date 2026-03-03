@@ -7,9 +7,9 @@
  * Периоды суток
  */
 export enum TimePeriod {
-  NIGHT = 'night',     // 22:00 - 06:00
+  NIGHT = 'night', // 22:00 - 06:00
   MORNING = 'morning', // 06:00 - 12:00
-  DAY = 'day',         // 12:00 - 18:00
+  DAY = 'day', // 12:00 - 18:00
   EVENING = 'evening', // 18:00 - 22:00
 }
 
@@ -17,9 +17,9 @@ export enum TimePeriod {
  * Текущее время суток
  */
 export interface TimeOfDay {
-  hours: number;   // 0-23
+  hours: number; // 0-23
   minutes: number; // 0-59
-  day: number;     // Номер дня
+  day: number; // Номер дня
 }
 
 /**

@@ -6,8 +6,18 @@
 
 import type { System, SystemContext } from '@/shared/lib/game-core/EntityManagerService';
 import { entityManagerService } from '@/shared/lib/game-core/EntityManagerService';
-import { BUS_COMPONENTS, BusState, type BusDataComponent, type BusPositionComponent } from '@/entities/Bus/model/BusComponents';
-import { NPC_COMPONENTS, NPCState, type NPCDataComponent, type NPCPositionComponent } from './NPCComponents';
+import {
+  BUS_COMPONENTS,
+  BusState,
+  type BusDataComponent,
+  type BusPositionComponent,
+} from '@/entities/Bus/model/BusComponents';
+import {
+  NPC_COMPONENTS,
+  NPCState,
+  type NPCDataComponent,
+  type NPCPositionComponent,
+} from './NPCComponents';
 import { STOP_COMPONENTS, type StopDataComponent } from '@/entities/stop/model/StopComponents';
 import { ROUTE_COMPONENTS, type RouteDataComponent } from '@/entities/Route/model/RouteComponents';
 import { gameEventBusService, GameEventType } from '@/shared/lib/game-core/GameEventBusService';
@@ -18,7 +28,10 @@ export const npcInteractionSystem: System = {
 
   update: (_context: SystemContext, entities: number[]) => {
     for (const busEntityId of entities) {
-      const busData = entityManagerService.getComponent<BusDataComponent>(busEntityId, BUS_COMPONENTS.DATA);
+      const busData = entityManagerService.getComponent<BusDataComponent>(
+        busEntityId,
+        BUS_COMPONENTS.DATA
+      );
 
       if (!busData || busData.state !== BusState.STOPPED) {
         continue;
@@ -79,7 +92,10 @@ function isFinalStopForRoute(busData: BusDataComponent): boolean {
  * Высадка пассажиров, достигших цели
  */
 function unloadPassengers(busEntityId: number, busData: BusDataComponent, stopId: string): void {
-  const allNpcs = entityManagerService.getEntitiesWithComponents(NPC_COMPONENTS.DATA, NPC_COMPONENTS.POSITION);
+  const allNpcs = entityManagerService.getEntitiesWithComponents(
+    NPC_COMPONENTS.DATA,
+    NPC_COMPONENTS.POSITION
+  );
   let unloadedCount = 0;
 
   // Проверяем, является ли эта остановка конечной для маршрута
@@ -87,7 +103,10 @@ function unloadPassengers(busEntityId: number, busData: BusDataComponent, stopId
 
   for (const npcId of allNpcs) {
     const npcData = entityManagerService.getComponent<NPCDataComponent>(npcId, NPC_COMPONENTS.DATA);
-    const npcPos = entityManagerService.getComponent<NPCPositionComponent>(npcId, NPC_COMPONENTS.POSITION);
+    const npcPos = entityManagerService.getComponent<NPCPositionComponent>(
+      npcId,
+      NPC_COMPONENTS.POSITION
+    );
 
     if (!npcData || !npcPos) continue;
 
@@ -143,14 +162,20 @@ function loadPassengers(busEntityId: number, busData: BusDataComponent, stopId: 
     return; // Автобус полон
   }
 
-  const allNpcs = entityManagerService.getEntitiesWithComponents(NPC_COMPONENTS.DATA, NPC_COMPONENTS.POSITION);
+  const allNpcs = entityManagerService.getEntitiesWithComponents(
+    NPC_COMPONENTS.DATA,
+    NPC_COMPONENTS.POSITION
+  );
   let boardedCount = 0;
 
   for (const npcId of allNpcs) {
     if (busData.passengers >= busData.capacity) break;
 
     const npcData = entityManagerService.getComponent<NPCDataComponent>(npcId, NPC_COMPONENTS.DATA);
-    const npcPos = entityManagerService.getComponent<NPCPositionComponent>(npcId, NPC_COMPONENTS.POSITION);
+    const npcPos = entityManagerService.getComponent<NPCPositionComponent>(
+      npcId,
+      NPC_COMPONENTS.POSITION
+    );
 
     if (!npcData || !npcPos) continue;
 
@@ -173,7 +198,10 @@ function loadPassengers(busEntityId: number, busData: BusDataComponent, stopId: 
       updateStopQueue(stopId, -1);
 
       // Визуально: телепортируем в центр автобуса
-      const busPos = entityManagerService.getComponent<BusPositionComponent>(busEntityId, BUS_COMPONENTS.POSITION);
+      const busPos = entityManagerService.getComponent<BusPositionComponent>(
+        busEntityId,
+        BUS_COMPONENTS.POSITION
+      );
       if (busPos) {
         npcPos.x = busPos.x;
         npcPos.y = busPos.y;
@@ -210,7 +238,10 @@ function doesBusGoToStop(busData: BusDataComponent, targetStopId: string): boole
 
   const routes = entityManagerService.getEntitiesWithComponents(ROUTE_COMPONENTS.DATA);
   for (const rId of routes) {
-    const routeData = entityManagerService.getComponent<RouteDataComponent>(rId, ROUTE_COMPONENTS.DATA);
+    const routeData = entityManagerService.getComponent<RouteDataComponent>(
+      rId,
+      ROUTE_COMPONENTS.DATA
+    );
     if (!routeData || routeData.id !== busData.routeId) continue;
 
     // Находим индекс текущей остановки в маршруте

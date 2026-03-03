@@ -7,7 +7,7 @@
   /* ===========================================
    * ЦВЕТА СУЩНОСТЕЙ (CANVAS)
    * =========================================== */
-  
+
   /* Автобусы */
   --bus-default-color: #ffcc00;
   --bus-stroke-color: #000000;
@@ -15,7 +15,7 @@
   --bus-passenger-bar-bg: #ffffff;
   --bus-passenger-bar-fill: #00ff00;
   --bus-text-color: #ffffff;
-  
+
   /* Пассажиры (NPC) */
   --npc-waiting-color: #ffffff;
   --npc-on-bus-color: #00aaff;
@@ -23,7 +23,7 @@
   --npc-alighting-color: #ff8800;
   --npc-target-indicator-color: #ff00ff;
   --npc-stroke-color: #000000;
-  
+
   /* Остановки */
   --stop-default-color: #00ff00;
   --stop-hover-color: #ffffff;
@@ -33,22 +33,22 @@
   --stop-passenger-counter-color: #ffff00;
   --stop-edit-icon-color: #ffff00;
   --stop-shadow-color: #000000;
-  
+
   /* Маршруты */
   --route-default-color: #00aaff;
   --route-line-color: inherit; /* Берется из данных маршрута */
   --route-segment-dot-color: #ffffff;
   --route-label-shadow: #000000;
-  
+
   /* Canvas Renderer (цвета по умолчанию) */
   --canvas-line-default: #ffffff;
   --canvas-text-default: #ffffff;
   --canvas-stroke-default: #000000;
-  
+
   /* ===========================================
    * ЦВЕТА UI КОМПОНЕНТОВ
    * =========================================== */
-  
+
   /* Общие цвета UI */
   --ui-bg-primary: rgba(26, 26, 46, 0.95);
   --ui-bg-secondary: rgba(74, 74, 106, 0.5);
@@ -64,49 +64,49 @@
   --ui-text-light: #cccccc;
   --ui-shadow: rgba(0, 0, 0, 0.3);
   --ui-shadow-strong: rgba(0, 0, 0, 0.4);
-  
+
   /* ===========================================
    * ЦВЕТА ТЕМЫ (PAPER/TEXT/BORDERS)
    * =========================================== */
-  
+
   /* Base (фон) */
   --theme-paper: #fffcf0;
   --theme-paper-warm: #e5ddd0;
   --theme-paper-soft: #f0ead8;
-  
+
   /* Text */
   --theme-text-primary: #1e1e1e;
   --theme-text-secondary: #111111;
   --theme-text-muted: #777777;
   --theme-text-inverse: #fffcf0;
-  
+
   /* Borders & Lines */
   --theme-border-main: #333333;
   --theme-border-soft: #aaaaaa;
   --theme-border-disabled: #999999;
   --theme-border-accent: #dd2222;
-  
+
   /* Accents */
   --theme-accent-red: #dd2222;
   --theme-accent-dark-red: #aa2222;
   --theme-shadow-base: rgba(0, 0, 0, 0.2);
-  
+
   /* Interactive states */
   --theme-hover-bg: #f0e2cc;
   --theme-active-bg: #333333;
   --theme-active-border: #dd2222;
-  
+
   /* UI Controls */
   --theme-slider-track: #cccccc;
   --theme-slider-thumb: #222222;
   --theme-slider-thumb-border: #ffffff;
-  
+
   /* StatsPanel */
   --stats-money-color: #4caf50;
   --stats-notification-bg: rgba(76, 175, 80, 0.2);
   --stats-notification-border: #4caf50;
   --stats-notification-text: #81c784;
-  
+
   /* Toolbar */
   --toolbar-button-bg: #2a2a4a;
   --toolbar-button-hover-bg: #3a3a5a;
@@ -117,13 +117,13 @@
   --toolbar-buy-button-hover-bg: #388e3c;
   --toolbar-separator-color: #4a4a6a;
   --toolbar-hint-color: #888;
-  
+
   /* Notifications */
   --notification-default-border: #4a4a6a;
   --notification-info-border: #2196f3;
   --notification-success-border: #4caf50;
   --notification-warning-border: #ff9800;
-  
+
   /* MapManager */
   --map-manager-button-danger-border: #ff4444;
   --map-manager-button-danger-bg: rgba(255, 68, 68, 0.2);
@@ -131,13 +131,13 @@
   --map-manager-info-bg: rgba(76, 175, 80, 0.1);
   --map-manager-info-border: #4caf50;
   --map-manager-info-text: #81c784;
-  
+
   /* TimeDisplay */
   --time-display-color: #4caf50;
   --time-display-label: #aaaaaa;
   --time-display-separator: #4a4a6a;
   --time-display-sublabel: #888888;
-  
+
   /* StopEditor */
   --stop-editor-input-bg: rgba(74, 74, 106, 0.5);
   --stop-editor-input-border: #5a5a7a;
@@ -153,32 +153,32 @@
   --stop-editor-subtext: #666666;
   --stop-editor-info-bg: rgba(76, 175, 80, 0.15);
   --stop-editor-info-border: #4caf50;
-  
+
   /* Пресеты маршрутов (для preset-maps.ts) */
-  --preset-route-green: #4CAF50;
-  --preset-route-blue: #2196F3;
-  --preset-route-orange: #FF5722;
-  --preset-route-purple: #9C27B0;
-  --preset-route-yellow: #FFC107;
-  --preset-route-cyan: #00BCD4;
-  --preset-route-pink: #E91E63;
-  --preset-route-red: #F44336;
+  --preset-route-green: #4caf50;
+  --preset-route-blue: #2196f3;
+  --preset-route-orange: #ff5722;
+  --preset-route-purple: #9c27b0;
+  --preset-route-yellow: #ffc107;
+  --preset-route-cyan: #00bcd4;
+  --preset-route-pink: #e91e63;
+  --preset-route-red: #f44336;
   --preset-route-teal: #009688;
-  --preset-route-indigo: #3F51B5;
-  --preset-route-lime: #FBC02D;
-  --preset-route-deep-purple: #7B1FA2;
-  --preset-deep-red: #D32F2F;
-  --preset-deep-blue: #1976D2;
-  --preset-deep-green: #388E3C;
-  --preset-cyan-dark: #0097A7;
-  
+  --preset-route-indigo: #3f51b5;
+  --preset-route-lime: #fbc02d;
+  --preset-route-deep-purple: #7b1fa2;
+  --preset-deep-red: #d32f2f;
+  --preset-deep-blue: #1976d2;
+  --preset-deep-green: #388e3c;
+  --preset-cyan-dark: #0097a7;
+
   /* Фон и слои */
   --background-color: #1a1a2e;
-  
+
   /* ===========================================
    * ЦВЕТА UI КОМПОНЕНТОВ
    * =========================================== */
-  
+
   /* Общие цвета UI */
   --ui-bg-primary: rgba(26, 26, 46, 0.95);
   --ui-bg-secondary: rgba(74, 74, 106, 0.5);
@@ -189,13 +189,13 @@
   --ui-text-secondary: #aaaaaa;
   --ui-shadow: rgba(0, 0, 0, 0.3);
   --ui-shadow-strong: rgba(0, 0, 0, 0.4);
-  
+
   /* StatsPanel */
   --stats-money-color: #4caf50;
   --stats-notification-bg: rgba(76, 175, 80, 0.2);
   --stats-notification-border: #4caf50;
   --stats-notification-text: #81c784;
-  
+
   /* Toolbar */
   --toolbar-button-bg: #2a2a4a;
   --toolbar-button-hover-bg: #3a3a5a;
@@ -206,12 +206,12 @@
   --toolbar-buy-button-hover-bg: #388e3c;
   --toolbar-separator-color: #4a4a6a;
   --toolbar-hint-color: #888;
-  
+
   /* Notifications */
   --notification-info-border: #2196f3;
   --notification-success-border: #4caf50;
   --notification-warning-border: #ff9800;
-  
+
   /* MapManager */
   --map-manager-button-danger-border: #ff4444;
   --map-manager-button-danger-bg: rgba(255, 68, 68, 0.2);
@@ -219,15 +219,15 @@
   --map-manager-info-bg: rgba(76, 175, 80, 0.1);
   --map-manager-info-border: #4caf50;
   --map-manager-info-text: #81c784;
-  
+
   /* ===========================================
    * ЦВЕТА СОСТОЯНИЙ
    * =========================================== */
-  
+
   /* Состояния кнопок */
   --state-disabled-opacity: 0.5;
   --state-disabled-filter: grayscale(1);
-  
+
   /* Анимации */
   --animation-fade-in: fadeIn 0.3s ease-in;
   --animation-slide-in: slideIn 0.2s ease-out;

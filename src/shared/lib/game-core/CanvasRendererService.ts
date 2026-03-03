@@ -496,7 +496,7 @@ export class CanvasRendererService {
 
     // Сохраняем текущее состояние (без трансформации камеры)
     layer.ctx.save();
-    
+
     // Применяем трансформацию камеры к контексту слоя
     this.applyLayerTransform(layer.ctx);
 
@@ -528,8 +528,12 @@ export class CanvasRendererService {
 
   /**
    * Ресайз Canvas (при изменении размера окна)
+   * Сохраняет мировые координаты центра экрана, чтобы камера не смещалась
    */
   public resize(width: number, height: number): void {
+    // Сохраняем мировые координаты центра экрана ДО ресайза
+    const oldCenterWorld = this.screenToWorld(this.config.width / 2, this.config.height / 2);
+
     this.config.width = width;
     this.config.height = height;
     this.viewport.width = width;
@@ -539,6 +543,18 @@ export class CanvasRendererService {
       layer.canvas.width = width;
       layer.canvas.height = height;
     });
+
+    // Корректируем позицию камеры так, чтобы мировые координаты центра остались прежними
+    const newCenterWorld = this.screenToWorld(this.config.width / 2, this.config.height / 2);
+    const dx = oldCenterWorld.x - newCenterWorld.x;
+    const dy = oldCenterWorld.y - newCenterWorld.y;
+
+    this.viewport.x += dx;
+    this.viewport.y += dy;
+
+    // После изменения размера нужно перерисовать все слои
+    // Это важно для фона (небо), который рисуется на весь экран
+    this.render();
   }
 
   /**

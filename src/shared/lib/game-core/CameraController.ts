@@ -108,8 +108,8 @@ export class CameraController {
   public pan(dx: number, dy: number): void {
     const viewport = canvasRendererService.getViewport();
 
-    let newX = viewport.x + dx;
-    let newY = viewport.y + dy;
+    const newX = viewport.x + dx;
+    const newY = viewport.y + dy;
 
     canvasRendererService.setCameraPosition(newX, newY);
   }

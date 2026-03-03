@@ -5,4 +5,4 @@
  * Инициализирует игровое ядро при монтировании.
  */
 
-export { GameCanvas } from './ui/GameCanvas';
+export { GameCanvas, setSelectedMapId } from './ui/GameCanvas';

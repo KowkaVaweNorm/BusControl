@@ -17,7 +17,10 @@ import { entityManagerService } from '../shared/lib/game-core/EntityManagerServi
 import { gameEventBusService } from '../shared/lib/game-core/GameEventBusService';
 import { cameraController } from '../shared/lib/game-core/CameraController';
 import { mapEditorService } from '../features/map-editor/model/MapEditorService';
-import { initEconomyListener, cleanupEconomyListener } from '../features/economy/model/EconomyListener';
+import {
+  initEconomyListener,
+  cleanupEconomyListener,
+} from '../features/economy/model/EconomyListener';
 import { mapSaveService } from '../features/map-save/model/MapSaveService';
 import { timeService, skyRenderSystem } from '../features/time-of-day';
 import { stopRenderSystem } from '../entities/stop/model/StopRenderSystem';
@@ -44,9 +47,11 @@ export interface InitResult {
 /**
  * Основная функция инициализации
  * @param containerId ID HTML элемента, куда будет встроен Canvas
+ * @param selectedMapId ID выбранной карты для загрузки (опционально)
  */
-export function initGame(containerId: string): InitResult {
+export function initGame(containerId: string, selectedMapId: string | null = null): InitResult {
   console.log('[App] Initializing Game Core...');
+  console.log('[App] Selected map ID:', selectedMapId);
 
   try {
     // 1. Инициализация шины событий
@@ -77,25 +82,29 @@ export function initGame(containerId: string): InitResult {
 
     // Регистрируем системы автобуса
     entityManagerService.registerSystem(busMovementSystem); // Движение
-    entityManagerService.registerSystem(busLogicSystem);    // Логика состояний
-    entityManagerService.registerSystem(busRenderSystem);   // Отрисовка
+    entityManagerService.registerSystem(busLogicSystem); // Логика состояний
+    entityManagerService.registerSystem(busRenderSystem); // Отрисовка
 
     // Регистрируем NPC системы
-    entityManagerService.registerSystem(npcSpawnerSystem);        // Спавн пассажиров
-    entityManagerService.registerSystem(npcInteractionSystem);    // Посадка/высадка
-    entityManagerService.registerSystem(npcRenderSystem);         // Отрисовка
+    entityManagerService.registerSystem(npcSpawnerSystem); // Спавн пассажиров
+    entityManagerService.registerSystem(npcInteractionSystem); // Посадка/высадка
+    entityManagerService.registerSystem(npcRenderSystem); // Отрисовка
 
     // Регистрируем системы остановок (загруженность и статистика)
-    entityManagerService.registerSystem(stopOverloadSystem);      // Мониторинг перегрузки
-    entityManagerService.registerSystem(stopStatisticsSystem);    // Агрегация статистики
+    entityManagerService.registerSystem(stopOverloadSystem); // Мониторинг перегрузки
+    entityManagerService.registerSystem(stopStatisticsSystem); // Агрегация статистики
 
-    // 6. Автозагрузка сохранённой карты и запуск автосохранения
-    const savedMap = mapSaveService.loadFromLocalStorage();
-    if (savedMap) {
-      console.log('[App] Loading saved map...');
-      mapSaveService.loadMap(savedMap);
+    // 6. Загрузка выбранной карты (если указана)
+    if (selectedMapId) {
+      console.log('[App] Loading selected map:', selectedMapId);
+      const loaded = mapSaveService.loadPreset(selectedMapId);
+      if (loaded) {
+        console.log('[App] Map loaded successfully');
+      } else {
+        console.error('[App] Failed to load map:', selectedMapId);
+      }
     } else {
-      console.log('[App] No saved map found, starting with empty map');
+      console.log('[App] No map selected, starting with empty map');
     }
 
     // Запуск автосохранения (каждую минуту)
@@ -139,7 +148,7 @@ export function initGame(containerId: string): InitResult {
         mapSaveService.stopAutoSave(); // Останавливаем автосохранение
         timeService.cleanup(); // Останавливаем время
         entityManagerService.cleanup(); // Очищаем ECS
-        gameEventBusService.cleanup();  // Очищаем шину событий
+        gameEventBusService.cleanup(); // Очищаем шину событий
         canvasRendererService.cleanup(); // Очищаем рендерер
       },
     };

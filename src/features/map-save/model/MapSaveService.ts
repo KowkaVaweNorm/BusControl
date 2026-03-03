@@ -1,9 +1,9 @@
 /**
  * MapSaveService
- * 
+ *
  * Сервис сохранения и загрузки карт.
  * Работает с localStorage и пресетными картами.
- * 
+ *
  * @module features/map-save/model
  */
 
@@ -12,7 +12,12 @@ import { gameEventBusService, GameEventType } from '@/shared/lib/game-core/GameE
 import { gameStateStore } from '@/app/store/GameStateStore';
 import { resetComplaintTimers } from '@/entities/stop/model/StopOverloadSystem';
 import { resetAggregationTimer } from '@/entities/stop/model/StopStatisticsSystem';
-import { STOP_COMPONENTS, type StopDataComponent, type StopPositionComponent, DEFAULT_SPAWN_RATES } from '@/entities/stop/model/StopComponents';
+import {
+  STOP_COMPONENTS,
+  type StopDataComponent,
+  type StopPositionComponent,
+  DEFAULT_SPAWN_RATES,
+} from '@/entities/stop/model/StopComponents';
 import { ROUTE_COMPONENTS, type RouteDataComponent } from '@/entities/Route/model/RouteComponents';
 import { BUS_COMPONENTS, type BusDataComponent } from '@/entities/Bus/model/BusComponents';
 import { clearMovementCache } from '@/entities/Bus/model/BusMovementSystem';
@@ -49,7 +54,9 @@ export class MapSaveService {
       this.autoSave();
     }, this.AUTO_SAVE_INTERVAL);
 
-    console.log(`[MapSaveService] Auto-save started (every ${this.AUTO_SAVE_INTERVAL / 1000} seconds)`);
+    console.log(
+      `[MapSaveService] Auto-save started (every ${this.AUTO_SAVE_INTERVAL / 1000} seconds)`
+    );
   }
 
   /**
@@ -119,7 +126,9 @@ export class MapSaveService {
     this.currentSaveData = saveData;
     this.saveToLocalStorage(saveData);
 
-    console.log(`[MapSaveService] Map saved: ${mapName} (stops: ${stops.length}, routes: ${routes.length}, buses: ${buses.length})`);
+    console.log(
+      `[MapSaveService] Map saved: ${mapName} (stops: ${stops.length}, routes: ${routes.length}, buses: ${buses.length})`
+    );
     return saveData;
   }
 
@@ -129,7 +138,9 @@ export class MapSaveService {
   public loadMap(saveData: MapSaveData): void {
     // Проверка версии
     if (saveData.version !== SAVE_VERSION) {
-      console.warn(`[MapSaveService] Version mismatch: expected ${SAVE_VERSION}, got ${saveData.version}`);
+      console.warn(
+        `[MapSaveService] Version mismatch: expected ${SAVE_VERSION}, got ${saveData.version}`
+      );
       // В будущем здесь будет миграция данных
     }
 
@@ -162,12 +173,14 @@ export class MapSaveService {
     }
 
     this.currentSaveData = saveData;
-    
+
     // Явно устанавливаем счётчики в GameStateStore
     gameStateStore.setTotalStops(saveData.stops.length);
     gameStateStore.setActiveBuses(saveData.buses.length);
-    
-    console.log(`[MapSaveService] Map loaded: ${saveData.mapName} (stops: ${saveData.stops.length}, buses: ${saveData.buses.length})`);
+
+    console.log(
+      `[MapSaveService] Map loaded: ${saveData.mapName} (stops: ${saveData.stops.length}, buses: ${saveData.buses.length})`
+    );
   }
 
   /**
@@ -215,7 +228,7 @@ export class MapSaveService {
    * Загрузить пресетную карту
    */
   public loadPreset(presetId: string): boolean {
-    const preset = presetMaps.find(p => p.id === presetId);
+    const preset = presetMaps.find((p) => p.id === presetId);
     if (!preset) {
       console.error(`[MapSaveService] Preset not found: ${presetId}`);
       return false;
@@ -252,9 +265,15 @@ export class MapSaveService {
     if (!data) return null;
 
     // Считаем реальное количество сущностей на карте
-    const actualStopsCount = entityManagerService.getEntitiesWithComponents(STOP_COMPONENTS.DATA).length;
-    const actualRoutesCount = entityManagerService.getEntitiesWithComponents(ROUTE_COMPONENTS.DATA).length;
-    const actualBusesCount = entityManagerService.getEntitiesWithComponents(BUS_COMPONENTS.DATA).length;
+    const actualStopsCount = entityManagerService.getEntitiesWithComponents(
+      STOP_COMPONENTS.DATA
+    ).length;
+    const actualRoutesCount = entityManagerService.getEntitiesWithComponents(
+      ROUTE_COMPONENTS.DATA
+    ).length;
+    const actualBusesCount = entityManagerService.getEntitiesWithComponents(
+      BUS_COMPONENTS.DATA
+    ).length;
 
     return {
       mapName: data.mapName,
@@ -282,7 +301,7 @@ export class MapSaveService {
   public importFromJson(jsonString: string): MapSaveData {
     try {
       const data = JSON.parse(jsonString) as MapSaveData;
-      
+
       // Валидация
       if (!data.version || !data.stops || !data.routes) {
         throw new Error('Invalid save data format');
@@ -318,8 +337,14 @@ export class MapSaveService {
     );
 
     for (const entityId of stopEntities) {
-      const data = entityManagerService.getComponent<StopDataComponent>(entityId, STOP_COMPONENTS.DATA);
-      const pos = entityManagerService.getComponent<StopPositionComponent>(entityId, STOP_COMPONENTS.POSITION);
+      const data = entityManagerService.getComponent<StopDataComponent>(
+        entityId,
+        STOP_COMPONENTS.DATA
+      );
+      const pos = entityManagerService.getComponent<StopPositionComponent>(
+        entityId,
+        STOP_COMPONENTS.POSITION
+      );
 
       if (data && pos) {
         stops.push({
@@ -350,7 +375,10 @@ export class MapSaveService {
     const routeEntities = entityManagerService.getEntitiesWithComponents(ROUTE_COMPONENTS.DATA);
 
     for (const entityId of routeEntities) {
-      const data = entityManagerService.getComponent<RouteDataComponent>(entityId, ROUTE_COMPONENTS.DATA);
+      const data = entityManagerService.getComponent<RouteDataComponent>(
+        entityId,
+        ROUTE_COMPONENTS.DATA
+      );
 
       if (data) {
         routes.push({
@@ -374,7 +402,10 @@ export class MapSaveService {
     const busEntities = entityManagerService.getEntitiesWithComponents(BUS_COMPONENTS.DATA);
 
     for (const entityId of busEntities) {
-      const data = entityManagerService.getComponent<BusDataComponent>(entityId, BUS_COMPONENTS.DATA);
+      const data = entityManagerService.getComponent<BusDataComponent>(
+        entityId,
+        BUS_COMPONENTS.DATA
+      );
 
       if (data && data.routeId) {
         buses.push({
@@ -446,18 +477,23 @@ export class MapSaveService {
       radius: 40,
       color: '#00ff00',
       waitingPassengers: 0,
-      spawnRates: stopData.spawnRates ? {
-        morning: stopData.spawnRates.morning,
-        day: stopData.spawnRates.day,
-        evening: stopData.spawnRates.evening,
-        night: stopData.spawnRates.night,
-      } : { ...DEFAULT_SPAWN_RATES },
+      spawnRates: stopData.spawnRates
+        ? {
+            morning: stopData.spawnRates.morning,
+            day: stopData.spawnRates.day,
+            evening: stopData.spawnRates.evening,
+            night: stopData.spawnRates.night,
+          }
+        : { ...DEFAULT_SPAWN_RATES },
       overloadTimer: stopData.overloadTimer ?? 0,
       complaintCount: stopData.complaintCount ?? 0,
     });
 
     // Отправляем событие для обновления счётчика в GameStateStore
-    gameEventBusService.publish(GameEventType.STOP_CREATED, { stopId: stopData.id, name: stopData.name });
+    gameEventBusService.publish(GameEventType.STOP_CREATED, {
+      stopId: stopData.id,
+      name: stopData.name,
+    });
   }
 
   /**

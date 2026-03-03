@@ -100,7 +100,9 @@ export class GameSettingsStore {
   /**
    * Добавить статистику
    */
-  public addStats(delta: Partial<Pick<PlayerProgress, 'totalPassengers' | 'totalMoneyEarned' | 'totalComplaints'>>): void {
+  public addStats(
+    delta: Partial<Pick<PlayerProgress, 'totalPassengers' | 'totalMoneyEarned' | 'totalComplaints'>>
+  ): void {
     this.progress = {
       ...this.progress,
       totalPassengers: this.progress.totalPassengers + (delta.totalPassengers ?? 0),

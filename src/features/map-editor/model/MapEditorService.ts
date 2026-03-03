@@ -23,13 +23,18 @@ import {
   GameEventType,
 } from '../../../shared/lib/game-core/GameEventBusService';
 import { ROUTE_COMPONENTS, type RouteDataComponent } from '@/entities/Route/model/RouteComponents';
-import { STOP_COMPONENTS, type StopPositionComponent, type StopDataComponent, DEFAULT_SPAWN_RATES } from '@/entities/stop/model/StopComponents';
+import {
+  STOP_COMPONENTS,
+  type StopPositionComponent,
+  type StopDataComponent,
+  DEFAULT_SPAWN_RATES,
+} from '@/entities/stop/model/StopComponents';
 import { BUS_COMPONENTS, BusState } from '@/entities/Bus/model/BusComponents';
 import { clearMovementCache } from '@/entities/Bus/model/BusMovementSystem';
 import { stopEditorService } from '@/features/stop-editor';
 
 export enum EditorMode {
-  IDLE = 'idle',              // Выделение и редактирование остановок
+  IDLE = 'idle', // Выделение и редактирование остановок
   PLACING_STOP = 'placing_stop',
   DRAWING_ROUTE = 'drawing_route',
 }
@@ -127,7 +132,7 @@ export class MapEditorService {
       // В режиме выделения ЛКМ по остановке открывает редактор
       if (event.payload.button !== MouseButton.LEFT) return;
       const { worldX, worldY } = event.payload;
-      
+
       const clickedStopId = this.findStopAtPosition(worldX, worldY);
       if (clickedStopId) {
         stopEditorService.open(clickedStopId);
@@ -166,7 +171,12 @@ export class MapEditorService {
         this.finishDraftRoute();
       }
       // L - переключение режима зацикливания
-      if (event.payload.key === 'l' || event.payload.key === 'L' || event.payload.key === 'к' || event.payload.key === 'К') {
+      if (
+        event.payload.key === 'l' ||
+        event.payload.key === 'L' ||
+        event.payload.key === 'к' ||
+        event.payload.key === 'К'
+      ) {
         this.routeLoopMode = !this.routeLoopMode;
         console.log(`[MapEditor] Route loop mode: ${this.routeLoopMode ? 'ON ♻️' : 'OFF'}`);
       }
@@ -256,7 +266,9 @@ export class MapEditorService {
 
     gameEventBusService.publish(GameEventType.ROUTE_CREATED, { routeId, name: routeName });
 
-    console.log(`[MapEditor] Route created: ${routeName}, loop=${this.routeLoopMode ? 'YES ♻️' : 'NO'}`);
+    console.log(
+      `[MapEditor] Route created: ${routeName}, loop=${this.routeLoopMode ? 'YES ♻️' : 'NO'}`
+    );
 
     // Автосохранение карты (только остановки и маршруты, без автобусов)
     // mapSaveService.saveCurrentMap(); // Автосохранение работает по таймеру
@@ -345,14 +357,17 @@ export class MapEditorService {
     const threshold = 20; // Радиус клика вокруг линии
 
     for (const id of routes) {
-      const rData = entityManagerService.getComponent<RouteDataComponent>(id, ROUTE_COMPONENTS.DATA);
+      const rData = entityManagerService.getComponent<RouteDataComponent>(
+        id,
+        ROUTE_COMPONENTS.DATA
+      );
       if (!rData) continue;
 
       // Проходим по сегментам маршрута
       for (let i = 0; i < rData.stopIds.length - 1; i++) {
         const p1 = this.getStopPosById(rData.stopIds[i]);
         const p2 = this.getStopPosById(rData.stopIds[i + 1]);
-        
+
         if (p1 && p2) {
           if (this.pointToSegmentDistance(x, y, p1.x, p1.y, p2.x, p2.y) < threshold) {
             return rData.id;
@@ -367,9 +382,12 @@ export class MapEditorService {
    * Математика: расстояние от точки до отрезка
    */
   private pointToSegmentDistance(
-    px: number, py: number,
-    x1: number, y1: number,
-    x2: number, y2: number
+    px: number,
+    py: number,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number
   ): number {
     const A = px - x1;
     const B = py - y1;
@@ -379,15 +397,17 @@ export class MapEditorService {
     const dot = A * C + B * D;
     const lenSq = C * C + D * D;
     let param = -1;
-    
+
     if (lenSq !== 0) param = dot / lenSq;
 
     let xx, yy;
 
     if (param < 0) {
-      xx = x1; yy = y1;
+      xx = x1;
+      yy = y1;
     } else if (param > 1) {
-      xx = x2; yy = y2;
+      xx = x2;
+      yy = y2;
     } else {
       xx = x1 + param * C;
       yy = y1 + param * D;
@@ -409,7 +429,10 @@ export class MapEditorService {
     for (const id of stops) {
       const d = entityManagerService.getComponent<StopDataComponent>(id, STOP_COMPONENTS.DATA);
       if (d && d.id === stopId) {
-        return entityManagerService.getComponent<StopPositionComponent>(id, STOP_COMPONENTS.POSITION);
+        return entityManagerService.getComponent<StopPositionComponent>(
+          id,
+          STOP_COMPONENTS.POSITION
+        );
       }
     }
     return null;
@@ -435,7 +458,7 @@ export class MapEditorService {
    */
   public createBusOnFirstRoute(): string | null {
     const routes = entityManagerService.getEntitiesWithComponents(ROUTE_COMPONENTS.DATA);
-    
+
     if (routes.length === 0) {
       console.warn('[MapEditor] No routes available to spawn bus');
       return null;
@@ -443,8 +466,11 @@ export class MapEditorService {
 
     // Берём первый маршрут
     const firstRouteId = routes[0];
-    const routeData = entityManagerService.getComponent<RouteDataComponent>(firstRouteId, ROUTE_COMPONENTS.DATA);
-    
+    const routeData = entityManagerService.getComponent<RouteDataComponent>(
+      firstRouteId,
+      ROUTE_COMPONENTS.DATA
+    );
+
     if (!routeData) return null;
 
     return this.createBusOnRoute(routeData.id);

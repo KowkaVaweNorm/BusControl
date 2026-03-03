@@ -69,9 +69,7 @@ export const stopStatisticsSystem: System = {
     }
 
     // Вычисление средней загруженности (в процентах)
-    const averageOccupancy = activeStopsCount > 0
-      ? (totalOccupancy / activeStopsCount) * 100
-      : 0;
+    const averageOccupancy = activeStopsCount > 0 ? (totalOccupancy / activeStopsCount) * 100 : 0;
 
     // Обновление GameStateStore
     gameStateStore.setAverageStopOccupancy(averageOccupancy);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { GameCanvas } from './widgets/game-canvas';
+import { GameCanvas, setSelectedMapId } from './widgets/game-canvas';
 import { StatsPanel } from './widgets/stats-panel';
 import { Toolbar } from './widgets/toolbar';
 import { Notifications } from './widgets/notifications';
@@ -13,7 +13,7 @@ import type { AppScene } from '@/shared/types/app-types';
 import { useDeviceCheck } from '@/shared/lib/hooks';
 
 // Страницы
-import { Menu, MapSelect, Settings } from './pages/menu';
+import { Menu, Settings } from './pages/menu';
 import { UnsupportedDevice } from './pages/menu';
 import { Garage } from './pages/garage';
 
@@ -21,7 +21,7 @@ import './index.css';
 
 /**
  * Корневой компонент приложения
- * 
+ *
  * Управляет навигацией между страницами:
  * - menu: главное меню
  * - map-select: выбор карты
@@ -30,10 +30,11 @@ import './index.css';
  * - game: игровой процесс (Canvas + UI виджеты)
  */
 function App() {
-  const [currentScene, setCurrentScene] = useState<AppScene>(gameStateStore.getState().currentScene);
-  const [showMapSelect, setShowMapSelect] = useState(false);
+  const [currentScene, setCurrentScene] = useState<AppScene>(
+    gameStateStore.getState().currentScene
+  );
   const [showSettings, setShowSettings] = useState(false);
-  
+
   // Проверка устройства
   const deviceCheck = useDeviceCheck();
 
@@ -54,12 +55,9 @@ function App() {
   }
 
   // Обработчики навигации
-  const handleStartGame = () => {
-    setShowMapSelect(true);
-  };
-
-  const handleMapSelected = () => {
-    setShowMapSelect(false);
+  const handleStartGame = (mapId: string) => {
+    // Сохраняем ID выбранной карты для загрузки при инициализации GameCanvas
+    setSelectedMapId(mapId);
     gameStateStore.setScene('game');
   };
 
@@ -68,22 +66,23 @@ function App() {
   };
 
   const handleBackToMenu = () => {
-    setShowMapSelect(false);
     setShowSettings(false);
     gameStateStore.setScene('menu');
   };
 
   // Рендеринг в зависимости от текущей сцены
   if (currentScene === 'menu') {
-    if (showMapSelect) {
-      return <MapSelect onSelect={handleMapSelected} onBack={handleBackToMenu} />;
-    }
-    
     if (showSettings) {
       return <Settings onBack={handleBackToMenu} />;
     }
 
-    return <Menu onStart={handleStartGame} onGarage={() => gameStateStore.setScene('garage')} onSettings={handleSettings} />;
+    return (
+      <Menu
+        onStart={handleStartGame}
+        onGarage={() => gameStateStore.setScene('garage')}
+        onSettings={handleSettings}
+      />
+    );
   }
 
   if (currentScene === 'garage') {

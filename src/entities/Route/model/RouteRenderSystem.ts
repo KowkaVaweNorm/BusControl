@@ -120,7 +120,9 @@ function findStopPosition(stopId: string): { x: number; y: number } | null {
  * Вычисляет среднюю позицию маршрута для отображения названия
  * Берёт среднее арифметическое всех остановок маршрута
  */
-function calculateRouteLabelPosition(routeData: RouteDataComponent): { x: number; y: number } | null {
+function calculateRouteLabelPosition(
+  routeData: RouteDataComponent
+): { x: number; y: number } | null {
   if (routeData.stopIds.length === 0) return null;
 
   let totalX = 0;

@@ -6,7 +6,11 @@
 
 import type { System, SystemContext } from '@/shared/lib/game-core/EntityManagerService';
 import { entityManagerService } from '@/shared/lib/game-core/EntityManagerService';
-import { STOP_COMPONENTS, type StopDataComponent, type StopPositionComponent } from '@/entities/stop/model/StopComponents';
+import {
+  STOP_COMPONENTS,
+  type StopDataComponent,
+  type StopPositionComponent,
+} from '@/entities/stop/model/StopComponents';
 import { NPC_COMPONENTS, NPCState } from './NPCComponents';
 import { ROUTE_COMPONENTS, type RouteDataComponent } from '@/entities/Route/model/RouteComponents';
 import { timeService } from '@/features/time-of-day';
@@ -35,7 +39,10 @@ function getFutureStopsFromStop(currentStopId: string): string[] {
   const routes = entityManagerService.getEntitiesWithComponents(ROUTE_COMPONENTS.DATA);
 
   for (const routeEntityId of routes) {
-    const routeData = entityManagerService.getComponent<RouteDataComponent>(routeEntityId, ROUTE_COMPONENTS.DATA);
+    const routeData = entityManagerService.getComponent<RouteDataComponent>(
+      routeEntityId,
+      ROUTE_COMPONENTS.DATA
+    );
     if (!routeData) continue;
 
     // Находим индекс текущей остановки в маршруте
@@ -64,8 +71,14 @@ export const npcSpawnerSystem: System = {
 
     // Проходим по всем остановкам
     for (const stopEntityId of entities) {
-      const stopData = entityManagerService.getComponent<StopDataComponent>(stopEntityId, STOP_COMPONENTS.DATA);
-      const stopPos = entityManagerService.getComponent<StopPositionComponent>(stopEntityId, STOP_COMPONENTS.POSITION);
+      const stopData = entityManagerService.getComponent<StopDataComponent>(
+        stopEntityId,
+        STOP_COMPONENTS.DATA
+      );
+      const stopPos = entityManagerService.getComponent<StopPositionComponent>(
+        stopEntityId,
+        STOP_COMPONENTS.POSITION
+      );
 
       if (!stopData || !stopPos) continue;
 
@@ -116,7 +129,10 @@ function spawnNPC(stopId: string, x: number, y: number): void {
   } else {
     // Если нет маршрутов из этой остановки — пассажир не появится (нет спроса)
     // Или можно выбрать любую другую остановку как fallback
-    const allStops = entityManagerService.getEntitiesWithComponents(STOP_COMPONENTS.DATA, STOP_COMPONENTS.POSITION);
+    const allStops = entityManagerService.getEntitiesWithComponents(
+      STOP_COMPONENTS.DATA,
+      STOP_COMPONENTS.POSITION
+    );
     const otherStops = allStops.filter((id) => {
       const data = entityManagerService.getComponent<StopDataComponent>(id, STOP_COMPONENTS.DATA);
       return data && data.id !== stopId;
@@ -124,7 +140,10 @@ function spawnNPC(stopId: string, x: number, y: number): void {
 
     if (otherStops.length > 0) {
       const randomIndex = Math.floor(Math.random() * otherStops.length);
-      const data = entityManagerService.getComponent<StopDataComponent>(otherStops[randomIndex], STOP_COMPONENTS.DATA);
+      const data = entityManagerService.getComponent<StopDataComponent>(
+        otherStops[randomIndex],
+        STOP_COMPONENTS.DATA
+      );
       targetStopId = data?.id ?? null;
     }
   }

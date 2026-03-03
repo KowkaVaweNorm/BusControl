@@ -1,8 +1,8 @@
 {
   "projectName": "Bus Control",
-  "generatedAt": "2026-03-03",
+  "generatedAt": "2026-03-03 (updated)",
   "rootDirectory": "d:\\domains\\Pets\\GameStudio\\Bus Control\\ProjectBusControl",
-  "totalFiles": 127,
+  "totalFiles": 147,
   "architecture": "Feature-Sliced Design (FSD)",
   "structure": [
     {
@@ -283,12 +283,102 @@
     {
       "path": "src/pages/menu/index.ts",
       "type": "source",
-      "description": "Экспорт страниц меню (Menu, MapSelect, Settings, UnsupportedDevice)"
+      "description": "Экспорт страниц меню (Menu, Settings, UnsupportedDevice)"
+    },
+    {
+      "path": "src/pages/menu/model/types.ts",
+      "type": "source",
+      "description": "Типы для меню (CityData, DifficultyLevel)"
+    },
+    {
+      "path": "src/pages/menu/model/city-data.ts",
+      "type": "source",
+      "description": "Данные городов на основе пресетов карт"
+    },
+    {
+      "path": "src/pages/menu/model/index.ts",
+      "type": "source",
+      "description": "Экспорт типов и данных меню"
+    },
+    {
+      "path": "src/pages/menu/ui/Menu.tsx",
+      "type": "source",
+      "description": "Главное меню в стиле билета/чека (выбор карты)"
+    },
+    {
+      "path": "src/pages/menu/ui/Menu.module.scss",
+      "type": "styles",
+      "description": "Стили главного меню (перфорация, скролл)"
+    },
+    {
+      "path": "src/pages/menu/ui/MapPreview.tsx",
+      "type": "source",
+      "description": "SVG-предпросмотр карты города"
+    },
+    {
+      "path": "src/pages/menu/ui/MapPreview.module.scss",
+      "type": "styles",
+      "description": "Стили предпросмотра карты"
+    },
+    {
+      "path": "src/pages/menu/ui/Settings.tsx",
+      "type": "source",
+      "description": "Настройки игры"
+    },
+    {
+      "path": "src/pages/menu/ui/Settings.module.scss",
+      "type": "styles",
+      "description": "Стили настроек"
+    },
+    {
+      "path": "src/pages/menu/ui/UnsupportedDevice.tsx",
+      "type": "source",
+      "description": "Заглушка для неподдерживаемых устройств"
+    },
+    {
+      "path": "src/pages/menu/ui/UnsupportedDevice.module.scss",
+      "type": "styles",
+      "description": "Стили заглушки устройства"
     },
     {
       "path": "src/pages/garage/index.ts",
       "type": "source",
-      "description": "Экспорт страницы гаража (Garage)"
+      "description": "Экспорт страницы гаража (Garage, BusData)"
+    },
+    {
+      "path": "src/pages/garage/model/types.ts",
+      "type": "source",
+      "description": "Типы для гаража (BusData, ComfortClass)"
+    },
+    {
+      "path": "src/pages/garage/model/mock-data.ts",
+      "type": "source",
+      "description": "Мок-данные автобусов (ЛиАЗ, ПАЗ, Volgabus, КАМАЗ)"
+    },
+    {
+      "path": "src/pages/garage/model/index.ts",
+      "type": "source",
+      "description": "Экспорт типов и данных гаража"
+    },
+    {
+      "path": "src/pages/garage/ui/Garage.tsx",
+      "type": "source",
+      "description": "Страница автопарка (баланс, карточки автобусов)"
+    },
+    {
+      "path": "src/pages/garage/ui/Garage.module.scss",
+      "type": "styles",
+      "description": "Стили автопарка (стиль билета/чека)"
+    },
+    {
+      "path": "src/pages/garage/ui/BusCard.tsx",
+      "type": "source",
+      "description": "Карточка автобуса (характеристики, прокачка)"
+    },
+    {
+      "path": "src/pages/garage/ui/BusCard.module.scss",
+      "type": "styles",
+      "description": "Стили карточки автобуса"
     },
     {
       "path": "src/shared/types/index.ts",
@@ -482,16 +572,25 @@
         "UI: CitizenComplaints (жалобы слева сверху)",
         "UI: TimeDisplay (время игры)",
         "UI: StopEditor (редактор остановок)",
-        "Страницы: Menu (главное меню)",
-        "Страницы: MapSelect (выбор карты)",
-        "Страницы: Settings (настройки)",
-        "Страницы: Garage (автопарк)",
-        "Проверка устройства (PC ≥900px, не тач)"
+        "Главное меню: стиль билета/чека с перфорацией",
+        "Главное меню: выбор из 10 пресетных карт",
+        "Главное меню: SVG-предпросмотр карты",
+        "Главное меню: сохранение выбора в localStorage",
+        "Страница автопарка (Garage): стиль билета/чека",
+        "Страница автопарка: 4 мок-автобуса с характеристиками",
+        "Страница автопарка: система прокачки (баланс, уровни)",
+        "Страница автопарка: прогресс-бары уровней",
+        "Resize: корректное перерисовывание неба и карты",
+        "Resize: сохранение позиции камеры при изменении размера",
+        "Проверка устройства (PC ≥900px, не тач)",
+        "Скрипты: npm run check (lint + format)",
+        "knip: поиск мёртвого кода"
       ],
       "planned": [
         "Визуальное отображение зацикленности маршрута",
         "Редактирование маршрутов (удаление остановок)",
-        "Система улучшений автобусов",
+        "Система улучшений автобусов (реальная)",
+        "Покупка новых автобусов",
         "Звуковое сопровождение"
       ]
     }

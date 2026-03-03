@@ -59,7 +59,13 @@ const suburbanMap: PresetMap = {
       { id: 'stop_s2', name: 'Рынок', x: 350, y: 300, spawnRates: DEFAULT_SPAWN },
       { id: 'stop_s3', name: 'Стадион', x: 500, y: 300, spawnRates: DEFAULT_SPAWN },
       { id: 'stop_s4', name: 'Университет', x: 650, y: 300, spawnRates: DEFAULT_SPAWN },
-      { id: 'stop_s5', name: 'Аэропорт', x: 800, y: 300, spawnRates: { ...DEFAULT_SPAWN, morning: 4, evening: 5 } },
+      {
+        id: 'stop_s5',
+        name: 'Аэропорт',
+        x: 800,
+        y: 300,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 4, evening: 5 },
+      },
     ],
     routes: [
       {
@@ -128,11 +134,29 @@ const districtMap: PresetMap = {
       { id: 'stop_d1', name: 'Центральная', x: 400, y: 300, spawnRates: DEFAULT_SPAWN },
       { id: 'stop_d2', name: 'Парк Победы', x: 400, y: 150, spawnRates: DEFAULT_SPAWN },
       { id: 'stop_d3', name: 'Технопарк', x: 550, y: 200, spawnRates: DEFAULT_SPAWN },
-      { id: 'stop_d4', name: 'Больница', x: 550, y: 300, spawnRates: { ...DEFAULT_SPAWN, morning: 4, day: 6 } },
+      {
+        id: 'stop_d4',
+        name: 'Больница',
+        x: 550,
+        y: 300,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 4, day: 6 },
+      },
       { id: 'stop_d5', name: 'ТЦ "Галерея"', x: 400, y: 450, spawnRates: DEFAULT_SPAWN },
-      { id: 'stop_d6', name: 'Ж/Д Вокзал', x: 250, y: 300, spawnRates: { ...DEFAULT_SPAWN, morning: 5, evening: 5 } },
+      {
+        id: 'stop_d6',
+        name: 'Ж/Д Вокзал',
+        x: 250,
+        y: 300,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 5, evening: 5 },
+      },
       { id: 'stop_d7', name: 'Школа №5', x: 250, y: 150, spawnRates: DEFAULT_SPAWN },
-      { id: 'stop_d8', name: 'Пляж', x: 550, y: 450, spawnRates: { ...DEFAULT_SPAWN, day: 8, evening: 6 } },
+      {
+        id: 'stop_d8',
+        name: 'Пляж',
+        x: 550,
+        y: 450,
+        spawnRates: { ...DEFAULT_SPAWN, day: 8, evening: 6 },
+      },
     ],
     routes: [
       {
@@ -232,21 +256,48 @@ const gridMap: PresetMap = {
       {
         id: 'route_g1',
         name: 'Горизонталь',
-        stopIds: ['stop_g1', 'stop_g2', 'stop_g3', 'stop_g4', 'stop_g8', 'stop_g7', 'stop_g6', 'stop_g5'],
+        stopIds: [
+          'stop_g1',
+          'stop_g2',
+          'stop_g3',
+          'stop_g4',
+          'stop_g8',
+          'stop_g7',
+          'stop_g6',
+          'stop_g5',
+        ],
         color: '#00BCD4',
         loop: true,
       },
       {
         id: 'route_g2',
         name: 'Вертикаль',
-        stopIds: ['stop_g5', 'stop_g6', 'stop_g7', 'stop_g8', 'stop_g12', 'stop_g11', 'stop_g10', 'stop_g9'],
+        stopIds: [
+          'stop_g5',
+          'stop_g6',
+          'stop_g7',
+          'stop_g8',
+          'stop_g12',
+          'stop_g11',
+          'stop_g10',
+          'stop_g9',
+        ],
         color: '#E91E63',
         loop: true,
       },
       {
         id: 'route_g3',
         name: 'Диагональ',
-        stopIds: ['stop_g1', 'stop_g5', 'stop_g9', 'stop_g10', 'stop_g11', 'stop_g12', 'stop_g8', 'stop_g4'],
+        stopIds: [
+          'stop_g1',
+          'stop_g5',
+          'stop_g9',
+          'stop_g10',
+          'stop_g11',
+          'stop_g12',
+          'stop_g8',
+          'stop_g4',
+        ],
         color: '#FF9800',
         loop: true,
       },
@@ -267,20 +318,74 @@ const metroMap: PresetMap = {
   difficulty: 'hard',
   data: {
     stops: [
-      { id: 'stop_m1', name: 'Центральная', x: 400, y: 300, spawnRates: { ...DEFAULT_SPAWN, morning: 6, evening: 6 } },
-      { id: 'stop_m2', name: 'Вокзал', x: 400, y: 150, spawnRates: { ...DEFAULT_SPAWN, morning: 5, evening: 5 } },
-      { id: 'stop_m3', name: 'Аэропорт', x: 700, y: 150, spawnRates: { ...DEFAULT_SPAWN, morning: 5, day: 4 } },
+      {
+        id: 'stop_m1',
+        name: 'Центральная',
+        x: 400,
+        y: 300,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 6, evening: 6 },
+      },
+      {
+        id: 'stop_m2',
+        name: 'Вокзал',
+        x: 400,
+        y: 150,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 5, evening: 5 },
+      },
+      {
+        id: 'stop_m3',
+        name: 'Аэропорт',
+        x: 700,
+        y: 150,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 5, day: 4 },
+      },
       { id: 'stop_m4', name: 'Парк', x: 700, y: 300, spawnRates: DEFAULT_SPAWN },
-      { id: 'stop_m5', name: 'Стадион', x: 700, y: 450, spawnRates: { ...DEFAULT_SPAWN, evening: 7 } },
-      { id: 'stop_m6', name: 'ТЦ', x: 400, y: 450, spawnRates: { ...DEFAULT_SPAWN, day: 7, evening: 7 } },
-      { id: 'stop_m7', name: 'Университет', x: 150, y: 450, spawnRates: { ...DEFAULT_SPAWN, morning: 5 } },
+      {
+        id: 'stop_m5',
+        name: 'Стадион',
+        x: 700,
+        y: 450,
+        spawnRates: { ...DEFAULT_SPAWN, evening: 7 },
+      },
+      {
+        id: 'stop_m6',
+        name: 'ТЦ',
+        x: 400,
+        y: 450,
+        spawnRates: { ...DEFAULT_SPAWN, day: 7, evening: 7 },
+      },
+      {
+        id: 'stop_m7',
+        name: 'Университет',
+        x: 150,
+        y: 450,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 5 },
+      },
       { id: 'stop_m8', name: 'Больница', x: 150, y: 300, spawnRates: { ...DEFAULT_SPAWN, day: 6 } },
-      { id: 'stop_m9', name: 'Школа', x: 150, y: 150, spawnRates: { ...DEFAULT_SPAWN, morning: 6 } },
+      {
+        id: 'stop_m9',
+        name: 'Школа',
+        x: 150,
+        y: 150,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 6 },
+      },
       { id: 'stop_m10', name: 'Порт', x: 550, y: 225, spawnRates: DEFAULT_SPAWN },
-      { id: 'stop_m11', name: 'Бизнес-центр', x: 550, y: 375, spawnRates: { ...DEFAULT_SPAWN, morning: 6, evening: 6 } },
+      {
+        id: 'stop_m11',
+        name: 'Бизнес-центр',
+        x: 550,
+        y: 375,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 6, evening: 6 },
+      },
       { id: 'stop_m12', name: 'Музей', x: 275, y: 225, spawnRates: DEFAULT_SPAWN },
       { id: 'stop_m13', name: 'Зоопарк', x: 275, y: 375, spawnRates: { ...DEFAULT_SPAWN, day: 5 } },
-      { id: 'stop_m14', name: 'Пляж', x: 850, y: 300, spawnRates: { ...DEFAULT_SPAWN, day: 8, evening: 6 } },
+      {
+        id: 'stop_m14',
+        name: 'Пляж',
+        x: 850,
+        y: 300,
+        spawnRates: { ...DEFAULT_SPAWN, day: 8, evening: 6 },
+      },
     ],
     routes: [
       {
@@ -328,20 +433,80 @@ const megapolisMap: PresetMap = {
   difficulty: 'hard',
   data: {
     stops: [
-      { id: 'stop_p1', name: 'Главный вокзал', x: 400, y: 300, spawnRates: { ...DEFAULT_SPAWN, morning: 7, evening: 7 } },
+      {
+        id: 'stop_p1',
+        name: 'Главный вокзал',
+        x: 400,
+        y: 300,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 7, evening: 7 },
+      },
       { id: 'stop_p2', name: 'Северный порт', x: 400, y: 100, spawnRates: DEFAULT_SPAWN },
-      { id: 'stop_p3', name: 'Аэропорт', x: 750, y: 100, spawnRates: { ...DEFAULT_SPAWN, morning: 6 } },
-      { id: 'stop_p4', name: 'Технопарк', x: 750, y: 250, spawnRates: { ...DEFAULT_SPAWN, morning: 6, day: 5 } },
-      { id: 'stop_p5', name: 'Бизнес-квартал', x: 750, y: 400, spawnRates: { ...DEFAULT_SPAWN, morning: 7, evening: 7 } },
+      {
+        id: 'stop_p3',
+        name: 'Аэропорт',
+        x: 750,
+        y: 100,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 6 },
+      },
+      {
+        id: 'stop_p4',
+        name: 'Технопарк',
+        x: 750,
+        y: 250,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 6, day: 5 },
+      },
+      {
+        id: 'stop_p5',
+        name: 'Бизнес-квартал',
+        x: 750,
+        y: 400,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 7, evening: 7 },
+      },
       { id: 'stop_p6', name: 'Южный терминал', x: 750, y: 550, spawnRates: DEFAULT_SPAWN },
-      { id: 'stop_p7', name: 'Пляжный район', x: 400, y: 550, spawnRates: { ...DEFAULT_SPAWN, day: 7, evening: 6 } },
+      {
+        id: 'stop_p7',
+        name: 'Пляжный район',
+        x: 400,
+        y: 550,
+        spawnRates: { ...DEFAULT_SPAWN, day: 7, evening: 6 },
+      },
       { id: 'stop_p8', name: 'Старый город', x: 100, y: 550, spawnRates: DEFAULT_SPAWN },
-      { id: 'stop_p9', name: 'Западный рынок', x: 100, y: 400, spawnRates: { ...DEFAULT_SPAWN, day: 6 } },
-      { id: 'stop_p10', name: 'Больница', x: 100, y: 250, spawnRates: { ...DEFAULT_SPAWN, day: 6 } },
-      { id: 'stop_p11', name: 'Университет', x: 100, y: 100, spawnRates: { ...DEFAULT_SPAWN, morning: 6 } },
+      {
+        id: 'stop_p9',
+        name: 'Западный рынок',
+        x: 100,
+        y: 400,
+        spawnRates: { ...DEFAULT_SPAWN, day: 6 },
+      },
+      {
+        id: 'stop_p10',
+        name: 'Больница',
+        x: 100,
+        y: 250,
+        spawnRates: { ...DEFAULT_SPAWN, day: 6 },
+      },
+      {
+        id: 'stop_p11',
+        name: 'Университет',
+        x: 100,
+        y: 100,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 6 },
+      },
       { id: 'stop_p12', name: 'Парк культуры', x: 250, y: 200, spawnRates: DEFAULT_SPAWN },
-      { id: 'stop_p13', name: 'Стадион', x: 600, y: 200, spawnRates: { ...DEFAULT_SPAWN, evening: 8 } },
-      { id: 'stop_p14', name: 'Концертный зал', x: 600, y: 450, spawnRates: { ...DEFAULT_SPAWN, evening: 7 } },
+      {
+        id: 'stop_p13',
+        name: 'Стадион',
+        x: 600,
+        y: 200,
+        spawnRates: { ...DEFAULT_SPAWN, evening: 8 },
+      },
+      {
+        id: 'stop_p14',
+        name: 'Концертный зал',
+        x: 600,
+        y: 450,
+        spawnRates: { ...DEFAULT_SPAWN, evening: 7 },
+      },
       { id: 'stop_p15', name: 'Выставочный центр', x: 250, y: 450, spawnRates: DEFAULT_SPAWN },
       { id: 'stop_p16', name: 'Олимпийская деревня', x: 550, y: 325, spawnRates: DEFAULT_SPAWN },
     ],
@@ -391,7 +556,13 @@ const agglomerationMap: PresetMap = {
   difficulty: 'hard',
   data: {
     stops: [
-      { id: 'stop_a1', name: 'Центр', x: 450, y: 300, spawnRates: { ...DEFAULT_SPAWN, morning: 8, evening: 8 } },
+      {
+        id: 'stop_a1',
+        name: 'Центр',
+        x: 450,
+        y: 300,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 8, evening: 8 },
+      },
       { id: 'stop_a2', name: 'Север-1', x: 450, y: 150, spawnRates: DEFAULT_SPAWN },
       { id: 'stop_a3', name: 'Север-2', x: 600, y: 150, spawnRates: DEFAULT_SPAWN },
       { id: 'stop_a4', name: 'Север-3', x: 750, y: 150, spawnRates: DEFAULT_SPAWN },
@@ -414,14 +585,36 @@ const agglomerationMap: PresetMap = {
       {
         id: 'route_a1',
         name: 'Внешнее кольцо',
-        stopIds: ['stop_a1', 'stop_a2', 'stop_a3', 'stop_a4', 'stop_a5', 'stop_a6', 'stop_a7', 'stop_a8', 'stop_a9', 'stop_a10', 'stop_a11', 'stop_a12'],
+        stopIds: [
+          'stop_a1',
+          'stop_a2',
+          'stop_a3',
+          'stop_a4',
+          'stop_a5',
+          'stop_a6',
+          'stop_a7',
+          'stop_a8',
+          'stop_a9',
+          'stop_a10',
+          'stop_a11',
+          'stop_a12',
+        ],
         color: '#F44336',
         loop: true,
       },
       {
         id: 'route_a2',
         name: 'Внутреннее кольцо',
-        stopIds: ['stop_a1', 'stop_a18', 'stop_a13', 'stop_a12', 'stop_a11', 'stop_a10', 'stop_a9', 'stop_a8'],
+        stopIds: [
+          'stop_a1',
+          'stop_a18',
+          'stop_a13',
+          'stop_a12',
+          'stop_a11',
+          'stop_a10',
+          'stop_a9',
+          'stop_a8',
+        ],
         color: '#2196F3',
         loop: true,
       },
@@ -463,24 +656,108 @@ const empireMap: PresetMap = {
   difficulty: 'hard',
   data: {
     stops: [
-      { id: 'stop_e1', name: 'Имперский центр', x: 500, y: 300, spawnRates: { ...DEFAULT_SPAWN, morning: 10, evening: 10 } },
-      { id: 'stop_e2', name: 'Космопорт', x: 500, y: 100, spawnRates: { ...DEFAULT_SPAWN, morning: 7 } },
-      { id: 'stop_e3', name: 'Небоскрёбы', x: 700, y: 100, spawnRates: { ...DEFAULT_SPAWN, morning: 8, evening: 8 } },
-      { id: 'stop_e4', name: 'Технополис', x: 900, y: 100, spawnRates: { ...DEFAULT_SPAWN, morning: 7, day: 6 } },
-      { id: 'stop_e5', name: 'Научный квартал', x: 900, y: 250, spawnRates: { ...DEFAULT_SPAWN, day: 7 } },
-      { id: 'stop_e6', name: 'Деловой центр', x: 900, y: 400, spawnRates: { ...DEFAULT_SPAWN, morning: 8, evening: 8 } },
+      {
+        id: 'stop_e1',
+        name: 'Имперский центр',
+        x: 500,
+        y: 300,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 10, evening: 10 },
+      },
+      {
+        id: 'stop_e2',
+        name: 'Космопорт',
+        x: 500,
+        y: 100,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 7 },
+      },
+      {
+        id: 'stop_e3',
+        name: 'Небоскрёбы',
+        x: 700,
+        y: 100,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 8, evening: 8 },
+      },
+      {
+        id: 'stop_e4',
+        name: 'Технополис',
+        x: 900,
+        y: 100,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 7, day: 6 },
+      },
+      {
+        id: 'stop_e5',
+        name: 'Научный квартал',
+        x: 900,
+        y: 250,
+        spawnRates: { ...DEFAULT_SPAWN, day: 7 },
+      },
+      {
+        id: 'stop_e6',
+        name: 'Деловой центр',
+        x: 900,
+        y: 400,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 8, evening: 8 },
+      },
       { id: 'stop_e7', name: 'Портовая зона', x: 900, y: 550, spawnRates: DEFAULT_SPAWN },
-      { id: 'stop_e8', name: 'Курортный район', x: 700, y: 550, spawnRates: { ...DEFAULT_SPAWN, day: 8, evening: 7 } },
-      { id: 'stop_e9', name: 'Олимпийский парк', x: 500, y: 550, spawnRates: { ...DEFAULT_SPAWN, evening: 8 } },
+      {
+        id: 'stop_e8',
+        name: 'Курортный район',
+        x: 700,
+        y: 550,
+        spawnRates: { ...DEFAULT_SPAWN, day: 8, evening: 7 },
+      },
+      {
+        id: 'stop_e9',
+        name: 'Олимпийский парк',
+        x: 500,
+        y: 550,
+        spawnRates: { ...DEFAULT_SPAWN, evening: 8 },
+      },
       { id: 'stop_e10', name: 'Исторический центр', x: 300, y: 550, spawnRates: DEFAULT_SPAWN },
-      { id: 'stop_e11', name: 'Арт-квартал', x: 100, y: 550, spawnRates: { ...DEFAULT_SPAWN, day: 6, evening: 6 } },
+      {
+        id: 'stop_e11',
+        name: 'Арт-квартал',
+        x: 100,
+        y: 550,
+        spawnRates: { ...DEFAULT_SPAWN, day: 6, evening: 6 },
+      },
       { id: 'stop_e12', name: 'Западный терминал', x: 100, y: 400, spawnRates: DEFAULT_SPAWN },
-      { id: 'stop_e13', name: 'Медицинский центр', x: 100, y: 250, spawnRates: { ...DEFAULT_SPAWN, day: 7 } },
-      { id: 'stop_e14', name: 'Образовательный хаб', x: 100, y: 100, spawnRates: { ...DEFAULT_SPAWN, morning: 7 } },
-      { id: 'stop_e15', name: 'Парк развлечений', x: 300, y: 100, spawnRates: { ...DEFAULT_SPAWN, day: 8, evening: 8 } },
-      { id: 'stop_e16', name: 'Спортивный комплекс', x: 700, y: 225, spawnRates: { ...DEFAULT_SPAWN, evening: 9 } },
+      {
+        id: 'stop_e13',
+        name: 'Медицинский центр',
+        x: 100,
+        y: 250,
+        spawnRates: { ...DEFAULT_SPAWN, day: 7 },
+      },
+      {
+        id: 'stop_e14',
+        name: 'Образовательный хаб',
+        x: 100,
+        y: 100,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 7 },
+      },
+      {
+        id: 'stop_e15',
+        name: 'Парк развлечений',
+        x: 300,
+        y: 100,
+        spawnRates: { ...DEFAULT_SPAWN, day: 8, evening: 8 },
+      },
+      {
+        id: 'stop_e16',
+        name: 'Спортивный комплекс',
+        x: 700,
+        y: 225,
+        spawnRates: { ...DEFAULT_SPAWN, evening: 9 },
+      },
       { id: 'stop_e17', name: 'Выставочный комплекс', x: 700, y: 375, spawnRates: DEFAULT_SPAWN },
-      { id: 'stop_e18', name: 'Конгресс-центр', x: 300, y: 375, spawnRates: { ...DEFAULT_SPAWN, morning: 6 } },
+      {
+        id: 'stop_e18',
+        name: 'Конгресс-центр',
+        x: 300,
+        y: 375,
+        spawnRates: { ...DEFAULT_SPAWN, morning: 6 },
+      },
       { id: 'stop_e19', name: 'Ботанический сад', x: 300, y: 225, spawnRates: DEFAULT_SPAWN },
       { id: 'stop_e20', name: 'Речной вокзал', x: 500, y: 175, spawnRates: DEFAULT_SPAWN },
     ],
@@ -523,7 +800,16 @@ const empireMap: PresetMap = {
       {
         id: 'route_e6',
         name: 'Центральная связка',
-        stopIds: ['stop_e1', 'stop_e18', 'stop_e10', 'stop_e9', 'stop_e17', 'stop_e6', 'stop_e16', 'stop_e3'],
+        stopIds: [
+          'stop_e1',
+          'stop_e18',
+          'stop_e10',
+          'stop_e9',
+          'stop_e17',
+          'stop_e6',
+          'stop_e16',
+          'stop_e3',
+        ],
         color: '#0097A7',
         loop: true,
       },
@@ -535,16 +821,16 @@ const empireMap: PresetMap = {
 
 // Экспорт всех пресетов в порядке возрастания сложности
 export const presetMaps: PresetMap[] = [
-  tutorialMap,      // Уровень 1: 4 остановки, 1 маршрут
-  suburbanMap,      // Уровень 2: 5 остановок, 1 маршрут
-  quarterMap,       // Уровень 3: 6 остановок, 2 маршрута
-  districtMap,      // Уровень 4: 8 остановок, 2 маршрута
-  crossroadMap,     // Уровень 5: 9 остановок, 3 маршрута
-  gridMap,          // Уровень 6: 12 остановок, 3 маршрута
-  metroMap,         // Уровень 7: 14 остановок, 4 маршрута
-  megapolisMap,     // Уровень 8: 16 остановок, 4 маршрута
+  tutorialMap, // Уровень 1: 4 остановки, 1 маршрут
+  suburbanMap, // Уровень 2: 5 остановок, 1 маршрут
+  quarterMap, // Уровень 3: 6 остановок, 2 маршрута
+  districtMap, // Уровень 4: 8 остановок, 2 маршрута
+  crossroadMap, // Уровень 5: 9 остановок, 3 маршрута
+  gridMap, // Уровень 6: 12 остановок, 3 маршрута
+  metroMap, // Уровень 7: 14 остановок, 4 маршрута
+  megapolisMap, // Уровень 8: 16 остановок, 4 маршрута
   agglomerationMap, // Уровень 9: 18 остановок, 5 маршрутов
-  empireMap,        // Уровень 10: 20 остановок, 6 маршрутов
+  empireMap, // Уровень 10: 20 остановок, 6 маршрутов
 ];
 
 // Экспорт отдельных пресетов

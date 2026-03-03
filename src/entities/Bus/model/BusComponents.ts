@@ -6,10 +6,10 @@
 import type { Component } from '@/shared/lib/game-core/EntityManagerService';
 
 export enum BusState {
-  IDLE = 'idle',           // Стоит без дела (нет маршрута)
+  IDLE = 'idle', // Стоит без дела (нет маршрута)
   MOVING_TO_STOP = 'moving_to_stop', // Едет к следующей остановке
-  STOPPED = 'stopped',     // Остановился для посадки/высадки
-  RETURNING = 'returning'  // (Опционально) Возвращается в депо
+  STOPPED = 'stopped', // Остановился для посадки/высадки
+  RETURNING = 'returning', // (Опционально) Возвращается в депо
 }
 
 /**
@@ -25,8 +25,8 @@ export interface BusPositionComponent extends Component {
  * Физика движения
  */
 export interface BusVelocityComponent extends Component {
-  speed: number;        // Текущая скорость
-  maxSpeed: number;     // Максимальная скорость
+  speed: number; // Текущая скорость
+  maxSpeed: number; // Максимальная скорость
   acceleration: number; // Ускорение
   isMoving: boolean;
 }
@@ -39,10 +39,10 @@ export interface BusDataComponent extends Component {
   routeId: string | null; // ID текущего маршрута (null если свободен)
   currentStopIndex: number; // Индекс текущей цели в списке остановок маршрута
   state: BusState;
-  capacity: number;     // Вместимость
-  passengers: number;   // Текущее кол-во пассажиров
+  capacity: number; // Вместимость
+  passengers: number; // Текущее кол-во пассажиров
   color: string;
-  waitTimer: number;    // Таймер ожидания на остановке (сек)
+  waitTimer: number; // Таймер ожидания на остановке (сек)
   waitTimeRequired: number; // Сколько нужно ждать (сек)
 }
 

@@ -8,7 +8,7 @@ export const StatsPanel = () => {
   useEffect(() => {
     // Берём актуальное состояние при монтировании
     setState(gameStateStore.getState());
-    
+
     // Подписка на изменения стора
     const unsubscribe = gameStateStore.subscribe((newState) => {
       setState(newState);
@@ -25,7 +25,7 @@ export const StatsPanel = () => {
         <span className={cls.label}>💰 Баланс:</span>
         <span className={cls.valueMoney}>{state.money}₽</span>
       </div>
-      
+
       <div className={cls.row}>
         <span className={cls.label}>👥 Перевезено:</span>
         <span className={cls.value}>{state.totalPassengersDelivered}</span>
@@ -41,11 +41,7 @@ export const StatsPanel = () => {
         <span className={cls.value}>{state.totalStops}</span>
       </div>
 
-      {state.message && (
-        <div className={cls.notification}>
-          {state.message}
-        </div>
-      )}
+      {state.message && <div className={cls.notification}>{state.message}</div>}
     </div>
   );
 };

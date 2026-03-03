@@ -6,9 +6,19 @@
 
 import type { System, SystemContext } from '@/shared/lib/game-core/EntityManagerService';
 import { entityManagerService } from '@/shared/lib/game-core/EntityManagerService';
-import { BUS_COMPONENTS, BusState, type BusPositionComponent, type BusVelocityComponent, type BusDataComponent } from './BusComponents';
+import {
+  BUS_COMPONENTS,
+  BusState,
+  type BusPositionComponent,
+  type BusVelocityComponent,
+  type BusDataComponent,
+} from './BusComponents';
 import { ROUTE_COMPONENTS, type RouteDataComponent } from '@/entities/Route/model/RouteComponents';
-import { STOP_COMPONENTS, type StopPositionComponent, type StopDataComponent } from '@/entities/stop/model/StopComponents';
+import {
+  STOP_COMPONENTS,
+  type StopPositionComponent,
+  type StopDataComponent,
+} from '@/entities/stop/model/StopComponents';
 
 // Кэш для маршрутов (избегаем перебора на каждый кадр)
 let routeCache: Map<string, RouteDataComponent> | null = null;
@@ -30,9 +40,18 @@ export const busMovementSystem: System = {
     const { deltaTime } = context;
 
     for (const entityId of entities) {
-      const pos = entityManagerService.getComponent<BusPositionComponent>(entityId, BUS_COMPONENTS.POSITION);
-      const vel = entityManagerService.getComponent<BusVelocityComponent>(entityId, BUS_COMPONENTS.VELOCITY);
-      const data = entityManagerService.getComponent<BusDataComponent>(entityId, BUS_COMPONENTS.DATA);
+      const pos = entityManagerService.getComponent<BusPositionComponent>(
+        entityId,
+        BUS_COMPONENTS.POSITION
+      );
+      const vel = entityManagerService.getComponent<BusVelocityComponent>(
+        entityId,
+        BUS_COMPONENTS.VELOCITY
+      );
+      const data = entityManagerService.getComponent<BusDataComponent>(
+        entityId,
+        BUS_COMPONENTS.DATA
+      );
 
       if (!pos || !vel || !data || data.state !== BusState.MOVING_TO_STOP) {
         continue;
@@ -105,7 +124,10 @@ export const busMovementSystem: System = {
  * Вспомогательная функция поиска координат цели
  * Использует кэширование для производительности
  */
-function getTargetStopPosition(routeId: string | null, stopIndex: number): { x: number, y: number } | null {
+function getTargetStopPosition(
+  routeId: string | null,
+  stopIndex: number
+): { x: number; y: number } | null {
   if (!routeId) return null;
 
   // Инициализация кэша маршрутов при необходимости
@@ -141,11 +163,17 @@ function getTargetStopPosition(routeId: string | null, stopIndex: number): { x: 
   // Инициализация кэша остановок при необходимости
   if (!stopCache) {
     stopCache = new Map();
-    const stops = entityManagerService.getEntitiesWithComponents(STOP_COMPONENTS.POSITION, STOP_COMPONENTS.DATA);
+    const stops = entityManagerService.getEntitiesWithComponents(
+      STOP_COMPONENTS.POSITION,
+      STOP_COMPONENTS.DATA
+    );
     for (const id of stops) {
       const sData = entityManagerService.getComponent<StopDataComponent>(id, STOP_COMPONENTS.DATA);
       if (sData) {
-        const pos = entityManagerService.getComponent<StopPositionComponent>(id, STOP_COMPONENTS.POSITION);
+        const pos = entityManagerService.getComponent<StopPositionComponent>(
+          id,
+          STOP_COMPONENTS.POSITION
+        );
         if (pos) {
           stopCache.set(sData.id, pos);
         }

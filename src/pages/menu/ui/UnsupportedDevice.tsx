@@ -10,22 +10,24 @@ export const UnsupportedDevice = () => {
   return (
     <div className={cls.page}>
       <div className={cls.icon}>⚠️</div>
-      
+
       <h1>Устройство не поддерживается</h1>
-      
+
       <div className={cls.message}>
-        К сожалению, игра работает только на ПК с шириной экрана от 900px.
-        Ваше устройство не соответствует минимальным требованиям.
+        К сожалению, игра работает только на ПК с шириной экрана от 900px. Ваше устройство не
+        соответствует минимальным требованиям.
       </div>
 
       <div className={cls.requirements}>
         <div className={cls['requirements-title']}>Минимальные требования:</div>
-        
+
         <div className={cls.requirement}>
           <span className={`${cls.check} ${screenWidth >= minWidth ? cls['pass'] : cls['fail']}`}>
             {screenWidth >= minWidth ? '✓' : '✗'}
           </span>
-          <span>Ширина экрана: {screenWidth}px (требуется ≥{minWidth}px)</span>
+          <span>
+            Ширина экрана: {screenWidth}px (требуется ≥{minWidth}px)
+          </span>
         </div>
 
         <div className={cls.requirement}>
@@ -36,9 +38,7 @@ export const UnsupportedDevice = () => {
         </div>
       </div>
 
-      <div className={cls.help}>
-        Попробуйте открыть игру на компьютере с большим монитором
-      </div>
+      <div className={cls.help}>Попробуйте открыть игру на компьютере с большим монитором</div>
     </div>
   );
 };

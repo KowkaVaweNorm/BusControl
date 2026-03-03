@@ -1,0 +1,134 @@
+.busCard {
+  background: #f8f2e4;
+  border: 2px solid var(--theme-border-main);
+  padding: 1.2rem 1rem 1rem;
+  box-shadow: inset 0 0 0 1px var(--theme-paper), 0 2px 0 var(--theme-border-main);
+  display: flex;
+  flex-direction: column;
+  transition: 0.1s;
+
+  &:hover {
+    background: var(--theme-hover-bg);
+    border-color: var(--theme-border-accent);
+  }
+}
+
+.busHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px dashed var(--theme-border-main);
+  padding-bottom: 0.5rem;
+}
+
+.busIcon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.busTitle {
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: -0.5px;
+  color: var(--theme-text-primary);
+}
+
+.busDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin-bottom: 1.2rem;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  border-bottom: 1px dotted var(--theme-border-soft);
+  padding-bottom: 0.3rem;
+}
+
+.detailLabel {
+  text-transform: uppercase;
+  color: #444;
+  font-weight: 500;
+}
+
+.detailValue {
+  font-weight: 600;
+  background: var(--theme-border-main);
+  color: var(--theme-text-inverse);
+  padding: 0.2rem 0.6rem;
+}
+
+.progress {
+  margin-top: 0.5rem;
+  border-top: 2px dashed var(--theme-border-main);
+  padding-top: 0.8rem;
+}
+
+.progressLabel {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+
+.levelText {
+  font-weight: 600;
+}
+
+.progressBar {
+  height: 12px;
+  border: 2px solid var(--theme-border-main);
+  background: var(--theme-paper);
+  position: relative;
+}
+
+.progressFill {
+  height: 100%;
+  width: 0%;
+  transition: width 0.2s;
+
+  &.progressFillEasy {
+    background: var(--preset-route-green);
+  }
+
+  &.progressFillMedium {
+    background: var(--preset-route-yellow);
+  }
+
+  &.progressFillHard {
+    background: var(--preset-route-red);
+  }
+}
+
+.upgradeBtn {
+  background: transparent;
+  border: 3px solid var(--theme-border-main);
+  color: var(--theme-text-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.4rem 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: 0.1s;
+  font-family: inherit;
+  margin-top: 1rem;
+  width: 100%;
+
+  &:hover:not(:disabled) {
+    background: var(--theme-border-main);
+    color: var(--theme-text-inverse);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    border-color: var(--theme-border-disabled);
+    pointer-events: none;
+  }
+}

@@ -13,20 +13,17 @@ export const Notifications = () => {
 
   useEffect(() => {
     // Подписка на события уведомлений
-    const unsubscribe = gameEventBusService.subscribe(
-      GameEventType.UI_NOTIFICATION,
-      (event) => {
-        const { message, type } = event.payload;
-        
-        const id = Date.now();
-        setNotifications((prev) => [...prev, { id, message, type }]);
+    const unsubscribe = gameEventBusService.subscribe(GameEventType.UI_NOTIFICATION, (event) => {
+      const { message, type } = event.payload;
 
-        // Удаляем уведомление через 3 секунды
-        setTimeout(() => {
-          setNotifications((prev) => prev.filter((n) => n.id !== id));
-        }, 3000);
-      }
-    );
+      const id = Date.now();
+      setNotifications((prev) => [...prev, { id, message, type }]);
+
+      // Удаляем уведомление через 3 секунды
+      setTimeout(() => {
+        setNotifications((prev) => prev.filter((n) => n.id !== id));
+      }, 3000);
+    });
 
     return () => {
       unsubscribe();
@@ -36,10 +33,7 @@ export const Notifications = () => {
   return (
     <div className={cls.container}>
       {notifications.map((notification) => (
-        <div
-          key={notification.id}
-          className={`${cls.notification} ${cls[notification.type]}`}
-        >
+        <div key={notification.id} className={`${cls.notification} ${cls[notification.type]}`}>
           {notification.type === 'success' && '✅ '}
           {notification.type === 'warning' && '⚠️ '}
           {notification.type === 'info' && 'ℹ️ '}

@@ -66,9 +66,7 @@ export const CitizenComplaints = () => {
           ))}
         </div>
       ) : (
-        <div className={cls.empty}>
-          Жалоб нет ✅
-        </div>
+        <div className={cls.empty}>Жалоб нет ✅</div>
       )}
     </div>
   );

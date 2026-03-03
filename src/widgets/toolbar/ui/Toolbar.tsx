@@ -44,7 +44,7 @@ export const Toolbar = () => {
 
     // Списываем деньги через стор
     const success = gameStateStore.spendMoney(BUS_COST);
-    
+
     if (success) {
       // Пытаемся создать автобус на первый доступный маршрут
       const busId = mapEditorService.createBusOnFirstRoute();
@@ -101,7 +101,7 @@ export const Toolbar = () => {
           🚌 Купить ({BUS_COST}₽)
         </button>
       </div>
-      
+
       <div className={cls.hint}>
         💡 ЛКМ по остановке — редактировать | ПКМ по маршруту — создать автобус
       </div>

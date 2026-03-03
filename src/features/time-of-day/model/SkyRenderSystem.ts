@@ -13,10 +13,10 @@ import { timeService, TimePeriod } from './TimeService';
 
 // Цвета неба для разных периодов суток (в формате RGBA)
 const SKY_COLORS: Record<TimePeriod, { r: number; g: number; b: number }> = {
-  [TimePeriod.NIGHT]: { r: 10, g: 10, b: 30 },      // Тёмно-синяя ночь
+  [TimePeriod.NIGHT]: { r: 10, g: 10, b: 30 }, // Тёмно-синяя ночь
   [TimePeriod.MORNING]: { r: 255, g: 200, b: 100 }, // Тёплый рассвет
-  [TimePeriod.DAY]: { r: 135, g: 206, b: 235 },     // Голубое небо
-  [TimePeriod.EVENING]: { r: 255, g: 140, b: 80 },  // Оранжевый закат
+  [TimePeriod.DAY]: { r: 135, g: 206, b: 235 }, // Голубое небо
+  [TimePeriod.EVENING]: { r: 255, g: 140, b: 80 }, // Оранжевый закат
 };
 
 export const skyRenderSystem: System = {
@@ -24,6 +24,7 @@ export const skyRenderSystem: System = {
   requiredComponents: [],
 
   update: (_context: SystemContext, _entities: number[]) => {
+    // Параметры не используются, но требуются интерфейсом System
     // Используем "сырой" контекст без трансформации камеры
     const ctx = canvasRendererService.getRawLayerContext('background');
 
@@ -45,7 +46,10 @@ export const skyRenderSystem: System = {
     // Средняя часть
     gradient.addColorStop(0.5, `rgb(${skyColor.r}, ${skyColor.g}, ${skyColor.b})`);
     // Нижняя часть (светлее)
-    gradient.addColorStop(1, `rgb(${Math.min(255, skyColor.r * 1.2)}, ${Math.min(255, skyColor.g * 1.2)}, ${Math.min(255, skyColor.b * 1.2)})`);
+    gradient.addColorStop(
+      1,
+      `rgb(${Math.min(255, skyColor.r * 1.2)}, ${Math.min(255, skyColor.g * 1.2)}, ${Math.min(255, skyColor.b * 1.2)})`
+    );
 
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, width, height);
@@ -63,11 +67,7 @@ export const skyRenderSystem: System = {
 /**
  * Нарисовать звёзды на небе
  */
-function drawStars(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number
-): void {
+function drawStars(ctx: CanvasRenderingContext2D, width: number, height: number): void {
   // Используем детерминированный "случайный" генератор для звёзд
   // (чтобы звёзды не мерцали при каждом кадре)
   const starCount = 100;
@@ -77,9 +77,9 @@ function drawStars(
 
   for (let i = 0; i < starCount; i++) {
     // Псевдослучайные координаты на основе seed
-    const x = ((Math.sin(seed + i) * 10000) % width + width) % width;
-    const y = ((Math.cos(seed + i * 2) * 10000) % (height / 2) + height / 2) % (height / 2);
-    const size = ((Math.sin(seed + i * 3) * 2) + 1);
+    const x = (((Math.sin(seed + i) * 10000) % width) + width) % width;
+    const y = (((Math.cos(seed + i * 2) * 10000) % (height / 2)) + height / 2) % (height / 2);
+    const size = Math.sin(seed + i * 3) * 2 + 1;
 
     ctx.beginPath();
     ctx.arc(x, y, size, 0, Math.PI * 2);
@@ -90,11 +90,7 @@ function drawStars(
 /**
  * Нарисовать солнце или луну
  */
-function drawCelestialBody(
-  ctx: CanvasRenderingContext2D,
-  width: number,
-  height: number
-): void {
+function drawCelestialBody(ctx: CanvasRenderingContext2D, width: number, height: number): void {
   const time = timeService.getTime();
   const hours = time.hours + time.minutes / 60;
 
@@ -112,7 +108,7 @@ function drawCelestialBody(
     // Ночь - луна
     isSun = false;
     // Угол для луны (движется в противоположную сторону)
-    angle = ((hours + 6) % 24 / 12) * Math.PI;
+    angle = (((hours + 6) % 24) / 12) * Math.PI;
   }
 
   // Позиция по дуге

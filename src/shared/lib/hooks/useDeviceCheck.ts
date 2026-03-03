@@ -13,7 +13,7 @@ export interface DeviceCheckResult {
 
 /**
  * Хук для проверки поддержки устройства
- * 
+ *
  * Требования:
  * - Ширина экрана >= 900px
  * - Устройство НЕ тач-экран (PC с мышью/клавиатурой)
@@ -29,12 +29,14 @@ export function useDeviceCheck(): DeviceCheckResult {
   useEffect(() => {
     const checkDevice = () => {
       const screenWidth = window.innerWidth;
-      
+
       // Проверка на тач-устройство
       // Используем комбинацию факторов для более точного определения
       const hasTouchPoints = navigator.maxTouchPoints > 0;
-      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+
       // Более строгая проверка: считаем тач-устройством только если:
       // 1. Это мобильный UA (телефон/планшет)
       // 2. ИЛИ есть тач-точки И нет поддержки мыши
@@ -74,12 +76,12 @@ function hasMouseSupport(): boolean {
   if (mouseQuery.matches) {
     return true;
   }
-  
+
   // Резервная проверка через hover
   const hoverQuery = window.matchMedia('(hover: hover)');
   if (hoverQuery.matches) {
     return true;
   }
-  
+
   return false;
 }

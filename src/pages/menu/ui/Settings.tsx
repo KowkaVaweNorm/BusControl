@@ -38,7 +38,7 @@ export const Settings = ({ onBack }: SettingsProps) => {
       {/* Звук */}
       <div className={cls['settings-group']}>
         <div className={cls['group-title']}>🔊 Звук</div>
-        
+
         <div className={cls['setting-row']}>
           <label>Музыка</label>
           <input
@@ -65,7 +65,7 @@ export const Settings = ({ onBack }: SettingsProps) => {
       {/* Язык */}
       <div className={cls['settings-group']}>
         <div className={cls['group-title']}>🌐 Язык</div>
-        
+
         <div className={cls['setting-row']}>
           <label>Язык интерфейса</label>
           <select
@@ -81,7 +81,7 @@ export const Settings = ({ onBack }: SettingsProps) => {
       {/* Опасная зона */}
       <div className={`${cls['settings-group']} ${cls['danger-zone']}`}>
         <div className={cls['group-title']}>⚠️ Данные</div>
-        
+
         <button className={cls['reset-button']} onClick={handleResetProgress}>
           🗑️ Сбросить прогресс
         </button>
