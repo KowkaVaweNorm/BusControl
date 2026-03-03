@@ -34,6 +34,10 @@ export interface StopDataComponent extends Component {
   color: string; // Цвет отрисовки
   waitingPassengers: number; // Счетчик ожидающих (пока просто число)
   spawnRates: SpawnRates; // Настройки спавна по периодам суток
+  
+  // Система загруженности и жалоб
+  overloadTimer: number; // Время в перегрузке (сек)
+  complaintCount: number; // Всего жалоб на остановке
 }
 
 /**
@@ -46,6 +50,13 @@ export const DEFAULT_SPAWN_RATES: SpawnRates = {
   [TimePeriod.EVENING]: 20.0,   // Вечер: 3 пасс/мин
   [TimePeriod.NIGHT]: 20.0,     // Ночь: 3 пасс/мин
 };
+
+/**
+ * Константы для системы загруженности остановок
+ */
+export const STOP_CAPACITY = 100; // Максимальная вместимость остановки (пассажиров)
+export const OVERLOAD_THRESHOLD = 0.5; // 50% загруженности = перегрузка
+export const COMPLAINT_DELAY = 10.0; // 10 секунд до генерации жалобы
 
 /**
  * Типы компонентов для удобного импорта в других местах

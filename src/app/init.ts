@@ -28,6 +28,8 @@ import { busRenderSystem } from '@/entities/Bus/model/BusRenderSystem';
 import { npcSpawnerSystem } from '@/entities/NPC/model/NPCSpawnerSystem';
 import { npcInteractionSystem } from '@/entities/NPC/model/NPCInteractionSystem';
 import { npcRenderSystem } from '@/entities/NPC/model/NPCRenderSystem';
+import { stopOverloadSystem } from '@/entities/stop/model/StopOverloadSystem';
+import { stopStatisticsSystem } from '@/entities/stop/model/StopStatisticsSystem';
 
 // Конфигурация игры (можно вынести в отдельный конфиг позже)
 const GAME_CONFIG = {
@@ -82,6 +84,10 @@ export function initGame(containerId: string): InitResult {
     entityManagerService.registerSystem(npcSpawnerSystem);        // Спавн пассажиров
     entityManagerService.registerSystem(npcInteractionSystem);    // Посадка/высадка
     entityManagerService.registerSystem(npcRenderSystem);         // Отрисовка
+
+    // Регистрируем системы остановок (загруженность и статистика)
+    entityManagerService.registerSystem(stopOverloadSystem);      // Мониторинг перегрузки
+    entityManagerService.registerSystem(stopStatisticsSystem);    // Агрегация статистики
 
     // 6. Автозагрузка сохранённой карты и запуск автосохранения
     const savedMap = mapSaveService.loadFromLocalStorage();

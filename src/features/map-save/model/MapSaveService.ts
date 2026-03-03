@@ -10,9 +10,12 @@
 import { entityManagerService } from '@/shared/lib/game-core/EntityManagerService';
 import { gameEventBusService, GameEventType } from '@/shared/lib/game-core/GameEventBusService';
 import { gameStateStore } from '@/app/store/GameStateStore';
+import { resetComplaintTimers } from '@/entities/stop/model/StopOverloadSystem';
+import { resetAggregationTimer } from '@/entities/stop/model/StopStatisticsSystem';
 import { STOP_COMPONENTS, type StopDataComponent, type StopPositionComponent, DEFAULT_SPAWN_RATES } from '@/entities/stop/model/StopComponents';
 import { ROUTE_COMPONENTS, type RouteDataComponent } from '@/entities/Route/model/RouteComponents';
 import { BUS_COMPONENTS, type BusDataComponent } from '@/entities/Bus/model/BusComponents';
+import { clearMovementCache } from '@/entities/Bus/model/BusMovementSystem';
 import { NPC_COMPONENTS } from '@/entities/NPC/model/NPCComponents';
 import { cameraController } from '@/shared/lib/game-core/CameraController';
 import {
@@ -132,6 +135,11 @@ export class MapSaveService {
 
     // Очистка текущих сущностей
     this.clearAllEntities();
+
+    // Сброс таймеров жалоб и статистики (чтобы не висели старые значения)
+    resetComplaintTimers();
+    resetAggregationTimer();
+    clearMovementCache(); // Сброс кэша движения для корректной работы автобусов
 
     // Создание остановок
     for (const stopData of saveData.stops) {
@@ -325,6 +333,8 @@ export class MapSaveService {
             evening: data.spawnRates.evening,
             night: data.spawnRates.night,
           },
+          overloadTimer: data.overloadTimer,
+          complaintCount: data.complaintCount,
         });
       }
     }
@@ -442,6 +452,8 @@ export class MapSaveService {
         evening: stopData.spawnRates.evening,
         night: stopData.spawnRates.night,
       } : { ...DEFAULT_SPAWN_RATES },
+      overloadTimer: stopData.overloadTimer ?? 0,
+      complaintCount: stopData.complaintCount ?? 0,
     });
 
     // Отправляем событие для обновления счётчика в GameStateStore

@@ -7,9 +7,11 @@
  * @module app/store
  */
 
+import type { AppScene } from '@/shared/types/app-types';
+
 export interface GameState {
   /** Текущая сцена/экран */
-  currentScene: string;
+  currentScene: AppScene;
   /** Состояние паузы */
   isPaused: boolean;
   /** Счёт игрока */
@@ -28,6 +30,11 @@ export interface GameState {
   totalStops: number;
   /** Сообщение для отображения */
   message: string;
+
+  // Система загруженности остановок и жалоб
+  totalComplaints: number; // Всего жалоб горожан
+  averageStopOccupancy: number; // Средняя загруженность остановок (%)
+  overloadedStopsCount: number; // Количество перегруженных остановок
 }
 
 export type GameStateListener = (state: GameState) => void;
@@ -44,6 +51,9 @@ export class GameStateStore {
     activeBuses: 0,
     totalStops: 0,
     message: '',
+    totalComplaints: 0,
+    averageStopOccupancy: 0,
+    overloadedStopsCount: 0,
   };
 
   private listeners: Set<GameStateListener> = new Set();
@@ -103,6 +113,9 @@ export class GameStateStore {
       activeBuses: 0,
       totalStops: 0,
       message: '',
+      totalComplaints: 0,
+      averageStopOccupancy: 0,
+      overloadedStopsCount: 0,
     };
     this.notifyListeners();
   }
@@ -117,7 +130,7 @@ export class GameStateStore {
   /**
    * Изменение сцены
    */
-  public setScene(scene: string): void {
+  public setScene(scene: AppScene): void {
     this.setState({ currentScene: scene });
   }
 
@@ -221,6 +234,31 @@ export class GameStateStore {
    */
   public clearMessage(): void {
     this.setState({ message: '' });
+  }
+
+  // ============================================
+  // Методы для системы загруженности и жалоб
+  // ============================================
+
+  /**
+   * Добавить жалобу (увеличить счётчик)
+   */
+  public addComplaint(): void {
+    this.setState({ totalComplaints: this.state.totalComplaints + 1 });
+  }
+
+  /**
+   * Установить среднюю загруженность остановок (%)
+   */
+  public setAverageStopOccupancy(percent: number): void {
+    this.setState({ averageStopOccupancy: Math.max(0, Math.min(100, percent)) });
+  }
+
+  /**
+   * Установить количество перегруженных остановок
+   */
+  public setOverloadedStopsCount(count: number): void {
+    this.setState({ overloadedStopsCount: Math.max(0, count) });
   }
 }
 

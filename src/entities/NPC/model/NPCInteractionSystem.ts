@@ -130,12 +130,13 @@ function unloadPassengers(busEntityId: number, busData: BusDataComponent, stopId
   }
 
   if (unloadedCount > 0) {
-    console.log(`[Bus ${busData.id}] Unloaded ${unloadedCount} passengers at stop ${stopId}`);
+    // Пассажиры высажены (событие уже отправлено)
   }
 }
 
 /**
  * Посадка пассажиров в автобус
+ * Пассажиры садятся ТОЛЬКО если автобус движется к их целевой остановке
  */
 function loadPassengers(busEntityId: number, busData: BusDataComponent, stopId: string): void {
   if (busData.passengers >= busData.capacity) {
@@ -155,6 +156,10 @@ function loadPassengers(busEntityId: number, busData: BusDataComponent, stopId: 
 
     // Если пассажир ждет на этой остановке
     if (npcData.state === NPCState.WAITING && npcData.currentStopId === stopId) {
+      // ПРОВЕРКА: движется ли автобус к целевой остановке пассажира?
+      if (!npcPos.targetStopId || !doesBusGoToStop(busData, npcPos.targetStopId)) {
+        continue; // Этот автобус не едет туда, куда нужно пассажиру
+      }
 
       // Сажаем
       npcData.state = NPCState.ON_BUS;
@@ -190,8 +195,39 @@ function loadPassengers(busEntityId: number, busData: BusDataComponent, stopId: 
   }
 
   if (boardedCount > 0) {
-    console.log(`[Bus ${busData.id}] Boarded ${boardedCount} passengers, total: ${busData.passengers}/${busData.capacity}`);
+    // Пассажиры посажены (события уже отправлены)
   }
+}
+
+/**
+ * Проверить, движется ли автобус к указанной остановке
+ * @param busData - данные автобуса
+ * @param targetStopId - ID целевой остановки
+ * @returns true если автобус проедет через targetStopId
+ */
+function doesBusGoToStop(busData: BusDataComponent, targetStopId: string): boolean {
+  if (!busData.routeId) return false;
+
+  const routes = entityManagerService.getEntitiesWithComponents(ROUTE_COMPONENTS.DATA);
+  for (const rId of routes) {
+    const routeData = entityManagerService.getComponent<RouteDataComponent>(rId, ROUTE_COMPONENTS.DATA);
+    if (!routeData || routeData.id !== busData.routeId) continue;
+
+    // Находим индекс текущей остановки в маршруте
+    const currentIndex = busData.currentStopIndex;
+    // Находим индекс целевой остановки в маршруте
+    const targetIndex = routeData.stopIds.indexOf(targetStopId);
+
+    if (targetIndex === -1) return false; // Целевой остановки нет в этом маршруте
+
+    // Если маршрут зациклен - всегда true (рано или поздно доедет)
+    if (routeData.loop) return true;
+
+    // Для незацикленных маршрутов: целевая остановка должна быть ПОСЛЕ текущей
+    return targetIndex > currentIndex;
+  }
+
+  return false;
 }
 
 /**

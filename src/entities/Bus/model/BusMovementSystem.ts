@@ -43,7 +43,6 @@ export const busMovementSystem: System = {
 
       if (!targetStopPos) {
         // Маршрут сломан или закончился
-        console.log(`[Bus ${data.id}] No target stop position! routeId=${data.routeId}, index=${data.currentStopIndex}`);
         data.state = BusState.IDLE;
         vel.isMoving = false;
         vel.speed = 0;
@@ -123,6 +122,7 @@ function getTargetStopPosition(routeId: string | null, stopIndex: number): { x: 
 
   const routeData = routeCache.get(routeId);
   if (!routeData) {
+    console.warn(`[BusMovement] Route not found in cache: ${routeId}`);
     return null;
   }
 

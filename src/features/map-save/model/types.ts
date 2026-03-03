@@ -20,6 +20,9 @@ export interface SavedStop {
     evening: number;
     night: number;
   };
+  // Система загруженности и жалоб
+  overloadTimer?: number; // Таймер перегрузки (сек)
+  complaintCount?: number; // Всего жалоб на остановке
 }
 
 /**

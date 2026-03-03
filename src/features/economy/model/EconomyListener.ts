@@ -13,6 +13,7 @@ import { gameStateStore } from '@/app/store/GameStateStore';
 const FARE_PER_PASSENGER = 35; // 35₽ за посадку
 const REWARD_PER_PASSENGER = 5; // 5₽ бонус за доставку
 const BUS_PURCHASE_COST = 1000;  // 1000₽ за автобус
+const COMPLAINT_PENALTY = 50; // 50₽ штраф за жалобу
 
 let unsubscribeBoarded: (() => void) | null = null;
 let unsubscribeArrived: (() => void) | null = null;
@@ -21,6 +22,7 @@ let unsubscribeStopCreated: (() => void) | null = null;
 let unsubscribeBusDestroyed: (() => void) | null = null;
 let unsubscribeStopDestroyed: (() => void) | null = null;
 let unsubscribeMoneyChanged: (() => void) | null = null;
+let unsubscribeComplaintAdded: (() => void) | null = null;
 
 /**
  * Инициализация слушателей экономики
@@ -116,6 +118,22 @@ export function initEconomyListener(): void {
     }
   );
 
+  // Подписка на жалобы (штраф)
+  unsubscribeComplaintAdded = gameEventBusService.subscribe(
+    GameEventType.COMPLAINT_ADDED,
+    (event) => {
+      const { stopName, totalComplaints } = event.payload;
+
+      gameStateStore.addComplaint();
+      gameStateStore.spendMoney(COMPLAINT_PENALTY);
+
+      console.warn(
+        `[Economy] Complaint at "${stopName}": ${totalComplaints} total. ` +
+        `Penalty: ${COMPLAINT_PENALTY}₽. Balance: ${gameStateStore.getState().money}₽`
+      );
+    }
+  );
+
   console.log('[Economy] Economy listener initialized');
 }
 
@@ -130,6 +148,7 @@ export function cleanupEconomyListener(): void {
   unsubscribeBusDestroyed?.();
   unsubscribeStopDestroyed?.();
   unsubscribeMoneyChanged?.();
+  unsubscribeComplaintAdded?.();
   unsubscribeBoarded = null;
   unsubscribeArrived = null;
   unsubscribeBusCreated = null;
@@ -137,6 +156,7 @@ export function cleanupEconomyListener(): void {
   unsubscribeBusDestroyed = null;
   unsubscribeStopDestroyed = null;
   unsubscribeMoneyChanged = null;
+  unsubscribeComplaintAdded = null;
 
   console.log('[Economy] Economy listener cleaned up');
 }

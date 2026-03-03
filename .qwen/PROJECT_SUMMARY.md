@@ -55,58 +55,51 @@ Let me create a comprehensive summary following the specified format.# Project S
 3. **NPC States:** `WAITING` → `ON_BUS` → `ARRIVED` (удаляется через 500ms)
 4. **Final Stop Logic:** На конечной остановке все пассажиры высаживаются, посадка запрещена, автобус остаётся в `IDLE`
 5. **Economy:** +$5 за пассажира, -$100 за автобус, стартовый капитал $100
+6. **Colors:** все цвета в `src/app/styles/variables.css`, использовать `var(--...)`
 
-## Recent Actions
+## Implemented Features
 
-### Implemented (This Session)
-1. **NPC System:**
-   - `NPCComponents.ts` — POSITION, DATA компоненты с состояниями
-   - `NPCSpawnerSystem.ts` — спавн каждые 2 сек, лимит 10 на остановке
-   - `NPCInteractionSystem.ts` — посадка/высадка, высадка всех на конечной
-   - `NPCRenderSystem.ts` — визуализация (белые/синие точки)
+### Core Systems
+- ✅ ECS система (EntityManagerService)
+- ✅ Игровой цикл (GameLoopService)
+- ✅ Рендеринг по слоям (CanvasRendererService)
+- ✅ Камера (панорамирование + зум)
+- ✅ Ввод (мышь, клавиатура)
 
-2. **Economy System:**
-   - `EconomyListener.ts` — обработка событий экономики
-   - `GameStateStore` — добавлено поле `money`, методы `addMoney()`, `spendMoney()`
+### Entities
+- ✅ Остановки (создание, переименование, рендеринг)
+- ✅ Маршруты (построение, зацикливание, рендеринг)
+- ✅ Автобусы (движение, посадка/высадка, рендеринг)
+- ✅ Пассажиры (спавн, выбор цели, посадка/высадка)
 
-3. **Bug Fixes:**
-   - Camera transform leak (убран `ctx.save()` из `applyLayerTransform`)
-   - Duplicate zoom handling (убран зум из `InputService.handleWheel`)
-   - Bus movement NaN (защита `Math.max(0, distance - 10)`)
-   - Stop text baseline (добавлен `textBaseline: 'bottom'`)
-   - Final stop restart (добавлена проверка `isAtFinalStop()`)
-   - Passenger counter reset (обнуление `busData.passengers` после высадки)
-   - Bus loading bar visibility (показывается при `passengers > 0`)
+### Features
+- ✅ Экономика (+$7 за пассажира, -$100 за автобус)
+- ✅ Сохранение/загрузка карт (localStorage, автосохранение)
+- ✅ Пресетные карты (simple, city, complex, grid)
+- ✅ Экспорт/импорт карт (JSON)
 
-### Files Created/Modified
-- **Created:** 7 новых файлов (NPC система + экономика)
-- **Modified:** 10 файлов (исправления багов)
-- **Commit:** `b0dfc6c feat: добавить систему пассажиров и экономику`
+### UI Widgets
+- ✅ StatsPanel (баланс, статистика)
+- ✅ Toolbar (режимы, покупка автобуса)
+- ✅ Notifications (уведомления)
+- ✅ MapManager (управление картами)
+- ✅ TimeDisplay (время игры)
+- ✅ StopEditor (редактирование остановок)
 
 ## Current Plan
 
-### Completed ✅
-1. [DONE] Система спавна пассажиров (NPCSpawnerSystem)
-2. [DONE] Система посадки/высадки (NPCInteractionSystem)
-3. [DONE] Рендеринг NPC (NPCRenderSystem)
-4. [DONE] Экономика (EconomyListener + GameStateStore)
-5. [DONE] Исправление движения автобуса
-6. [DONE] Исправление камеры
-7. [DONE] Логика конечной остановки
-
 ### Next Steps 🔜
-1. [TODO] UI отображение денег и статистики игрока
-2. [TODO] Сохранение/загрузка карты (localStorage)
-3. [TODO] Зацикленные маршруты (loop = true)
-4. [TODO] Визуализация очереди пассажиров на остановке
-5. [TODO] Оптимизация кэширования (маршруты/остановки)
+1. [TODO] Визуальное отображение зацикленности маршрута
+2. [TODO] Настройки игры
+3. [TODO] Редактирование маршрутов (удаление остановок)
+4. [TODO] Время суток (влияние на спавн пассажиров)
+5. [TODO] События (концерты → перегрузка остановок)
 
 ### Known Limitations
 - Производительность: O(n) поиск остановок (допустимо для MVP)
-- React Strict Mode: двойная инициализация (решено через `clearSubscribers()`)
 - Пассажиры садятся в любой автобус (MVP нормально)
 
 ---
 
 ## Summary Metadata
-**Update time**: 2026-02-19T11:51:30.513Z 
+**Update time**: 2026-02-28 

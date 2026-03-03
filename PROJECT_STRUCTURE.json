@@ -1,8 +1,8 @@
 {
   "projectName": "Bus Control",
-  "generatedAt": "2026-02-21",
+  "generatedAt": "2026-03-03",
   "rootDirectory": "d:\\domains\\Pets\\GameStudio\\Bus Control\\ProjectBusControl",
-  "totalFiles": 82,
+  "totalFiles": 127,
   "architecture": "Feature-Sliced Design (FSD)",
   "structure": [
     {
@@ -91,6 +91,11 @@
       "description": "Глобальные стили"
     },
     {
+      "path": "src/vite-env.d.ts",
+      "type": "types",
+      "description": "Объявление типов для CSS/SCSS модулей"
+    },
+    {
       "path": "src/app/init.ts",
       "type": "source",
       "description": "Инициализация игрового ядра (все сервисы + экономика + сохранение)"
@@ -99,6 +104,21 @@
       "path": "src/app/store/GameStateStore.ts",
       "type": "source",
       "description": "Хранилище состояния игры (деньги, статистика, пауза)"
+    },
+    {
+      "path": "src/app/store/GameSettingsStore.ts",
+      "type": "source",
+      "description": "Хранилище настроек и прогресса игрока (localStorage)"
+    },
+    {
+      "path": "src/app/store/index.ts",
+      "type": "source",
+      "description": "Экспорт хранилищ"
+    },
+    {
+      "path": "src/app/styles/variables.css",
+      "type": "styles",
+      "description": "Глобальные цветовые переменные (Canvas + UI + Theme)"
     },
     {
       "path": "src/shared/lib/game-core/GameLoopService.ts",
@@ -211,6 +231,16 @@
       "description": "Рендеринг остановок (круги, надписи, счётчик пассажиров, hover-подсветка, ✏️ иконка)"
     },
     {
+      "path": "src/entities/stop/model/StopOverloadSystem.ts",
+      "type": "source",
+      "description": "Система мониторинга перегрузки остановок (>50% = жалоба через 10 сек)"
+    },
+    {
+      "path": "src/entities/stop/model/StopStatisticsSystem.ts",
+      "type": "source",
+      "description": "Система агрегации статистики остановок (раз в 1 сек)"
+    },
+    {
       "path": "src/entities/stop/index.ts",
       "type": "source",
       "description": "Экспорт Stop"
@@ -249,6 +279,36 @@
       "path": "src/features/economy/index.ts",
       "type": "source",
       "description": "Экспорт экономики"
+    },
+    {
+      "path": "src/pages/menu/index.ts",
+      "type": "source",
+      "description": "Экспорт страниц меню (Menu, MapSelect, Settings, UnsupportedDevice)"
+    },
+    {
+      "path": "src/pages/garage/index.ts",
+      "type": "source",
+      "description": "Экспорт страницы гаража (Garage)"
+    },
+    {
+      "path": "src/shared/types/index.ts",
+      "type": "types",
+      "description": "Экспорт типов (app-types, game-settings)"
+    },
+    {
+      "path": "src/shared/lib/hooks/index.ts",
+      "type": "source",
+      "description": "Экспорт хуков (useDeviceCheck)"
+    },
+    {
+      "path": "src/widgets/citizen-complaints/index.ts",
+      "type": "source",
+      "description": "Экспорт виджета жалоб"
+    },
+    {
+      "path": "src/widgets/stop-occupancy/index.ts",
+      "type": "source",
+      "description": "Экспорт виджета загруженности остановок"
     },
     {
       "path": "src/widgets/game-canvas/index.ts",
@@ -353,12 +413,27 @@
     "widgets": {
       "path": "src/widgets",
       "description": "UI-виджеты",
-      "items": ["game-canvas", "stats-panel", "toolbar", "notifications", "map-manager"]
+      "items": ["game-canvas", "stats-panel", "toolbar", "notifications", "map-manager", "stop-occupancy", "citizen-complaints", "time-display", "stop-editor"]
+    },
+    "pages": {
+      "path": "src/pages",
+      "description": "Страницы приложения (меню, выбор карты, настройки, гараж)",
+      "items": ["menu", "garage"]
+    },
+    "types": {
+      "path": "src/shared/types",
+      "description": "Типы TypeScript",
+      "items": ["app-types", "game-settings"]
+    },
+    "hooks": {
+      "path": "src/shared/lib/hooks",
+      "description": "React хуки",
+      "items": ["useDeviceCheck"]
     },
     "app": {
       "path": "src/app",
-      "description": "Слой приложения (инициализация, стейт)",
-      "items": ["init.ts", "store/GameStateStore.ts"]
+      "description": "Слой приложения (инициализация, стейт, стили)",
+      "items": ["init.ts", "store/GameStateStore.ts", "store/GameSettingsStore.ts", "styles/variables.css"]
     }
   },
   "gameplay": {
@@ -381,7 +456,7 @@
         "Построение маршрутов (синие линии)",
         "Зацикленные маршруты (клавиша L)",
         "Создание автобуса (ПКМ по маршруту или кнопка)",
-        "Покупка автобуса через Toolbar ($100)",
+        "Покупка автобуса через Toolbar ($1000)",
         "Переименование остановок (ПКМ по остановке → prompt)",
         "Визуальная подсказка переименования (✏️ иконка, hover-подсветка)",
         "Движение автобуса с ускорением и торможением",
@@ -389,34 +464,47 @@
         "Зум камеры (колесо)",
         "Спавн пассажиров на остановках (каждые 2 сек)",
         "Пассажиры выбирают цель из остановок дальше по маршруту",
-        "Посадка пассажиров в автобус",
-        "Оплата проезда при посадке ($2)",
+        "Посадка пассажиров в автобус (только если маршрут подходит)",
+        "Оплата проезда при посадке ($35)",
         "Высадка пассажиров на своей остановке",
         "Бонус за доставку пассажира ($5)",
-        "Экономика (+$7 за пассажира, -$100 за автобус)",
+        "Экономика (+$40 за пассажира, -$1000 за автобус)",
         "Сохранение/загрузка карты (localStorage, автосохранение)",
-        "Пресетные карты (simple, city, complex, grid)",
+        "Пресетные карты (10 уровней сложности)",
         "Экспорт/импорт карты (JSON)",
+        "Система загруженности остановок (мониторинг >50%)",
+        "Система жалоб горожан (штраф $50 за жалобу)",
         "UI: StatsPanel (статистика слева сверху)",
         "UI: Toolbar (панель инструментов внизу)",
         "UI: Notifications (уведомления справа сверху)",
-        "UI: MapManager (управление картой справа снизу)"
+        "UI: MapManager (управление картой справа снизу)",
+        "UI: StopOccupancy (загруженность остановок сверху)",
+        "UI: CitizenComplaints (жалобы слева сверху)",
+        "UI: TimeDisplay (время игры)",
+        "UI: StopEditor (редактор остановок)",
+        "Страницы: Menu (главное меню)",
+        "Страницы: MapSelect (выбор карты)",
+        "Страницы: Settings (настройки)",
+        "Страницы: Garage (автопарк)",
+        "Проверка устройства (PC ≥900px, не тач)"
       ],
       "planned": [
         "Визуальное отображение зацикленности маршрута",
-        "Настройки игры",
-        "Редактирование маршрутов (удаление остановок)"
+        "Редактирование маршрутов (удаление остановок)",
+        "Система улучшений автобусов",
+        "Звуковое сопровождение"
       ]
     }
   },
   "economy": {
     "income": {
-      "passengerFare": 2,
+      "passengerFare": 35,
       "deliveryBonus": 5,
-      "totalPerPassenger": 7
+      "totalPerPassenger": 40
     },
     "expenses": {
-      "busPurchase": 100
+      "busPurchase": 1000,
+      "complaintPenalty": 50
     }
   }
 }

@@ -1,0 +1,76 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #1a1a2e;
+  color: #ffffff;
+  padding: 40px;
+  text-align: center;
+
+  .icon {
+    font-size: 72px;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-size: 36px;
+    margin: 0 0 20px 0;
+    color: #f44336;
+  }
+
+  .message {
+    font-size: 18px;
+    color: #aaaaaa;
+    max-width: 500px;
+    margin-bottom: 30px;
+    line-height: 1.6;
+  }
+
+  .requirements {
+    background: #2a2a4a;
+    border: 2px solid #4a4a6a;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    text-align: left;
+
+    .requirements-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #ffffff;
+    }
+
+    .requirement {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 16px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .check {
+        font-size: 20px;
+
+        &.pass {
+          color: #4caf50;
+        }
+
+        &.fail {
+          color: #f44336;
+        }
+      }
+    }
+  }
+
+  .help {
+    font-size: 14px;
+    color: #666;
+    margin-top: 20px;
+  }
+}

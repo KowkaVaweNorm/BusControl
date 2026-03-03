@@ -82,6 +82,10 @@ export enum GameEventType {
   // === UI ===
   UI_NOTIFICATION = 'ui:notification',
   UI_ERROR = 'ui:error',
+
+  // === Загруженность остановок и жалобы ===
+  STOP_OVERLOADED = 'stop:overloaded',
+  COMPLAINT_ADDED = 'complaint:added',
 }
 
 /**
@@ -134,6 +138,21 @@ export interface GameEventMap {
 
   [GameEventType.UI_NOTIFICATION]: { message: string; type: 'info' | 'success' | 'warning' };
   [GameEventType.UI_ERROR]: { message: string; code: string };
+
+  // === Загруженность остановок и жалобы ===
+  [GameEventType.STOP_OVERLOADED]: {
+    stopId: string;
+    stopName: string;
+    waitingPassengers: number;
+    occupancyPercent: number;
+    overloadTimer: number;
+  };
+  [GameEventType.COMPLAINT_ADDED]: {
+    stopId: string;
+    stopName: string;
+    waitingPassengers: number;
+    totalComplaints: number;
+  };
 }
 
 /**

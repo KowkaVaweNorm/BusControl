@@ -195,6 +195,8 @@ export class MapEditorService {
       color: '#00ff00',
       waitingPassengers: 0,
       spawnRates: { ...DEFAULT_SPAWN_RATES },
+      overloadTimer: 0, // Инициализация таймера перегрузки
+      complaintCount: 0, // Инициализация счётчика жалоб
     });
 
     // Очищаем кэш движения при создании остановки
