@@ -192,8 +192,11 @@ export class GameEventBusService {
    * Проверка на spam-событие (частые события, которые не нужно логировать)
    */
   private isSpamEvent(eventType: GameEventType): boolean {
-    // События, которые генерируются слишком часто (каждый кадр)
-    const spamEvents: GameEventType[] = [GameEventType.TIME_CHANGED];
+    // События, которые генерируются слишком часто (каждый кадр/интервал)
+    const spamEvents: GameEventType[] = [
+      GameEventType.TIME_CHANGED,
+      GameEventType.STOP_OVERLOADED, // Генерируется каждые 0.5 сек на перегруженных остановках
+    ];
     return spamEvents.includes(eventType);
   }
 

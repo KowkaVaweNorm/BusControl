@@ -7,6 +7,7 @@ import type { System, SystemContext } from '../../../shared/lib/game-core/Entity
 import { canvasRendererService } from '../../../shared/lib/game-core/CanvasRendererService';
 import { inputService } from '../../../shared/lib/game-core/InputService';
 import { stopEditorService } from '@/features/stop-editor';
+import { gameModeService, GameMode } from '@/features/game-mode';
 import {
   STOP_COMPONENTS,
   type StopPositionComponent,
@@ -22,6 +23,9 @@ export const stopRenderSystem: System = {
     const ctx = canvasRendererService.getLayerContext('entities');
 
     if (!ctx) return;
+
+    // Проверка режима разработчика (в Viewer режиме нет hover эффектов)
+    const isDeveloperMode = gameModeService.isDeveloper();
 
     // Получаем позицию курсора в мировых координатах (уже конвертировано в InputService)
     const mouseState = inputService.getMouseState();
@@ -48,7 +52,8 @@ export const stopRenderSystem: System = {
         const dx = worldMouseX - pos.x;
         const dy = worldMouseY - pos.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const isHovered = distance <= data.radius;
+        // Hover эффект только в режиме разработчика
+        const isHovered = isDeveloperMode && distance <= data.radius;
         const isSelected = selectedStopId === data.id;
 
         if (isHovered) {
@@ -97,7 +102,7 @@ export const stopRenderSystem: System = {
           );
         }
 
-        // 5. Визуальная подсказка при наведении (иконка карандаша)
+        // 5. Визуальная подсказка при наведении (иконка карандаша) - только в DEV режиме
         if (isHovered) {
           ctx.save();
           ctx.shadowColor = 'black';
@@ -112,8 +117,8 @@ export const stopRenderSystem: System = {
         }
       }
 
-      // Меняем курсор при наведении на остановку
-      if (hoveredStopId) {
+      // Меняем курсор при наведении на остановку - только в DEV режиме
+      if (hoveredStopId && isDeveloperMode) {
         canvasRendererService.setCursor('pointer');
       } else {
         canvasRendererService.setCursor('default');

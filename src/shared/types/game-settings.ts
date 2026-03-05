@@ -4,6 +4,28 @@
  */
 
 /**
+ * Данные о завершенном уровне
+ */
+export interface CompletedLevel {
+  /** ID карты/уровня */
+  levelId: string;
+  /** Баланс игрока на момент завершения */
+  finalBalance: number;
+  /** Перевезено пассажиров за сессию */
+  passengersDelivered: number;
+  /** Количество жалоб за сессию */
+  complaints: number;
+  /** Длительность сессии (мс) */
+  duration: number;
+  /** Причина завершения (если проигрыш) */
+  reason?: string;
+  /** Дата завершения */
+  completedAt: number;
+  /** Статус завершения */
+  status: 'won' | 'lost' | 'abandoned';
+}
+
+/**
  * Настройки игры (сохраняются в localStorage)
  */
 export interface GameSettings {
@@ -33,6 +55,14 @@ export interface PlayerProgress {
   unlockedBusTypes: string[];
   /** Улучшения автобусов */
   busUpgrades: BusUpgradeData[];
+  /** Завершенные уровни */
+  completedLevels: CompletedLevel[];
+  /** Последний активный уровень (ID) */
+  lastActiveLevelId: string | null;
+  /** Текущий баланс (сохраняется между сессиями) */
+  currentBalance: number;
+  /** Версия сохранения (для миграции) */
+  saveVersion: string;
 }
 
 /**
@@ -104,6 +134,11 @@ export const DEFAULT_SETTINGS: GameSettings = {
 };
 
 /**
+ * Текущая версия сохранения (для миграции)
+ */
+export const CURRENT_SAVE_VERSION = '1.1.0';
+
+/**
  * Пустой прогресс (для новой игры)
  */
 export const DEFAULT_PROGRESS: PlayerProgress = {
@@ -113,4 +148,8 @@ export const DEFAULT_PROGRESS: PlayerProgress = {
   unlockedMaps: ['tutorial'], // Только учебная карта открыта
   unlockedBusTypes: ['standard'], // Только стандартный автобус
   busUpgrades: [],
+  completedLevels: [],
+  lastActiveLevelId: null,
+  currentBalance: 5000, // Стартовый баланс
+  saveVersion: CURRENT_SAVE_VERSION,
 };

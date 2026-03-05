@@ -12,6 +12,7 @@ import { gameEventBusService, GameEventType } from '@/shared/lib/game-core/GameE
 import { gameStateStore } from '@/app/store/GameStateStore';
 import { resetComplaintTimers } from '@/entities/stop/model/StopOverloadSystem';
 import { resetAggregationTimer } from '@/entities/stop/model/StopStatisticsSystem';
+import { resetGameOverSystem } from '@/features/game-over';
 import {
   STOP_COMPONENTS,
   type StopDataComponent,
@@ -150,7 +151,18 @@ export class MapSaveService {
     // Сброс таймеров жалоб и статистики (чтобы не висели старые значения)
     resetComplaintTimers();
     resetAggregationTimer();
+    resetGameOverSystem(); // Сброс флага Game Over
     clearMovementCache(); // Сброс кэша движения для корректной работы автобусов
+
+    // Сброс счётчиков жалоб и Game Over в GameStateStore (чтобы не сработал Game Over)
+    gameStateStore.setState({
+      totalComplaints: 0,
+      averageStopOccupancy: 0,
+      overloadedStopsCount: 0,
+      isGameOver: false,
+      gameOverReason: null,
+      gameOverStats: null,
+    });
 
     // Создание остановок
     for (const stopData of saveData.stops) {

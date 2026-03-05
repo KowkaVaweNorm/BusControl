@@ -3,71 +3,101 @@
   top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--ui-bg-primary);
-  border: 2px solid var(--ui-border-color);
+  background: var(--theme-paper);
+  border: 3px solid var(--theme-border-main);
   border-radius: 8px;
-  padding: 12px 20px;
-  color: var(--ui-text-primary);
-  font-family: 'Arial', sans-serif;
-  min-width: 250px;
-  box-shadow: var(--ui-shadow);
+  padding: 1rem 1.5rem;
+  min-width: 280px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   pointer-events: none;
   z-index: 100;
+  font-family: 'Source Code Pro', 'Courier New', monospace;
+
+  /* Перфорированный край сверху */
+  &::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--theme-border-main),
+      var(--theme-border-main) 6px,
+      transparent 6px,
+      transparent 12px
+    );
+  }
 
   .title {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
     text-align: center;
-    color: var(--ui-text-secondary);
+    color: var(--theme-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
   }
 
   .row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 6px;
-    font-size: 13px;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px dashed var(--theme-border-soft);
 
     &:last-child {
       margin-bottom: 0;
+      border-bottom: none;
     }
   }
 
   .label {
-    color: var(--ui-text-secondary);
+    color: var(--theme-text-secondary);
     margin-right: 10px;
+    font-weight: 500;
   }
 
   .value {
-    font-weight: bold;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
 
     &.low {
-      color: var(--preset-route-green);
+      background: var(--preset-route-green);
+      color: #ffffff;
     }
 
     &.medium {
-      color: var(--preset-route-orange);
+      background: var(--preset-route-orange);
+      color: #ffffff;
     }
 
     &.high {
-      color: var(--preset-route-red);
+      background: var(--preset-route-red);
+      color: #ffffff;
     }
   }
 
   .progressBar {
     position: relative;
     width: 100%;
-    height: 8px;
-    background: var(--ui-bg-secondary);
-    border-radius: 4px;
+    height: 10px;
+    background: var(--theme-paper-soft);
+    border-radius: 5px;
     overflow: hidden;
-    margin-top: 8px;
+    margin-top: 0.75rem;
+    border: 1px solid var(--theme-border-soft);
 
     .progressFill {
       height: 100%;
       transition:
         width 0.3s ease,
         background-color 0.3s ease;
+      border-radius: 5px;
     }
   }
 }

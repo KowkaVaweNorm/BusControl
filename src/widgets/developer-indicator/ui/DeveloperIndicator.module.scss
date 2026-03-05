@@ -1,0 +1,94 @@
+.indicator {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  z-index: 9999;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+  font-family: 'Source Code Pro', 'Courier New', monospace;
+  border: 2px solid var(--theme-border-main);
+
+  /* Перфорированный край внутри */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    height: 4px;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.3),
+      rgba(255, 255, 255, 0.3) 4px,
+      transparent 4px,
+      transparent 8px
+    );
+    border-radius: 3px;
+    pointer-events: none;
+  }
+
+  .icon {
+    font-size: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .mode {
+    letter-spacing: 1.5px;
+    position: relative;
+    z-index: 1;
+  }
+
+  &.developer {
+    background: linear-gradient(135deg, var(--theme-border-accent), #c62828);
+    color: #ffffff;
+    border-color: #ff4444;
+    animation: pulse 2s infinite;
+  }
+
+  &.viewer {
+    background: linear-gradient(135deg, var(--theme-paper), var(--theme-paper-soft));
+    color: var(--theme-text-secondary);
+    border-color: var(--theme-border-soft);
+  }
+
+  .toggleBtn {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    position: relative;
+    z-index: 1;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 2px 12px rgba(221, 34, 34, 0.4);
+  }
+  50% {
+    box-shadow: 0 2px 20px rgba(221, 34, 34, 0.8);
+  }
+}

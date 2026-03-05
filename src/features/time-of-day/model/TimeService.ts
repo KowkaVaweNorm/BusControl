@@ -298,6 +298,19 @@ export class TimeService {
   }
 
   /**
+   * Сбросить время к начальному значению
+   */
+  public reset(): void {
+    this.currentTime = {
+      hours: this.config.startTime.hours,
+      minutes: this.config.startTime.minutes,
+      day: 1,
+    };
+    this.currentPeriod = this.calculatePeriod(this.currentTime.hours);
+    this.log(`Time reset: ${this.formatTime()}`);
+  }
+
+  /**
    * Очистка сервиса
    */
   public cleanup(): void {

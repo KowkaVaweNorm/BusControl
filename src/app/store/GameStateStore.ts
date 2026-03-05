@@ -8,6 +8,7 @@
  */
 
 import type { AppScene } from '@/shared/types/app-types';
+import { gameSettingsStore } from './GameSettingsStore';
 
 export interface GameState {
   /** Текущая сцена/экран */
@@ -35,6 +36,27 @@ export interface GameState {
   totalComplaints: number; // Всего жалоб горожан
   averageStopOccupancy: number; // Средняя загруженность остановок (%)
   overloadedStopsCount: number; // Количество перегруженных остановок
+
+  // Game Over состояние
+  isGameOver: boolean; // Флаг завершения игры
+  gameOverReason: string | null; // Причина проигрыша (для отправки на сервер)
+  gameOverStats: GameOverStats | null; // Статистика сессии на момент завершения
+}
+
+/**
+ * Статистика сессии для отправки на сервер
+ */
+export interface GameOverStats {
+  sessionId: string; // Уникальный ID сессии
+  startTime: number; // Timestamp начала игры
+  endTime: number; // Timestamp завершения
+  duration: number; // Длительность в мс
+  finalMoney: number;
+  passengersDelivered: number;
+  totalComplaints: number;
+  activeBuses: number;
+  totalStops: number;
+  reason: string; // Причина проигрыша
 }
 
 export type GameStateListener = (state: GameState) => void;
@@ -54,7 +76,13 @@ export class GameStateStore {
     totalComplaints: 0,
     averageStopOccupancy: 0,
     overloadedStopsCount: 0,
+    isGameOver: false,
+    gameOverReason: null,
+    gameOverStats: null,
   };
+
+  // Временное хранение статистики сессии (для отправки на сервер)
+  private sessionStats: GameOverStats | null = null;
 
   private listeners: Set<GameStateListener> = new Set();
 
@@ -102,6 +130,9 @@ export class GameStateStore {
    * Сброс состояния к начальному
    */
   public reset(): void {
+    // Сбрасываем статистику сессии
+    this.sessionStats = null;
+
     this.state = {
       currentScene: 'menu',
       isPaused: false,
@@ -116,6 +147,9 @@ export class GameStateStore {
       totalComplaints: 0,
       averageStopOccupancy: 0,
       overloadedStopsCount: 0,
+      isGameOver: false,
+      gameOverReason: null,
+      gameOverStats: null,
     };
     this.notifyListeners();
   }
@@ -260,7 +294,127 @@ export class GameStateStore {
   public setOverloadedStopsCount(count: number): void {
     this.setState({ overloadedStopsCount: Math.max(0, count) });
   }
+
+  // ============================================
+  // Методы для управления Game Over
+  // ============================================
+
+  /**
+   * Завершить игру (Game Over)
+   * @param reason - Причина проигрыша (например, "Достигнуто 10 жалоб")
+   */
+  public setGameOver(reason: string): void {
+    const endTime = Date.now();
+    const startTime = this.sessionStats?.startTime ?? endTime;
+
+    const stats: GameOverStats = {
+      sessionId: this.sessionStats?.sessionId ?? this.generateSessionId(),
+      startTime: this.sessionStats?.startTime ?? endTime,
+      endTime,
+      duration: endTime - startTime,
+      finalMoney: this.state.money,
+      passengersDelivered: this.state.totalPassengersDelivered,
+      totalComplaints: this.state.totalComplaints,
+      activeBuses: this.state.activeBuses,
+      totalStops: this.state.totalStops,
+      reason,
+    };
+
+    // Сохраняем статистику сессии
+    this.sessionStats = stats;
+
+    // Обновляем состояние
+    this.setState({
+      isGameOver: true,
+      gameOverReason: reason,
+      gameOverStats: stats,
+    });
+
+    // Сохраняем прогресс прохождения (баланс и завершенный уровень)
+    // Получаем текущий активный уровень из gameSettingsStore
+    const currentLevelId = gameSettingsStore.getLastActiveLevel();
+    if (currentLevelId) {
+      gameSettingsStore.completeLevel({
+        levelId: currentLevelId,
+        finalBalance: stats.finalMoney,
+        passengersDelivered: stats.passengersDelivered,
+        complaints: stats.totalComplaints,
+        duration: stats.duration,
+        reason,
+        status: 'lost', // Проигрыш
+      });
+    }
+
+    console.log('[GameStateStore] Game Over saved to progress');
+  }
+
+  /**
+   * Сбросить состояние Game Over
+   */
+  public clearGameOver(): void {
+    this.setState({
+      isGameOver: false,
+      gameOverReason: null,
+      gameOverStats: null,
+    });
+  }
+
+  /**
+   * Начать новую сессию (генерация sessionId)
+   * Вызывать при старте игры
+   */
+  public startNewSession(): void {
+    this.sessionStats = {
+      sessionId: this.generateSessionId(),
+      startTime: Date.now(),
+      endTime: 0,
+      duration: 0,
+      finalMoney: this.state.money,
+      passengersDelivered: 0,
+      totalComplaints: 0,
+      activeBuses: 0,
+      totalStops: 0,
+      reason: '',
+    };
+  }
+
+  /**
+   * Получить статистику текущей сессии
+   * (для отправки на сервер)
+   */
+  public getSessionStats(): GameOverStats | null {
+    return this.sessionStats;
+  }
+
+  /**
+   * Сгенерировать уникальный ID сессии
+   */
+  private generateSessionId(): string {
+    return `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  }
 }
 
 // Экспорт единственного экземпляра
 export const gameStateStore = new GameStateStore();
+
+// ============================================
+// Хелпер для отправки статистики на сервер
+// ============================================
+
+/**
+ * Получить статистику завершенной сессии для отправки на сервер
+ * @returns Статистика сессии или null если игра не завершена
+ * 
+ * @example
+ * // Отправка на сервер после Game Over
+ * const sessionStats = getSessionStatsForServer();
+ * if (sessionStats) {
+ *   await fetch('/api/game-stats', {
+ *     method: 'POST',
+ *     body: JSON.stringify(sessionStats)
+ *   });
+ * }
+ */
+export function getSessionStatsForServer(): GameOverStats | null {
+  return gameStateStore.getSessionStats();
+}

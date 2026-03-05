@@ -11,3 +11,45 @@
 - **Удалены старые Entity файлы:** BusEntity.ts, NPCEntity.ts, RouteEntity.ts (переход на ECS полностью)
 - **Скрипты:** `npm run check` (lint + format), `npm run format` (prettier --write), `npm run lint:fix` (eslint --fix)
 - **knip:** установлен для поиска мёртвого кода (unused files, exports, dependencies)
+
+## Game Over Система (Март 2026)
+- **Условия проигрыша:** 10 жалоб горожан (настраиваемо), банкротство (отключено), таймер (отключено)
+- **GameOverSystem:** проверка условий каждый кадр, пауза игры при проигрыше
+- **GameOverModal:** модалка в стиле билета (перфорация, 2 кнопки: "В МЕНЮ", "НАЧАТЬ ЗАНОВО")
+- **Статистика сессии:** sessionId, длительность, баланс, пассажиры, жалобы (для отправки на сервер)
+- **Рестарт уровня:** сброс таймеров жалоб, очистка recent complaints, сброс времени (08:00), перезагрузка карты
+- **Сохранение прогресса:** PlayerProgressService (localStorage, completedLevels, currentBalance, saveVersion)
+- **Синхронизация:** валидация ID уровней, миграция данных, авто-сброс при загрузке карты
+
+## Режимы игры (Developer/Viewer)
+- **GameModeService:** определение режима по ENV → localStorage → все карты пройдены
+- **Viewer режим:** только статистика (баланс, жалобы, загруженность, время)
+- **Developer режим:** полный доступ (Toolbar, StopEditor, MapManager, RouteEditor)
+- **Индикатор:** виджет справа снизу (🔧 DEV / 👁️ VIEW), кнопка выключения
+- **ENV переменная:** `VITE_DEVELOPER_MODE=true` (только для первой инициализации)
+
+## Редактор маршрутов
+- **RouteEditor:** виджет управления маршрутом (справа, клик по маршруту)
+- **Группировка автобусов:** по типам (ЛиАЗ: 5 шт, ПАЗ: 2 шт, КАМАЗ: 1 шт)
+- **Кнопки +/−:** добавление/удаление по одному автобусу каждого типа
+- **Доступность:** работает в любом режиме (Viewer тоже)
+
+## Визуальные улучшения
+- **Подсветка маршрутов:** hover эффект (утолщение, белая обводка, свечение), только один маршрут за раз
+- **Маршруты:** расстояние до сегмента (threshold 15px), курсор pointer
+- **Виджеты в стиле билета:** StatsPanel, Toolbar, TimeDisplay, StopOccupancy, CitizenComplaints, UnsupportedDevice
+- **Перфорация:** внутри или снаружи (repeating-linear-gradient, 6px высота, 6px/12px шаг)
+- **Шрифты:** monospace ('Source Code Pro', 'Courier New')
+- **Цвета:** CSS переменные (--theme-paper, --theme-border-main, и т.д.)
+
+## Технические улучшения
+- **GameLoopService:** maxUpdatesPerFrame 5 → 8, логирование warning только 3 раза
+- **GameEventBusService:** STOP_OVERLOADED добавлен в spam-события (не логируется)
+- **MapSaveService:** сброс totalComplaints, isGameOver при загрузке карты
+- **StopRenderSystem:** hover эффекты только в Developer режиме
+- **RouteRenderSystem:** hover в любом режиме, сброс shadowBlur после текста
+
+## Статистика проекта
+- **Файлов:** 116
+- **Строк кода:** 13,240 (TS: 9,174, TSX: 1,656, SCSS: 2,164, CSS: 246)
+- **Архитектура:** Feature-Sliced Design (FSD)

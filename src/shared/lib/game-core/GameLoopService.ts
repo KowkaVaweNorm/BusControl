@@ -29,11 +29,12 @@ export class GameLoopService {
 
   private logicCallbacks: GameLoopCallback[] = [];
   private renderCallbacks: GameLoopCallback[] = [];
+  private performanceWarningCount: number = 0; // Счётчик предупреждений
 
   constructor(config?: Partial<GameLoopConfig>) {
     this.config = {
       fixedTimeStep: config?.fixedTimeStep ?? 1 / 60, // 60 updates per second
-      maxUpdatesPerFrame: config?.maxUpdatesPerFrame ?? 5,
+      maxUpdatesPerFrame: config?.maxUpdatesPerFrame ?? 8, // Увеличено с 5 до 8 для безопасности
     };
   }
 
@@ -178,11 +179,15 @@ export class GameLoopService {
     this.executeRender(deltaTime);
 
     // Предупреждение если не успеваем обрабатывать логику
+    // Показываем только первые 3 предупреждения чтобы не спамить
     if (updatesCount >= this.config.maxUpdatesPerFrame) {
-      console.warn(
-        `[GameLoopService] Performance warning: ${updatesCount} updates in one frame. ` +
-          `Consider optimizing logic or reducing object count.`
-      );
+      this.performanceWarningCount++;
+      if (this.performanceWarningCount <= 3) {
+        console.warn(
+          `[GameLoopService] Performance warning: ${updatesCount} updates in one frame. ` +
+            `Consider optimizing logic or reducing object count.`
+        );
+      }
       // Сбрасываем аккумулятор чтобы избежать "спирали смерти"
       this.accumulator = 0;
     }

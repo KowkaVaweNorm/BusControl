@@ -1,8 +1,9 @@
 {
   "projectName": "Bus Control",
-  "generatedAt": "2026-03-03 (updated)",
+  "generatedAt": "2026-03-05 (updated)",
   "rootDirectory": "d:\\domains\\Pets\\GameStudio\\Bus Control\\ProjectBusControl",
   "totalFiles": 147,
+  "totalLines": 13240,
   "architecture": "Feature-Sliced Design (FSD)",
   "structure": [
     {
@@ -498,12 +499,12 @@
     "features": {
       "path": "src/features",
       "description": "Фичи (user actions по FSD)",
-      "items": ["map-editor", "map-save", "economy"]
+      "items": ["map-editor", "map-save", "economy", "game-over", "player-progress", "game-mode", "route-editor", "time-of-day", "stop-editor"]
     },
     "widgets": {
       "path": "src/widgets",
       "description": "UI-виджеты",
-      "items": ["game-canvas", "stats-panel", "toolbar", "notifications", "map-manager", "stop-occupancy", "citizen-complaints", "time-display", "stop-editor"]
+      "items": ["game-canvas", "stats-panel", "toolbar", "notifications", "map-manager", "stop-occupancy", "citizen-complaints", "time-display", "stop-editor", "game-over", "developer-indicator", "route-editor"]
     },
     "pages": {
       "path": "src/pages",
@@ -584,7 +585,16 @@
         "Resize: сохранение позиции камеры при изменении размера",
         "Проверка устройства (PC ≥900px, не тач)",
         "Скрипты: npm run check (lint + format)",
-        "knip: поиск мёртвого кода"
+        "knip: поиск мёртвого кода",
+        "Game Over система: 10 жалоб → модалка, пауза игры, статистика сессии",
+        "Рестарт уровня: сброс таймеров, очистка жалоб, перезагрузка карты",
+        "Сохранение прогресса: PlayerProgressService, completedLevels, баланс",
+        "Режимы игры: Developer/Viewer, GameModeService, ENV переменная",
+        "Индикатор режима: виджет справа снизу, кнопка выключения",
+        "Редактор маршрутов: клик по маршруту, управление автобусами (+/−)",
+        "Подсветка маршрутов: hover эффект, только один маршрут за раз",
+        "Виджеты в стиле билета: StatsPanel, Toolbar, TimeDisplay, StopOccupancy, CitizenComplaints",
+        "UnsupportedDevice: стиль билета/чека, требования"
       ],
       "planned": [
         "Визуальное отображение зацикленности маршрута",

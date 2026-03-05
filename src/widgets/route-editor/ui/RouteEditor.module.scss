@@ -1,0 +1,250 @@
+@use '@/app/styles/variables.css' as *;
+
+.container {
+  position: fixed;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  z-index: 1000;
+}
+
+.panel {
+  background: var(--theme-paper);
+  border: 3px solid var(--theme-border-main);
+  border-radius: 8px;
+  min-width: 350px;
+  max-width: 450px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  border-bottom: 2px dashed var(--theme-border-main);
+  background: var(--theme-paper-soft);
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--theme-text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.closeButton {
+  background: transparent;
+  border: none;
+  color: var(--theme-text-secondary);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--theme-border-accent);
+  }
+}
+
+.routeInfo {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px dashed var(--theme-border-main);
+}
+
+.routeName {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--theme-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.busCount {
+  font-size: 0.95rem;
+  color: var(--theme-text-secondary);
+}
+
+.section {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px dashed var(--theme-border-main);
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--theme-text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.busList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.busGroupItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--theme-paper-soft);
+  border: 1px solid var(--theme-border-soft);
+  border-radius: 4px;
+}
+
+.busGroupInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.busGroupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.busName {
+  font-weight: 600;
+  color: var(--theme-text-primary);
+  font-size: 0.95rem;
+}
+
+.busCountBadge {
+  background: var(--theme-border-main);
+  color: var(--theme-text-inverse);
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.busGroupStats {
+  font-size: 0.85rem;
+  color: var(--theme-text-secondary);
+}
+
+.busGroupControls {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.controlButton {
+  width: 32px;
+  height: 32px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.addButton {
+  background: var(--stats-money-color);
+  color: #ffffff;
+
+  &:hover:not(:disabled) {
+    background: #43a047;
+  }
+}
+
+.removeButton {
+  background: var(--theme-border-accent);
+  color: #ffffff;
+
+  &:hover:not(:disabled) {
+    background: #c62828;
+  }
+}
+
+.empty {
+  font-size: 0.9rem;
+  color: var(--theme-text-muted);
+  font-style: italic;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.footer {
+  padding: 1rem 1.5rem;
+  border-top: 2px dashed var(--theme-border-main);
+  background: var(--theme-paper-soft);
+  text-align: center;
+}
+
+.footerText {
+  font-size: 0.85rem;
+  color: var(--theme-text-muted);
+  font-style: italic;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.saveButton {
+  background: var(--theme-border-main);
+  color: var(--theme-text-inverse);
+  border: none;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: var(--theme-border-accent);
+  }
+}
+
+/* Скроллбар */
+.panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.panel::-webkit-scrollbar-track {
+  background: var(--theme-paper-soft);
+  border-radius: 4px;
+}
+
+.panel::-webkit-scrollbar-thumb {
+  background: var(--theme-border-main);
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--theme-border-accent);
+  }
+}

@@ -33,6 +33,8 @@ import { npcInteractionSystem } from '@/entities/NPC/model/NPCInteractionSystem'
 import { npcRenderSystem } from '@/entities/NPC/model/NPCRenderSystem';
 import { stopOverloadSystem } from '@/entities/stop/model/StopOverloadSystem';
 import { stopStatisticsSystem } from '@/entities/stop/model/StopStatisticsSystem';
+import { gameOverSystem, resetGameOverSystem } from '@/features/game-over';
+import { resetComplaintTimers } from '@/entities/stop/model/StopOverloadSystem';
 
 // Конфигурация игры (можно вынести в отдельный конфиг позже)
 const GAME_CONFIG = {
@@ -94,6 +96,9 @@ export function initGame(containerId: string, selectedMapId: string | null = nul
     entityManagerService.registerSystem(stopOverloadSystem); // Мониторинг перегрузки
     entityManagerService.registerSystem(stopStatisticsSystem); // Агрегация статистики
 
+    // Регистрируем систему Game Over
+    entityManagerService.registerSystem(gameOverSystem);
+
     // 6. Загрузка выбранной карты (если указана)
     if (selectedMapId) {
       console.log('[App] Loading selected map:', selectedMapId);
@@ -106,6 +111,10 @@ export function initGame(containerId: string, selectedMapId: string | null = nul
     } else {
       console.log('[App] No map selected, starting with empty map');
     }
+
+    // Сброс таймеров жалоб и системы Game Over (для новой сессии)
+    resetComplaintTimers();
+    resetGameOverSystem();
 
     // Запуск автосохранения (каждую минуту)
     mapSaveService.startAutoSave();

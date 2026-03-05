@@ -2,51 +2,77 @@
   position: absolute;
   top: 20px;
   left: 20px;
-  background: rgba(26, 26, 46, 0.9);
-  border: 2px solid #4a4a6a;
+  background: var(--theme-paper);
+  border: 3px solid var(--theme-border-main);
   border-radius: 8px;
-  padding: 15px;
-  color: #ffffff;
-  font-family: 'Arial', sans-serif;
-  min-width: 200px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  padding: 1rem 1.25rem;
+  min-width: 220px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   pointer-events: none;
+  font-family: 'Source Code Pro', 'Courier New', monospace;
+
+  /* Перфорированный край сверху */
+  &::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--theme-border-main),
+      var(--theme-border-main) 6px,
+      transparent 6px,
+      transparent 12px
+    );
+  }
 
   .row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 14px;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px dashed var(--theme-border-soft);
 
     &:last-child {
       margin-bottom: 0;
+      border-bottom: none;
     }
   }
 
   .label {
-    color: #aaaaaa;
+    color: var(--theme-text-secondary);
     margin-right: 10px;
+    font-weight: 500;
   }
 
   .value {
-    font-weight: bold;
-    color: #ffffff;
+    font-weight: 700;
+    color: var(--theme-text-primary);
   }
 
   .valueMoney {
-    font-weight: bold;
-    color: #4caf50;
-    font-size: 16px;
+    font-weight: 700;
+    color: var(--stats-money-color);
+    font-size: 1.1rem;
+    background: var(--theme-border-main);
+    color: var(--theme-text-inverse);
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
   }
 
   .notification {
-    margin-top: 12px;
-    padding: 8px;
-    background: rgba(76, 175, 80, 0.2);
-    border-left: 3px solid #4caf50;
-    font-size: 12px;
-    color: #81c784;
+    margin-top: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--stats-notification-bg);
+    border-left: 3px solid var(--stats-notification-border);
+    font-size: 0.85rem;
+    color: var(--stats-notification-text);
     animation: fadeIn 0.3s ease-in;
+    border-radius: 0 4px 4px 0;
   }
 }
 

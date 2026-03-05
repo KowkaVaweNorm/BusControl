@@ -1,1 +1,1 @@
-export { CitizenComplaints } from './ui/CitizenComplaints';
+export { CitizenComplaints, clearRecentComplaints } from './ui/CitizenComplaints';

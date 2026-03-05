@@ -9,6 +9,19 @@ interface RecentComplaint {
   timestamp: number;
 }
 
+// Хранилище последних жалоб (вне компонента для доступа извне)
+let recentComplaintsStore: RecentComplaint[] = [];
+let recentComplaintsListeners: Set<() => void> = new Set();
+
+/**
+ * Очистить последние жалобы (для рестарта уровня)
+ */
+export function clearRecentComplaints(): void {
+  recentComplaintsStore = [];
+  recentComplaintsListeners.forEach((listener) => listener());
+  console.log('[CitizenComplaints] Recent complaints cleared');
+}
+
 export const CitizenComplaints = () => {
   const [totalComplaints, setTotalComplaints] = useState(0);
   const [recentComplaints, setRecentComplaints] = useState<RecentComplaint[]>([]);
@@ -34,16 +47,21 @@ export const CitizenComplaints = () => {
           timestamp: Date.now(),
         };
 
-        setRecentComplaints((prev) => {
-          const updated = [newComplaint, ...prev];
-          return updated.slice(0, 5); // Хранить последние 5 жалоб
-        });
+        recentComplaintsStore = [newComplaint, ...recentComplaintsStore].slice(0, 5);
+        setRecentComplaints([...recentComplaintsStore]);
       }
     );
+
+    // Подписка на очистку жалоб (для рестарта)
+    const clearListener = () => {
+      setRecentComplaints([]);
+    };
+    recentComplaintsListeners.add(clearListener);
 
     return () => {
       unsubscribeStore();
       unsubscribeEvents();
+      recentComplaintsListeners.delete(clearListener);
     };
   }, []);
 

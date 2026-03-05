@@ -8,23 +8,57 @@
  */
 
 import type { GameSettings, PlayerProgress, BusUpgradeData } from '@/shared/types/game-settings';
-import { DEFAULT_SETTINGS, DEFAULT_PROGRESS } from '@/shared/types/game-settings';
+import { DEFAULT_SETTINGS, DEFAULT_PROGRESS, CURRENT_SAVE_VERSION } from '@/shared/types/game-settings';
+import { playerProgressService } from '@/features/player-progress';
 
 const SETTINGS_STORAGE_KEY = 'bus-control-settings-v1';
 const PROGRESS_STORAGE_KEY = 'bus-control-progress-v1';
 
 export class GameSettingsStore {
   private settings: GameSettings;
-  private progress: PlayerProgress;
 
   constructor() {
     // Загрузка настроек
     const savedSettings = this.loadSettings();
     this.settings = savedSettings || { ...DEFAULT_SETTINGS };
 
-    // Загрузка прогресса
-    const savedProgress = this.loadProgress();
-    this.progress = savedProgress || { ...DEFAULT_PROGRESS };
+    // Синхронизация с playerProgressService при инициализации
+    this.syncWithProgressService();
+  }
+
+  /**
+   * Синхронизация с playerProgressService
+   * (для обратной совместимости со старыми сохранениями)
+   */
+  private syncWithProgressService(): void {
+    try {
+      // Проверяем есть ли данные в старом хранилище
+      const oldProgressData = localStorage.getItem(PROGRESS_STORAGE_KEY);
+      if (oldProgressData) {
+        const oldProgress = JSON.parse(oldProgressData) as Partial<PlayerProgress>;
+
+        // Если в старом хранилище версия меньше или отсутствует - мигрируем
+        if (!oldProgress.saveVersion || oldProgress.saveVersion < CURRENT_SAVE_VERSION) {
+          console.log('[GameSettingsStore] Migrating old progress data to PlayerProgressService');
+
+          // Импортируем в новый сервис
+          const importResult = playerProgressService.importProgress(oldProgressData);
+          if (importResult.success) {
+            // Очищаем старое хранилище
+            localStorage.removeItem(PROGRESS_STORAGE_KEY);
+            console.log('[GameSettingsStore] Old progress data migrated successfully');
+          }
+        }
+      }
+
+      // Валидация прогресса
+      const validation = playerProgressService.validateProgress();
+      if (!validation.isValid) {
+        console.warn('[GameSettingsStore] Progress validation issues:', validation.issues);
+      }
+    } catch (e) {
+      console.error('[GameSettingsStore] Sync with progress service failed:', e);
+    }
   }
 
   // ============================================
@@ -76,25 +110,52 @@ export class GameSettingsStore {
   }
 
   // ============================================
-  // Прогресс
+  // Прогресс (делегирование в playerProgressService)
   // ============================================
 
   /**
    * Получить текущий прогресс
    */
   public getProgress(): PlayerProgress {
-    return { ...this.progress };
+    return playerProgressService.getProgress();
   }
 
   /**
-   * Обновить прогресс
+   * Получить текущий баланс
+   */
+  public getBalance(): number {
+    return playerProgressService.getBalance();
+  }
+
+  /**
+   * Установить баланс
+   */
+  public setBalance(amount: number): void {
+    playerProgressService.setBalance(amount);
+  }
+
+  /**
+   * Изменить баланс
+   */
+  public modifyBalance(delta: number): void {
+    playerProgressService.modifyBalance(delta);
+  }
+
+  /**
+   * Обновить прогресс (объединение с текущим)
    */
   public updateProgress(updates: Partial<PlayerProgress>): void {
-    this.progress = {
-      ...this.progress,
-      ...updates,
-    };
-    this.saveProgress();
+    const current = playerProgressService.getProgress();
+    const updated = { ...current, ...updates };
+
+    // Применяем каждое поле отдельно через соответствующие методы
+    if (updates.currentBalance !== undefined) {
+      playerProgressService.setBalance(updates.currentBalance);
+    }
+    if (updates.lastActiveLevelId !== undefined) {
+      playerProgressService.setActiveLevel(updates.lastActiveLevelId);
+    }
+    // Остальные поля можно добавить по мере необходимости
   }
 
   /**
@@ -103,39 +164,37 @@ export class GameSettingsStore {
   public addStats(
     delta: Partial<Pick<PlayerProgress, 'totalPassengers' | 'totalMoneyEarned' | 'totalComplaints'>>
   ): void {
-    this.progress = {
-      ...this.progress,
-      totalPassengers: this.progress.totalPassengers + (delta.totalPassengers ?? 0),
-      totalMoneyEarned: this.progress.totalMoneyEarned + (delta.totalMoneyEarned ?? 0),
-      totalComplaints: this.progress.totalComplaints + (delta.totalComplaints ?? 0),
-    };
-    this.saveProgress();
+    const current = playerProgressService.getProgress();
+    playerProgressService.updateProgress({
+      totalPassengers: current.totalPassengers + (delta.totalPassengers ?? 0),
+      totalMoneyEarned: current.totalMoneyEarned + (delta.totalMoneyEarned ?? 0),
+      totalComplaints: current.totalComplaints + (delta.totalComplaints ?? 0),
+    });
   }
 
   /**
    * Разблокировать карту
    */
   public unlockMap(mapId: string): void {
-    if (!this.progress.unlockedMaps.includes(mapId)) {
-      this.progress.unlockedMaps.push(mapId);
-      this.saveProgress();
-    }
+    playerProgressService.unlockMap(mapId);
   }
 
   /**
    * Проверить разблокировку карты
    */
   public isMapUnlocked(mapId: string): boolean {
-    return this.progress.unlockedMaps.includes(mapId);
+    return playerProgressService.isMapUnlocked(mapId);
   }
 
   /**
    * Разблокировать тип автобуса
    */
   public unlockBusType(busTypeId: string): void {
-    if (!this.progress.unlockedBusTypes.includes(busTypeId)) {
-      this.progress.unlockedBusTypes.push(busTypeId);
-      this.saveProgress();
+    const current = playerProgressService.getProgress();
+    if (!current.unlockedBusTypes.includes(busTypeId)) {
+      current.unlockedBusTypes.push(busTypeId);
+      // Пока сохраняем напрямую, т.к. в сервисе нет такого метода
+      this.saveProgressDirectly(current);
     }
   }
 
@@ -143,65 +202,93 @@ export class GameSettingsStore {
    * Проверить разблокировку типа автобуса
    */
   public isBusTypeUnlocked(busTypeId: string): boolean {
-    return this.progress.unlockedBusTypes.includes(busTypeId);
+    return playerProgressService.getProgress().unlockedBusTypes.includes(busTypeId);
   }
 
   /**
    * Обновить улучшение автобуса
    */
   public updateBusUpgrade(upgrade: BusUpgradeData): void {
-    const existingIndex = this.progress.busUpgrades.findIndex(
+    const current = playerProgressService.getProgress();
+    const existingIndex = current.busUpgrades.findIndex(
       (u) => u.busTypeId === upgrade.busTypeId
     );
 
     if (existingIndex >= 0) {
-      this.progress.busUpgrades[existingIndex] = upgrade;
+      current.busUpgrades[existingIndex] = upgrade;
     } else {
-      this.progress.busUpgrades.push(upgrade);
+      current.busUpgrades.push(upgrade);
     }
 
-    this.saveProgress();
+    this.saveProgressDirectly(current);
   }
 
   /**
    * Получить улучшение автобуса
    */
   public getBusUpgrade(busTypeId: string): BusUpgradeData | undefined {
-    return this.progress.busUpgrades.find((u) => u.busTypeId === busTypeId);
+    return playerProgressService.getProgress().busUpgrades.find(
+      (u) => u.busTypeId === busTypeId
+    );
   }
 
   /**
-   * Сохранить прогресс в localStorage
+   * Прямое сохранение прогресса (для сложных случаев)
    */
-  private saveProgress(): void {
+  private saveProgressDirectly(progress: PlayerProgress): void {
     try {
-      localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(this.progress));
+      localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(progress));
     } catch (e) {
       console.warn('[GameSettingsStore] Failed to save progress:', e);
     }
   }
 
   /**
-   * Загрузить прогресс из localStorage
-   */
-  private loadProgress(): PlayerProgress | null {
-    try {
-      const data = localStorage.getItem(PROGRESS_STORAGE_KEY);
-      if (data) {
-        return JSON.parse(data) as PlayerProgress;
-      }
-    } catch (e) {
-      console.warn('[GameSettingsStore] Failed to load progress:', e);
-    }
-    return null;
-  }
-
-  /**
    * Сбросить прогресс (для новой игры)
    */
   public resetProgress(): void {
-    this.progress = { ...DEFAULT_PROGRESS };
-    this.saveProgress();
+    playerProgressService.resetProgress();
+  }
+
+  /**
+   * Завершить уровень (для Game Over)
+   */
+  public completeLevel(data: {
+    levelId: string;
+    finalBalance: number;
+    passengersDelivered: number;
+    complaints: number;
+    duration: number;
+    reason?: string;
+    status: 'won' | 'lost' | 'abandoned';
+  }): void {
+    playerProgressService.completeLevel(data);
+  }
+
+  /**
+   * Получить статистику завершенных уровней
+   */
+  public getCompletedLevelsStats(): {
+    total: number;
+    won: number;
+    lost: number;
+    abandoned: number;
+  } {
+    return playerProgressService.getCompletedLevelsStats();
+  }
+
+  /**
+   * Установить активный уровень
+   */
+  public setActiveLevel(levelId: string): void {
+    playerProgressService.setActiveLevel(levelId);
+  }
+
+  /**
+   * Получить последний активный уровень
+   */
+  public getLastActiveLevel(): string | null {
+    return playerProgressService.getProgress().lastActiveLevelId;
   }
 }
 

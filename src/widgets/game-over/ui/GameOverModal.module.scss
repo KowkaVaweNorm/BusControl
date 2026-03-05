@@ -1,0 +1,145 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal {
+  background: var(--theme-paper);
+  border: 3px solid var(--theme-border-main);
+  border-radius: 12px;
+  padding: 2.5rem 3rem;
+  min-width: 450px;
+  max-width: 90vw;
+  text-align: center;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+  animation: slideIn 0.3s ease;
+
+  // Эффект чека/билета с перфорацией
+  position: relative;
+  background-image: 
+    linear-gradient(var(--theme-paper) 0 0),
+    repeating-radial-gradient(
+      circle at 0 50%,
+      transparent 0,
+      transparent 8px,
+      var(--theme-border-main) 8px,
+      var(--theme-border-main) 10px
+    );
+  background-position: 0 0, 0 0;
+  background-size: 100% 100%, 16px 16px;
+  padding: calc(2.5rem - 8px) calc(3rem - 8px);
+  margin: 10px;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.icon {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.title {
+  color: var(--theme-text-primary);
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.reason {
+  color: var(--theme-text-secondary);
+  font-size: 1.1rem;
+  margin: 1.5rem 0 2rem;
+  font-style: italic;
+  padding: 1rem;
+  background: var(--theme-paper-soft);
+  border-radius: 6px;
+  border-left: 4px solid var(--theme-accent-red);
+}
+
+.buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.buttonSecondary,
+.buttonPrimary {
+  padding: 0.875rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(-1px);
+  }
+}
+
+.buttonSecondary {
+  background: var(--theme-paper);
+  color: var(--theme-text-primary);
+  border: 2px solid var(--theme-border-main);
+  
+  &:hover {
+    background: var(--theme-paper-warm);
+    border-color: var(--theme-border-accent);
+  }
+}
+
+.buttonPrimary {
+  background: var(--theme-accent-red);
+  color: var(--theme-text-inverse);
+  border: 2px solid var(--theme-accent-dark-red);
+  
+  &:hover {
+    background: var(--theme-accent-dark-red);
+    box-shadow: 0 6px 20px rgba(221, 34, 34, 0.4);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
