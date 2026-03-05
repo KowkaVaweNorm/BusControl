@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { gameModeService, GameMode } from '@/features/game-mode';
+import { gameModeService } from '@/features/game-mode';
 import cls from './DeveloperIndicator.module.scss';
 
 export const DeveloperIndicator = () => {

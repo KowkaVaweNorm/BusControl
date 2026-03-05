@@ -335,6 +335,7 @@ export class CanvasRendererService {
       color?: string;
       width?: number;
       dashed?: boolean;
+      opacity?: number;
     } = {}
   ): void {
     ctx.beginPath();
@@ -347,7 +348,17 @@ export class CanvasRendererService {
 
     ctx.strokeStyle = options.color ?? '#ffffff';
     ctx.lineWidth = options.width ?? 1;
+    
+    // Сохраняем globalAlpha для opacity
+    const savedAlpha = ctx.globalAlpha;
+    if (options.opacity !== undefined) {
+      ctx.globalAlpha = options.opacity;
+    }
+    
     ctx.stroke();
+    
+    // Восстанавливаем globalAlpha
+    ctx.globalAlpha = savedAlpha;
 
     if (options.dashed) {
       ctx.setLineDash([]);

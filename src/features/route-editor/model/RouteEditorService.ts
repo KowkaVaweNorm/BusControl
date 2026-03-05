@@ -185,7 +185,7 @@ class RouteEditorServiceClass {
     this.selectedRoute = null;
 
     // Публикуем событие закрытия
-    gameEventBusService.publish(GameEventType.STOP_EDITOR_CLOSED as any);
+    gameEventBusService.publish(GameEventType.STOP_EDITOR_CLOSED as any, {});
 
     console.log('[RouteEditor] Closed');
   }

@@ -8,7 +8,7 @@
  */
 
 import type { GameSettings, PlayerProgress, BusUpgradeData } from '@/shared/types/game-settings';
-import { DEFAULT_SETTINGS, DEFAULT_PROGRESS, CURRENT_SAVE_VERSION } from '@/shared/types/game-settings';
+import { DEFAULT_SETTINGS, CURRENT_SAVE_VERSION } from '@/shared/types/game-settings';
 import { playerProgressService } from '@/features/player-progress';
 
 const SETTINGS_STORAGE_KEY = 'bus-control-settings-v1';
@@ -146,13 +146,12 @@ export class GameSettingsStore {
    */
   public updateProgress(updates: Partial<PlayerProgress>): void {
     const current = playerProgressService.getProgress();
-    const updated = { ...current, ...updates };
 
     // Применяем каждое поле отдельно через соответствующие методы
     if (updates.currentBalance !== undefined) {
       playerProgressService.setBalance(updates.currentBalance);
     }
-    if (updates.lastActiveLevelId !== undefined) {
+    if (updates.lastActiveLevelId !== undefined && updates.lastActiveLevelId !== null) {
       playerProgressService.setActiveLevel(updates.lastActiveLevelId);
     }
     // Остальные поля можно добавить по мере необходимости

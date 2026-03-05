@@ -123,7 +123,7 @@ export const gameOverSystem: System = {
   name: 'GameOverSystem',
   requiredComponents: [], // Не требует компонентов, проверяет глобальное состояние
 
-  update: (context: SystemContext) => {
+  update: (_context: SystemContext) => {
     // Если игра уже завершена - не проверяем
     if (isGameOverTriggered) {
       return;

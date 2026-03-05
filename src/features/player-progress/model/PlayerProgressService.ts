@@ -26,7 +26,6 @@ const SUPPORTED_SAVE_VERSIONS = ['1.0.0', '1.1.0'];
 
 export class PlayerProgressService {
   private progress: PlayerProgress;
-  private isValidated: boolean = false;
 
   constructor() {
     this.progress = this.loadProgress();
@@ -346,10 +345,8 @@ export class PlayerProgressService {
 
       // Добавляем новые поля
       const migrated = {
+        ...DEFAULT_PROGRESS,
         ...data,
-        completedLevels: data.completedLevels || [],
-        lastActiveLevelId: data.lastActiveLevelId || null,
-        currentBalance: data.currentBalance ?? 5000,
         saveVersion: CURRENT_SAVE_VERSION,
       };
 
@@ -358,14 +355,20 @@ export class PlayerProgressService {
 
     // Если версия актуальная
     if (version === CURRENT_SAVE_VERSION) {
-      return data as PlayerProgress;
+      return {
+        ...DEFAULT_PROGRESS,
+        ...data,
+      };
     }
 
     // Если версия новее - используем что есть
     console.warn(
       `[PlayerProgressService] Save version ${version} is newer than expected ${CURRENT_SAVE_VERSION}`
     );
-    return data as PlayerProgress;
+    return {
+      ...DEFAULT_PROGRESS,
+      ...data,
+    } as PlayerProgress;
   }
 
   // ============================================

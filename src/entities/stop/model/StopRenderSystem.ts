@@ -7,7 +7,7 @@ import type { System, SystemContext } from '../../../shared/lib/game-core/Entity
 import { canvasRendererService } from '../../../shared/lib/game-core/CanvasRendererService';
 import { inputService } from '../../../shared/lib/game-core/InputService';
 import { stopEditorService } from '@/features/stop-editor';
-import { gameModeService, GameMode } from '@/features/game-mode';
+import { gameModeService } from '@/features/game-mode';
 import {
   STOP_COMPONENTS,
   type StopPositionComponent,
