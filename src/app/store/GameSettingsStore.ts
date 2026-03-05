@@ -145,8 +145,6 @@ export class GameSettingsStore {
    * Обновить прогресс (объединение с текущим)
    */
   public updateProgress(updates: Partial<PlayerProgress>): void {
-    const current = playerProgressService.getProgress();
-
     // Применяем каждое поле отдельно через соответствующие методы
     if (updates.currentBalance !== undefined) {
       playerProgressService.setBalance(updates.currentBalance);

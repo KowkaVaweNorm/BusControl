@@ -262,8 +262,6 @@ export class PlayerProgressService {
       this.saveProgress();
       console.log('[PlayerProgressService] Progress synced with maps');
     }
-
-    this.isValidated = true;
   }
 
   /**
