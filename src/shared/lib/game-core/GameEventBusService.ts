@@ -118,7 +118,7 @@ export interface GameEventMap {
   [GameEventType.NPC_DESTROYED]: { npcId: string; reason: string };
   [GameEventType.NPC_BOARDED_BUS]: { npcId: string; busId: string; stopId: string };
   [GameEventType.NPC_LEFT_BUS]: { npcId: string; busId: string; stopId: string };
-  [GameEventType.NPC_ARRIVED_AT_DESTINATION]: { npcId: string; stopId: string };
+  [GameEventType.NPC_ARRIVED_AT_DESTINATION]: { npcId: string; stopId: string; busId: string };
   [GameEventType.NPC_GAVE_UP]: { npcId: string; stopId: string; waitTime: number };
 
   [GameEventType.STOP_CREATED]: { stopId: string; name: string };

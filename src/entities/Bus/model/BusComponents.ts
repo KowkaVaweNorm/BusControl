@@ -4,6 +4,7 @@
  */
 
 import type { Component } from '@/shared/lib/game-core/EntityManagerService';
+import type { BusTypeId } from './BusTypes';
 
 export enum BusState {
   IDLE = 'idle', // Стоит без дела (нет маршрута)
@@ -33,6 +34,10 @@ export interface BusVelocityComponent extends Component {
 
 /**
  * Игровые данные автобуса
+ * 
+ * @property busTypeId - ID типа автобуса (liaz, paz, volgabus, kamaz)
+ * @property level - Уровень прокачки (1-5), влияет на доход
+ * @property incomeMultiplier - Множитель дохода (1.0-1.5), вычисляется из уровня
  */
 export interface BusDataComponent extends Component {
   id: string;
@@ -44,6 +49,9 @@ export interface BusDataComponent extends Component {
   color: string;
   waitTimer: number; // Таймер ожидания на остановке (сек)
   waitTimeRequired: number; // Сколько нужно ждать (сек)
+  busTypeId: BusTypeId; // Тип автобуса
+  level: number; // Уровень прокачки (1-5)
+  incomeMultiplier: number; // Множитель дохода (1.0-1.5)
 }
 
 export const BUS_COMPONENTS = {

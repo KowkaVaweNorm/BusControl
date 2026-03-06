@@ -11,6 +11,7 @@ import { CitizenComplaints, clearRecentComplaints } from './widgets/citizen-comp
 import { GameOverModal } from './widgets/game-over';
 import { DeveloperIndicator } from './widgets/developer-indicator';
 import { RouteEditor } from './widgets/route-editor';
+import { RouteBusesIndicator } from './widgets/route-buses-indicator';
 import { gameStateStore, type GameState } from './app/store/GameStateStore';
 import { gameLoopService } from './shared/lib/game-core/GameLoopService';
 import { timeService } from './features/time-of-day';
@@ -185,6 +186,7 @@ function App() {
       <StopOccupancy />
       <CitizenComplaints />
       <TimeDisplay />
+      <RouteBusesIndicator />
 
       {/* Виджеты доступные только в режиме разработчика */}
       {gameMode === GameMode.DEVELOPER && (

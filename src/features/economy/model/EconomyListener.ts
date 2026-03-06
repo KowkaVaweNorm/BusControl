@@ -9,9 +9,11 @@
 
 import { gameEventBusService, GameEventType } from '@/shared/lib/game-core/GameEventBusService';
 import { gameStateStore } from '@/app/store/GameStateStore';
+import { entityManagerService } from '@/shared/lib/game-core/EntityManagerService';
+import { BUS_COMPONENTS, type BusDataComponent } from '@/entities/Bus/model/BusComponents';
 
-const FARE_PER_PASSENGER = 35; // 35₽ за посадку
-const REWARD_PER_PASSENGER = 5; // 5₽ бонус за доставку
+const BASE_FARE_PER_PASSENGER = 35; // Базовая стоимость посадки (35₽)
+const BASE_REWARD_PER_PASSENGER = 5; // Базовый бонус за доставку (5₽)
 const BUS_PURCHASE_COST = 1000; // 1000₽ за автобус
 const COMPLAINT_PENALTY = 50; // 50₽ штраф за жалобу
 
@@ -25,6 +27,25 @@ let unsubscribeMoneyChanged: (() => void) | null = null;
 let unsubscribeComplaintAdded: (() => void) | null = null;
 
 /**
+ * Получить множитель дохода для автобуса по busId
+ */
+function getBusIncomeMultiplierByBusId(busId: string): number {
+  const busEntities = entityManagerService.getEntitiesWithComponents(BUS_COMPONENTS.DATA);
+  
+  for (const entityId of busEntities) {
+    const busData = entityManagerService.getComponent<BusDataComponent>(
+      entityId,
+      BUS_COMPONENTS.DATA
+    );
+    if (busData && busData.id === busId) {
+      return busData.incomeMultiplier ?? 1.0;
+    }
+  }
+  
+  return 1.0;
+}
+
+/**
  * Инициализация слушателей экономики
  */
 export function initEconomyListener(): void {
@@ -32,11 +53,18 @@ export function initEconomyListener(): void {
   unsubscribeBoarded = gameEventBusService.subscribe(GameEventType.NPC_BOARDED_BUS, (event) => {
     const { npcId, busId, stopId } = event.payload;
 
-    gameStateStore.addMoney(FARE_PER_PASSENGER);
+    // Получаем множитель дохода автобуса по busId
+    const incomeMultiplier = getBusIncomeMultiplierByBusId(busId);
+
+    // Рассчитываем итоговую сумму с учётом прокачки
+    const fare = Math.floor(BASE_FARE_PER_PASSENGER * incomeMultiplier);
+
+    gameStateStore.addMoney(fare);
 
     console.log(
       `[Economy] Passenger ${npcId} boarded bus ${busId} at ${stopId}. ` +
-        `Fare: ${FARE_PER_PASSENGER}₽. Balance: ${gameStateStore.getState().money}₽`
+        `Multiplier: x${incomeMultiplier.toFixed(2)}. Fare: ${fare}₽. ` +
+        `Balance: ${gameStateStore.getState().money}₽`
     );
   });
 
@@ -44,14 +72,21 @@ export function initEconomyListener(): void {
   unsubscribeArrived = gameEventBusService.subscribe(
     GameEventType.NPC_ARRIVED_AT_DESTINATION,
     (event) => {
-      const { npcId, stopId } = event.payload;
+      const { npcId, stopId, busId } = event.payload;
 
-      gameStateStore.addMoney(REWARD_PER_PASSENGER);
+      // Получаем множитель дохода автобуса по busId
+      const incomeMultiplier = getBusIncomeMultiplierByBusId(busId);
+
+      // Рассчитываем бонус с учётом прокачки
+      const reward = Math.floor(BASE_REWARD_PER_PASSENGER * incomeMultiplier);
+
+      gameStateStore.addMoney(reward);
       gameStateStore.addPassengerDelivered();
 
       console.log(
-        `[Economy] Passenger ${npcId} arrived at ${stopId}. ` +
-          `Reward: ${REWARD_PER_PASSENGER}₽. Balance: ${gameStateStore.getState().money}₽`
+        `[Economy] Passenger ${npcId} arrived at ${stopId} via bus ${busId}. ` +
+          `Multiplier: x${incomeMultiplier.toFixed(2)}. Reward: ${reward}₽. ` +
+          `Balance: ${gameStateStore.getState().money}₽`
       );
     }
   );

@@ -8,25 +8,20 @@
  */
 
 import { gameEventBusService, GameEventType } from '@/shared/lib/game-core/GameEventBusService';
-
-// Моковые данные автобусов (из Garage)
-export interface MockBus {
-  id: string;
-  name: string;
-  typeId: string;
-  typeName: string;
-  level: number;
-  maxLevel: number;
-  capacity: number;
-  speed: number;
-  cost: number;
-  upgradeCost: number;
-}
+import { playerProgressService } from '@/features/player-progress/model/PlayerProgressService';
+import {
+  BUS_TYPES_CONFIG,
+  getIncomeMultiplier,
+  getMaxUpgradeLevel,
+} from '@/entities/Bus/model/BusTypes';
+import type { SavedBus } from '@/pages/garage/model/types';
 
 // События RouteEditor
 export enum RouteEditorEventType {
   OPENED = 'route_editor:opened',
   CLOSED = 'route_editor:closed',
+  BUS_ADDED = 'route_editor:bus_added',
+  BUS_REMOVED = 'route_editor:bus_removed',
 }
 
 export interface RouteEditorOpenedEvent {
@@ -43,109 +38,10 @@ export interface BusGroup {
   maxLevel: number;
   capacity: number;
   speed: number;
+  incomeMultiplier: number;
   total: number; // Всего у игрока
   onRoute: number; // На маршруте
 }
-
-// Моковый список автобусов (игрок имеет: 5 Лиаз, 2 Паз, 1 Камаз)
-export const MOCK_BUSES: MockBus[] = [
-  {
-    id: 'bus_1',
-    name: 'ЛиАЗ-5296',
-    typeId: 'liaz',
-    typeName: 'ЛиАЗ',
-    level: 2,
-    maxLevel: 5,
-    capacity: 85,
-    speed: 60,
-    cost: 15000,
-    upgradeCost: 5000,
-  },
-  {
-    id: 'bus_2',
-    name: 'ЛиАЗ-5296',
-    typeId: 'liaz',
-    typeName: 'ЛиАЗ',
-    level: 1,
-    maxLevel: 5,
-    capacity: 85,
-    speed: 60,
-    cost: 15000,
-    upgradeCost: 5000,
-  },
-  {
-    id: 'bus_3',
-    name: 'ЛиАЗ-5296',
-    typeId: 'liaz',
-    typeName: 'ЛиАЗ',
-    level: 3,
-    maxLevel: 5,
-    capacity: 85,
-    speed: 60,
-    cost: 15000,
-    upgradeCost: 5000,
-  },
-  {
-    id: 'bus_4',
-    name: 'ЛиАЗ-5296',
-    typeId: 'liaz',
-    typeName: 'ЛиАЗ',
-    level: 1,
-    maxLevel: 5,
-    capacity: 85,
-    speed: 60,
-    cost: 15000,
-    upgradeCost: 5000,
-  },
-  {
-    id: 'bus_5',
-    name: 'ЛиАЗ-5296',
-    typeId: 'liaz',
-    typeName: 'ЛиАЗ',
-    level: 2,
-    maxLevel: 5,
-    capacity: 85,
-    speed: 60,
-    cost: 15000,
-    upgradeCost: 5000,
-  },
-  {
-    id: 'bus_6',
-    name: 'ПАЗ-3204',
-    typeId: 'paz',
-    typeName: 'ПАЗ',
-    level: 1,
-    maxLevel: 3,
-    capacity: 50,
-    speed: 70,
-    cost: 10000,
-    upgradeCost: 3000,
-  },
-  {
-    id: 'bus_7',
-    name: 'ПАЗ-3204',
-    typeId: 'paz',
-    typeName: 'ПАЗ',
-    level: 2,
-    maxLevel: 3,
-    capacity: 50,
-    speed: 70,
-    cost: 10000,
-    upgradeCost: 3000,
-  },
-  {
-    id: 'bus_8',
-    name: 'КАМАЗ-6282',
-    typeId: 'kamaz',
-    typeName: 'КАМАЗ',
-    level: 1,
-    maxLevel: 4,
-    capacity: 80,
-    speed: 75,
-    cost: 18000,
-    upgradeCost: 6000,
-  },
-];
 
 export interface RouteEditorData {
   routeId: string;
@@ -156,7 +52,8 @@ export interface RouteEditorData {
 class RouteEditorServiceClass {
   private isOpen: boolean = false;
   private selectedRoute: RouteEditorData | null = null;
-  
+  private currentRouteId: string | null = null;
+
   // Храним сколько автобусов каждого типа на этом маршруте
   private busesOnThisRoute: Map<string, number> = new Map();
 
@@ -164,10 +61,15 @@ class RouteEditorServiceClass {
    * Открыть редактор маршрута
    */
   public open(routeId: string, routeName: string): void {
+    this.currentRouteId = routeId;
+
+    // Получаем купленные автобусы из прогресса
+    const purchasedBuses = playerProgressService.getPurchasedBuses();
+
     // Группируем автобусы по типам
-    const groups = this.groupBusesByType(MOCK_BUSES);
-    
-    // Инициализируем количество автобусов на маршруте (пока 0 для нового)
+    const groups = this.groupBusesByType(purchasedBuses);
+
+    // Инициализируем количество автобусов на маршруте
     if (!this.busesOnThisRoute.has(routeId)) {
       this.busesOnThisRoute.set(routeId, 0);
     }
@@ -180,7 +82,7 @@ class RouteEditorServiceClass {
     this.isOpen = true;
 
     // Публикуем событие открытия
-    gameEventBusService.publish(GameEventType.ROUTE_EDITOR_OPENED as any, {
+    gameEventBusService.publish(GameEventType.ROUTE_EDITOR_OPENED, {
       routeId,
       routeName,
     });
@@ -194,9 +96,10 @@ class RouteEditorServiceClass {
   public close(): void {
     this.isOpen = false;
     this.selectedRoute = null;
+    this.currentRouteId = null;
 
     // Публикуем событие закрытия
-    gameEventBusService.publish(GameEventType.STOP_EDITOR_CLOSED as any, {});
+    gameEventBusService.publish(GameEventType.ROUTE_EDITOR_CLOSED, undefined);
 
     console.log('[RouteEditor] Closed');
   }
@@ -216,29 +119,76 @@ class RouteEditorServiceClass {
   }
 
   /**
-   * Добавить автобус типа на маршрут
+   * Добавить автобус типа на маршрут (спавн сущности)
    */
   public addBusToRoute(typeId: string): void {
-    if (!this.selectedRoute) return;
+    if (!this.selectedRoute || !this.currentRouteId) return;
 
     const group = this.selectedRoute.busGroups.find((g) => g.typeId === typeId);
-    if (group && group.onRoute < group.total) {
-      group.onRoute++;
-      console.log(`[RouteEditor] Added bus ${group.typeName} to route (now: ${group.onRoute}/${group.total})`);
+    if (!group || group.onRoute >= group.total) {
+      console.warn('[RouteEditor] No available buses of this type');
+      return;
     }
+
+    // Увеличиваем счётчик на маршруте
+    group.onRoute++;
+
+    // Спавним автобуса через MapEditorService
+    this.spawnBusOnRoute(typeId, this.currentRouteId);
+
+    console.log(
+      `[RouteEditor] Added bus ${group.typeName} to route (now: ${group.onRoute}/${group.total})`
+    );
   }
 
   /**
    * Удалить автобус типа с маршрута
    */
   public removeBusFromRoute(typeId: string): void {
-    if (!this.selectedRoute) return;
+    if (!this.selectedRoute || !this.currentRouteId) return;
 
     const group = this.selectedRoute.busGroups.find((g) => g.typeId === typeId);
-    if (group && group.onRoute > 0) {
-      group.onRoute--;
-      console.log(`[RouteEditor] Removed bus ${group.typeName} from route (now: ${group.onRoute}/${group.total})`);
+    if (!group || group.onRoute <= 0) {
+      console.warn('[RouteEditor] No buses of this type on route');
+      return;
     }
+
+    // Уменьшаем счётчик на маршруте
+    group.onRoute--;
+
+    // Находим активный автобус этого типа и удаляем его
+    this.removeBusFromRouteByType(typeId);
+
+    console.log(
+      `[RouteEditor] Removed bus ${group.typeName} from route (now: ${group.onRoute}/${group.total})`
+    );
+  }
+
+  /**
+   * Удалить конкретный автобус с маршрута (вернуть в гараж)
+   */
+  private removeBusFromRouteByType(busTypeId: string): void {
+    // Импортируем динамически чтобы избежать циклических зависимостей
+    import('@/shared/lib/game-core/EntityManagerService').then(({ entityManagerService }) => {
+      import('@/entities/Bus/model/BusComponents').then(({ BUS_COMPONENTS }) => {
+        // Находим все автобусы на карте
+        const busEntities = entityManagerService.getEntitiesWithComponents(BUS_COMPONENTS.DATA);
+        
+        // Ищем первый активный автобус этого типа
+        for (const entityId of busEntities) {
+          const busData = entityManagerService.getComponent<any>(entityId, BUS_COMPONENTS.DATA);
+          if (busData && busData.busTypeId === busTypeId) {
+            // Удаляем через MapEditorService
+            import('@/features/map-editor/model/MapEditorService').then(({ mapEditorService }) => {
+              mapEditorService.removeBusFromRoute(entityId, busTypeId);
+            });
+            return;
+          }
+        }
+        
+        console.warn('[RouteEditor] No active bus found to remove');
+      });
+    });
   }
 
   /**
@@ -250,26 +200,67 @@ class RouteEditorServiceClass {
   }
 
   /**
+   * Спавн автобуса на маршрут (создание сущности)
+   */
+  private spawnBusOnRoute(busTypeId: string, routeId: string): void {
+    // Получаем данные автобуса из прогресса
+    const purchasedBuses = playerProgressService.getPurchasedBuses();
+    
+    // Находим первый неактивный автобус этого типа
+    let targetBusIndex = -1;
+    let busLevel = 1;
+    
+    for (let i = 0; i < purchasedBuses.length; i++) {
+      if (purchasedBuses[i].busTypeId === busTypeId && !purchasedBuses[i].isActive) {
+        targetBusIndex = i;
+        busLevel = purchasedBuses[i].level;
+        break;
+      }
+    }
+
+    if (targetBusIndex === -1) {
+      console.error('[RouteEditor] No inactive bus found of type:', busTypeId);
+      return;
+    }
+
+    // Импортируем mapEditorService для спавна
+    import('@/features/map-editor/model/MapEditorService').then(({ mapEditorService }) => {
+      // Спавним автобуса с учётом уровня
+      const result = mapEditorService.spawnBusByType(busTypeId, routeId, busLevel);
+      
+      if (result) {
+        // Помечаем автобус как активный
+        playerProgressService.setBusActive(`bus_${targetBusIndex}`, true);
+        console.log(`[RouteEditor] Bus ${busTypeId} (Lvl ${busLevel}) spawned on route ${routeId}`);
+      }
+    });
+  }
+
+  /**
    * Сгруппировать автобусы по типам
    */
-  private groupBusesByType(buses: MockBus[]): BusGroup[] {
+  private groupBusesByType(buses: SavedBus[]): BusGroup[] {
     const groups = new Map<string, BusGroup>();
 
     for (const bus of buses) {
-      if (!groups.has(bus.typeId)) {
-        groups.set(bus.typeId, {
-          typeId: bus.typeId,
-          typeName: bus.typeName,
-          name: bus.name,
+      const config = BUS_TYPES_CONFIG.find((c) => c.id === bus.busTypeId);
+      if (!config) continue;
+
+      if (!groups.has(bus.busTypeId)) {
+        groups.set(bus.busTypeId, {
+          typeId: bus.busTypeId,
+          typeName: config.name,
+          name: config.name,
           level: bus.level,
-          maxLevel: bus.maxLevel,
-          capacity: bus.capacity,
-          speed: bus.speed,
+          maxLevel: getMaxUpgradeLevel(),
+          capacity: config.baseCapacity,
+          speed: config.baseSpeed,
+          incomeMultiplier: getIncomeMultiplier(bus.busTypeId, bus.level),
           total: 0,
           onRoute: 0,
         });
       }
-      const group = groups.get(bus.typeId)!;
+      const group = groups.get(bus.busTypeId)!;
       group.total++;
     }
 

@@ -18,14 +18,31 @@ import {
   type CompletedLevel,
 } from '@/shared/types/game-settings';
 import { presetMaps } from '@/features/map-save/model/preset-maps';
+import type { BusTypeId } from '@/entities/Bus/model/BusTypes';
+import type { SavedBus } from '@/pages/garage/model/types';
 
 const PROGRESS_STORAGE_KEY = 'bus-control-player-progress-v1';
 
 // Версии сохранений которые поддерживают миграцию
-const SUPPORTED_SAVE_VERSIONS = ['1.0.0', '1.1.0'];
+const SUPPORTED_SAVE_VERSIONS = ['1.0.0', '1.1.0', '1.2.0'];
+
+/**
+ * Расширенная структура прогресса с автобусами
+ */
+interface ExtendedPlayerProgress extends PlayerProgress {
+  garage: GarageProgress;
+}
+
+/**
+ * Прогресс гаража (автопарк игрока)
+ */
+interface GarageProgress {
+  purchasedBuses: SavedBus[]; // Купленные автобусы
+  nextBusId: number; // Счётчик для генерации уникальных ID
+}
 
 export class PlayerProgressService {
-  private progress: PlayerProgress;
+  private progress: ExtendedPlayerProgress;
 
   constructor() {
     this.progress = this.loadProgress();
@@ -33,6 +50,7 @@ export class PlayerProgressService {
       balance: this.progress.currentBalance,
       completedLevels: this.progress.completedLevels.length,
       unlockedMaps: this.progress.unlockedMaps,
+      purchasedBuses: this.progress.garage.purchasedBuses.length,
     });
   }
 
@@ -44,7 +62,20 @@ export class PlayerProgressService {
    * Получить текущий прогресс
    */
   public getProgress(): PlayerProgress {
-    return { ...this.progress };
+    // Возвращаем только базовый прогресс (без garage)
+    const baseProgress: PlayerProgress = {
+      saveVersion: this.progress.saveVersion,
+      currentBalance: this.progress.currentBalance,
+      completedLevels: this.progress.completedLevels,
+      unlockedMaps: this.progress.unlockedMaps,
+      lastActiveLevelId: this.progress.lastActiveLevelId,
+      totalPassengers: this.progress.totalPassengers,
+      totalMoneyEarned: this.progress.totalMoneyEarned,
+      totalComplaints: this.progress.totalComplaints,
+      unlockedBusTypes: this.progress.unlockedBusTypes,
+      busUpgrades: this.progress.busUpgrades,
+    };
+    return baseProgress;
   }
 
   /**
@@ -83,6 +114,138 @@ export class PlayerProgressService {
     this.saveProgress();
     console.log(`[PlayerProgressService] Balance modified: ${delta > 0 ? '+' : ''}${delta}`);
   }
+
+  // ============================================
+  // Методы для работы с гаражом (автопарк)
+  // ============================================
+
+  /**
+   * Получить все купленные автобусы
+   */
+  public getPurchasedBuses(): SavedBus[] {
+    return [...this.progress.garage.purchasedBuses];
+  }
+
+  /**
+   * Купить новый автобус
+   * 
+   * @param busTypeId - ID типа автобуса
+   * @param cost - стоимость покупки
+   * @returns ID созданного автобуса
+   */
+  public buyBus(busTypeId: BusTypeId, cost: number): string {
+    // Списываем баланс
+    this.progress.currentBalance -= cost;
+
+    // Генерируем уникальный ID
+    const busId = `bus_${this.progress.garage.nextBusId++}`;
+
+    // Создаём запись об автобусе
+    const newBus: SavedBus = {
+      busTypeId,
+      level: 1, // Начинаем с базового уровня
+      purchasedAt: Date.now(),
+      totalIncome: 0,
+      isActive: false,
+    };
+
+    this.progress.garage.purchasedBuses.push(newBus);
+    this.saveProgress();
+
+    console.log(`[PlayerProgressService] Bus purchased: ${busId} (${busTypeId})`);
+    return busId;
+  }
+
+  /**
+   * Прокачать автобус
+   * 
+   * @param busIndex - индекс автобуса в массиве purchasedBuses
+   * @param cost - стоимость прокачки
+   * @returns true если успешно
+   */
+  public upgradeBus(busIndex: number, cost: number): boolean {
+    const bus = this.progress.garage.purchasedBuses[busIndex];
+    if (!bus) {
+      console.error('[PlayerProgressService] Bus not found at index:', busIndex);
+      return false;
+    }
+
+    // Проверка на максимальный уровень (5)
+    if (bus.level >= 5) {
+      console.warn('[PlayerProgressService] Bus already at max level:', busIndex);
+      return false;
+    }
+
+    // Проверка баланса
+    if (this.progress.currentBalance < cost) {
+      console.warn('[PlayerProgressService] Insufficient funds for upgrade');
+      return false;
+    }
+
+    // Списываем баланс и повышаем уровень
+    this.progress.currentBalance -= cost;
+    bus.level++;
+    this.saveProgress();
+
+    console.log(`[PlayerProgressService] Bus upgraded: index=${busIndex}, new level=${bus.level}`);
+    return true;
+  }
+
+  /**
+   * Установить статус активности автобуса (на маршруте или нет)
+   */
+  public setBusActive(busId: string, active: boolean): void {
+    const bus = this.progress.garage.purchasedBuses.find(b => 
+      `bus_${this.progress.garage.purchasedBuses.indexOf(b)}` === busId
+    );
+    
+    if (bus) {
+      bus.isActive = active;
+      this.saveProgress();
+      console.log(`[PlayerProgressService] Bus ${busId} set active: ${active}`);
+    }
+  }
+
+  /**
+   * Добавить доход автобусу
+   * 
+   * @param busId - ID автобуса
+   * @param income - полученный доход
+   */
+  public addBusIncome(busId: string, income: number): void {
+    const bus = this.progress.garage.purchasedBuses.find(b =>
+      `bus_${this.progress.garage.purchasedBuses.indexOf(b)}` === busId
+    );
+
+    if (bus) {
+      bus.totalIncome += income;
+      this.saveProgress();
+    }
+  }
+
+  /**
+   * Получить статистику по автобусам
+   */
+  public getGarageStats(): {
+    total: number;
+    active: number;
+    totalIncome: number;
+    avgLevel: number;
+  } {
+    const buses = this.progress.garage.purchasedBuses;
+    return {
+      total: buses.length,
+      active: buses.filter(b => b.isActive).length,
+      totalIncome: buses.reduce((sum, b) => sum + b.totalIncome, 0),
+      avgLevel: buses.length > 0
+        ? buses.reduce((sum, b) => sum + b.level, 0) / buses.length
+        : 0,
+    };
+  }
+
+  // ============================================
+  // Остальные методы (без изменений)
+  // ============================================
 
   /**
    * Установить активный уровень
@@ -195,7 +358,11 @@ export class PlayerProgressService {
     this.progress = {
       ...DEFAULT_PROGRESS,
       saveVersion: CURRENT_SAVE_VERSION,
-    };
+      garage: {
+        purchasedBuses: [],
+        nextBusId: 0,
+      },
+    } as ExtendedPlayerProgress;
     this.saveProgress();
     console.log('[PlayerProgressService] Progress reset');
   }
@@ -334,7 +501,7 @@ export class PlayerProgressService {
   /**
    * Миграция данных между версиями
    */
-  private migrateData(data: Partial<PlayerProgress>): PlayerProgress {
+  private migrateData(data: Partial<ExtendedPlayerProgress>): ExtendedPlayerProgress {
     const version = data.saveVersion || '1.0.0';
 
     // Миграция с 1.0.0 на 1.1.0
@@ -346,7 +513,24 @@ export class PlayerProgressService {
         ...DEFAULT_PROGRESS,
         ...data,
         saveVersion: CURRENT_SAVE_VERSION,
-      };
+      } as ExtendedPlayerProgress;
+
+      return migrated;
+    }
+
+    // Миграция с 1.1.0 на 1.2.0 (добавлен гараж)
+    if (version === '1.1.0') {
+      console.log('[PlayerProgressService] Migrating from 1.1.0 to 1.2.0 (garage)');
+
+      const migrated = {
+        ...DEFAULT_PROGRESS,
+        ...data,
+        saveVersion: CURRENT_SAVE_VERSION,
+        garage: data.garage || {
+          purchasedBuses: [],
+          nextBusId: 0,
+        },
+      } as ExtendedPlayerProgress;
 
       return migrated;
     }
@@ -356,7 +540,11 @@ export class PlayerProgressService {
       return {
         ...DEFAULT_PROGRESS,
         ...data,
-      };
+        garage: data.garage || {
+          purchasedBuses: [],
+          nextBusId: 0,
+        },
+      } as ExtendedPlayerProgress;
     }
 
     // Если версия новее - используем что есть
@@ -366,7 +554,11 @@ export class PlayerProgressService {
     return {
       ...DEFAULT_PROGRESS,
       ...data,
-    } as PlayerProgress;
+      garage: data.garage || {
+        purchasedBuses: [],
+        nextBusId: 0,
+      },
+    } as ExtendedPlayerProgress;
   }
 
   // ============================================
@@ -387,11 +579,11 @@ export class PlayerProgressService {
   /**
    * Загрузить прогресс из localStorage
    */
-  private loadProgress(): PlayerProgress {
+  private loadProgress(): ExtendedPlayerProgress {
     try {
       const data = localStorage.getItem(PROGRESS_STORAGE_KEY);
       if (data) {
-        const parsed = JSON.parse(data) as Partial<PlayerProgress>;
+        const parsed = JSON.parse(data) as Partial<ExtendedPlayerProgress>;
         // Миграция данных
         return this.migrateData(parsed);
       }
@@ -403,7 +595,11 @@ export class PlayerProgressService {
     return {
       ...DEFAULT_PROGRESS,
       saveVersion: CURRENT_SAVE_VERSION,
-    };
+      garage: {
+        purchasedBuses: [],
+        nextBusId: 0,
+      },
+    } as ExtendedPlayerProgress;
   }
 
   /**
@@ -418,7 +614,7 @@ export class PlayerProgressService {
    */
   public importProgress(json: string): { success: boolean; error?: string } {
     try {
-      const data = JSON.parse(json) as Partial<PlayerProgress>;
+      const data = JSON.parse(json) as Partial<ExtendedPlayerProgress>;
 
       // Валидация обязательных полей
       if (!data.currentBalance || !data.saveVersion) {

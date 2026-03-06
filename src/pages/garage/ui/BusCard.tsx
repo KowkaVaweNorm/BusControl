@@ -1,29 +1,46 @@
 import type { BusData } from '../model';
+import { getUpgradeDescription, getIncomeMultiplier } from '@/entities/Bus/model/BusTypes';
 import cls from './BusCard.module.scss';
 
 interface BusCardProps {
   bus: BusData;
   balance: number;
-  onUpgrade: (busId: string) => void;
+  onBuy: () => void;
+  onUpgrade: () => void;
 }
 
 /**
  * Карточка автобуса в автопарке
  */
-export const BusCard = ({ bus, balance, onUpgrade }: BusCardProps) => {
+export const BusCard = ({ bus, balance, onBuy, onUpgrade }: BusCardProps) => {
   const progressPercent = (bus.level / bus.maxLevel) * 100;
   const progressBarClass = cls[`progressFill${bus.level <= 2 ? 'Easy' : bus.level <= 4 ? 'Medium' : 'Hard'}`];
+  
   const canUpgrade = bus.level < bus.maxLevel && balance >= bus.upgradeCost;
   const isMaxLevel = bus.level >= bus.maxLevel;
+  const canAfford = balance >= bus.basePrice;
+  const currentMultiplier = getIncomeMultiplier(bus.busTypeId, bus.level);
+  const nextMultiplier = bus.level < bus.maxLevel 
+    ? getIncomeMultiplier(bus.busTypeId, bus.level + 1) 
+    : currentMultiplier;
+  const upgradeDesc = bus.level < bus.maxLevel 
+    ? getUpgradeDescription(bus.busTypeId, bus.level + 1) 
+    : 'Максимальный уровень';
 
   const handleUpgrade = () => {
     if (canUpgrade) {
-      onUpgrade(bus.id);
+      onUpgrade();
+    }
+  };
+
+  const handleBuy = () => {
+    if (canAfford && !bus.isPurchased) {
+      onBuy();
     }
   };
 
   return (
-    <div className={cls.busCard}>
+    <div className={`${cls.busCard} ${!bus.isPurchased ? cls.unpurchased : ''}`}>
       <div className={cls.busHeader}>
         <span className={cls.busIcon}>{bus.icon}</span>
         <span className={cls.busTitle}>{bus.name}</span>
@@ -36,37 +53,73 @@ export const BusCard = ({ bus, balance, onUpgrade }: BusCardProps) => {
         </div>
         <div className={cls.detailRow}>
           <span className={cls.detailLabel}>Скорость</span>
-          <span className={cls.detailValue}>{bus.speed} км/ч</span>
+          <span className={cls.detailValue}>{bus.speed}</span>
         </div>
         <div className={cls.detailRow}>
           <span className={cls.detailLabel}>Комфорт</span>
           <span className={cls.detailValue}>{bus.comfort}</span>
         </div>
+        {bus.isPurchased && (
+          <div className={cls.detailRow}>
+            <span className={cls.detailLabel}>Доход</span>
+            <span className={cls.detailValue}>x{currentMultiplier.toFixed(1)}</span>
+          </div>
+        )}
       </div>
 
-      <div className={cls.progress}>
-        <div className={cls.progressLabel}>
-          <span>Прокачка</span>
-          <span className={cls.levelText}>
-            {bus.level}/{bus.maxLevel}
-          </span>
-        </div>
-        <div className={cls.progressBar}>
-          <div
-            className={`${progressBarClass} ${cls.progressFill}`}
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
-      </div>
-
-      {!isMaxLevel && (
+      {!bus.isPurchased ? (
+        // Кнопка КУПИТЬ
         <button
-          className={cls.upgradeBtn}
-          onClick={handleUpgrade}
-          disabled={!canUpgrade}
+          className={`${cls.buyBtn} ${!canAfford ? cls.disabled : ''}`}
+          onClick={handleBuy}
+          disabled={!canAfford}
         >
-          🚀 ПРОКАЧАТЬ ({bus.upgradeCost})
+          💰 КУПИТЬ ({bus.basePrice}₽)
         </button>
+      ) : (
+        <>
+          {/* Прогресс прокачки */}
+          <div className={cls.progress}>
+            <div className={cls.progressLabel}>
+              <span>Прокачка</span>
+              <span className={cls.levelText}>
+                {bus.level}/{bus.maxLevel}
+              </span>
+            </div>
+            <div className={cls.progressBar}>
+              <div
+                className={`${progressBarClass} ${cls.progressFill}`}
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Описание следующего улучшения */}
+          <div className={cls.upgradeInfo}>
+            <span className={cls.upgradeDesc}>
+              {bus.level < bus.maxLevel ? `+${((nextMultiplier - currentMultiplier) * 100).toFixed(0)}% к доходу` : ''}
+            </span>
+            <span className={cls.upgradeName}>{upgradeDesc}</span>
+          </div>
+
+          {/* Кнопка ПРОКАЧАТЬ */}
+          {!isMaxLevel && (
+            <button
+              className={`${cls.upgradeBtn} ${!canUpgrade ? cls.disabled : ''}`}
+              onClick={handleUpgrade}
+              disabled={!canUpgrade}
+            >
+              🚀 ПРОКАЧАТЬ ({bus.upgradeCost}₽)
+            </button>
+          )}
+
+          {/* Статус "МАКС. УРОВЕНЬ" */}
+          {isMaxLevel && (
+            <div className={cls.maxLevelBadge}>
+              ✨ МАКС. УРОВЕНЬ
+            </div>
+          )}
+        </>
       )}
     </div>
   );

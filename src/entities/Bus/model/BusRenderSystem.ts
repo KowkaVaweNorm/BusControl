@@ -7,6 +7,23 @@ import type { System, SystemContext } from '@/shared/lib/game-core/EntityManager
 import { canvasRendererService } from '@/shared/lib/game-core/CanvasRendererService';
 import { entityManagerService } from '@/shared/lib/game-core/EntityManagerService';
 import { BUS_COMPONENTS, type BusPositionComponent, type BusDataComponent } from './BusComponents';
+import { BUS_TYPES_CONFIG } from './BusTypes';
+
+/**
+ * Получить ширину автобуса на основе вместимости
+ */
+function getBusWidth(capacity: number): number {
+  // Базовая ширина 30px + 1px на каждые 5 единиц вместимости
+  return 30 + Math.floor(capacity / 5);
+}
+
+/**
+ * Получить высоту автобуса на основе типа
+ */
+function getBusHeight(capacity: number): number {
+  // Базовая высота 16px + 1px на каждые 10 единиц вместимости
+  return 16 + Math.floor(capacity / 10);
+}
 
 export const busRenderSystem: System = {
   name: 'BusRenderSystem',
@@ -29,8 +46,13 @@ export const busRenderSystem: System = {
 
         if (!pos || !data) continue;
 
-        const width = 40;
-        const height = 20;
+        // Получаем конфигурацию типа автобуса
+        const busType = BUS_TYPES_CONFIG.find((t) => t.id === data.busTypeId);
+        const color = busType?.color || data.color || '#ffcc00';
+        
+        // Размер зависит от вместимости
+        const width = getBusWidth(data.capacity);
+        const height = getBusHeight(data.capacity);
 
         // Сохраняем контекст для трансформации
         ctx.save();
@@ -41,7 +63,7 @@ export const busRenderSystem: System = {
 
         // Рисуем корпус (центрируем относительно 0,0 так как мы сделали translate)
         canvasRendererService.drawRect(ctx, -width / 2, -height / 2, width, height, {
-          fillColor: data.color,
+          fillColor: color,
           strokeColor: '#000000',
           strokeWidth: 2,
           borderRadius: 4,

@@ -133,6 +133,7 @@ function unloadPassengers(busEntityId: number, busData: BusDataComponent, stopId
         gameEventBusService.publish(GameEventType.NPC_ARRIVED_AT_DESTINATION, {
           npcId: npcData.id,
           stopId: stopId,
+          busId: busData.id, // Используем busData.id (строка)
         });
 
         // Визуально: телепортируем чуть в сторону от остановки

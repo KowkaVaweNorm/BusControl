@@ -9,6 +9,7 @@
 
 import type { AppScene } from '@/shared/types/app-types';
 import { gameSettingsStore } from './GameSettingsStore';
+import { playerProgressService } from '@/features/player-progress/model/PlayerProgressService';
 
 export interface GameState {
   /** Текущая сцена/экран */
@@ -68,7 +69,7 @@ export class GameStateStore {
     score: 0,
     level: 1,
     gameTime: 0,
-    money: 5000, // Стартовый капитал (5000₽)
+    money: playerProgressService.getBalance(), // Синхронизация с PlayerProgressService
     totalPassengersDelivered: 0,
     activeBuses: 0,
     totalStops: 0,
@@ -139,7 +140,7 @@ export class GameStateStore {
       score: 0,
       level: 1,
       gameTime: 0,
-      money: 5000,
+      money: playerProgressService.getBalance(),
       totalPassengersDelivered: 0,
       activeBuses: 0,
       totalStops: 0,
@@ -180,6 +181,17 @@ export class GameStateStore {
    */
   public addMoney(amount: number): void {
     this.setState({ money: this.state.money + amount });
+    // Синхронизация с PlayerProgressService
+    playerProgressService.setBalance(this.state.money);
+  }
+
+  /**
+   * Установить баланс (прямая синхронизация)
+   */
+  public setBalance(amount: number): void {
+    this.setState({ money: amount });
+    // Синхронизация с PlayerProgressService
+    playerProgressService.setBalance(amount);
   }
 
   /**
@@ -188,6 +200,8 @@ export class GameStateStore {
   public spendMoney(amount: number): boolean {
     if (this.state.money >= amount) {
       this.setState({ money: this.state.money - amount });
+      // Синхронизация с PlayerProgressService
+      playerProgressService.setBalance(this.state.money);
       return true;
     }
     return false;

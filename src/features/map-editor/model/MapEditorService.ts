@@ -32,6 +32,7 @@ import {
 import { BUS_COMPONENTS, BusState } from '@/entities/Bus/model/BusComponents';
 import { clearMovementCache } from '@/entities/Bus/model/BusMovementSystem';
 import { stopEditorService } from '@/features/stop-editor';
+import { playerProgressService } from '@/features/player-progress/model/PlayerProgressService';
 
 export enum EditorMode {
   IDLE = 'idle', // Выделение и редактирование остановок
@@ -337,6 +338,9 @@ export class MapEditorService {
       color: '#ffcc00', // Желтый автобус
       waitTimer: 0,
       waitTimeRequired: 3.0, // Ждать 3 секунды на остановке
+      busTypeId: 'liaz' as any, // Тип автобуса
+      level: 1, // Уровень прокачки
+      incomeMultiplier: 1.0, // Множитель дохода
     });
 
     gameEventBusService.publish(GameEventType.BUS_CREATED, { busId, entityId });
@@ -346,6 +350,108 @@ export class MapEditorService {
     // mapSaveService.saveCurrentMap();
 
     return busId;
+  }
+
+  /**
+   * Создать автобус конкретного типа на маршрут
+   * Используется при спавне из RouteEditor
+   * 
+   * @param busTypeId - ID типа автобуса
+   * @param routeId - ID маршрута
+   * @param level - Уровень прокачки
+   * @returns ID созданного автобуса
+   */
+  public spawnBusByType(busTypeId: string, routeId: string, level: number = 1): string | null {
+    // Импортируем типы автобусов
+    import('@/entities/Bus/model/BusTypes').then(({
+      BUS_TYPES_CONFIG,
+      getIncomeMultiplier,
+    }) => {
+      const busType = BUS_TYPES_CONFIG.find((t) => t.id === busTypeId);
+      
+      if (!busType) {
+        console.error('[MapEditor] Unknown bus type:', busTypeId);
+        return null;
+      }
+
+      const entityId = entityManagerService.createEntity();
+      if (entityId === -1) return null;
+
+      const busId = `bus_${Date.now()}_${busTypeId}`;
+
+      // Находим первую остановку маршрута
+      const startPos = this.getFirstStopPosition(routeId);
+      const startX = startPos ? startPos.x : 0;
+      const startY = startPos ? startPos.y : 0;
+
+      // Расчёт характеристик с учётом прокачки
+      const speedBonus = (level - 1) * 0.05; // +5% за каждый уровень
+      const maxSpeed = busType.baseSpeed * (1 + speedBonus);
+
+      const incomeMultiplier = getIncomeMultiplier(busTypeId as any, level);
+
+      entityManagerService.addComponent(entityId, BUS_COMPONENTS.POSITION, {
+        x: startX,
+        y: startY,
+        rotation: 0,
+      });
+
+      entityManagerService.addComponent(entityId, BUS_COMPONENTS.VELOCITY, {
+        speed: 0,
+        maxSpeed: maxSpeed,
+        acceleration: 50,
+        isMoving: false,
+      });
+
+      entityManagerService.addComponent(entityId, BUS_COMPONENTS.DATA, {
+        id: busId,
+        routeId: routeId,
+        currentStopIndex: 0,
+        state: BusState.IDLE,
+        capacity: busType.baseCapacity,
+        passengers: 0,
+        color: busType.color,
+        waitTimer: 0,
+        waitTimeRequired: 3.0,
+        busTypeId: busTypeId as any,
+        level: level,
+        incomeMultiplier: incomeMultiplier,
+      });
+
+      gameEventBusService.publish(GameEventType.BUS_CREATED, { busId, entityId });
+      console.log(
+        `[MapEditor] Spawned ${busType.name} (Lvl ${level}) on route ${routeId} | Capacity: ${busType.baseCapacity}, Speed: ${maxSpeed.toFixed(0)}, Income: x${incomeMultiplier.toFixed(2)}`
+      );
+
+      return busId;
+    });
+
+    return null;
+  }
+
+  /**
+   * Удалить автобус с маршрута (вернуть в гараж)
+   * 
+   * @param busEntityId - ID сущности автобуса
+   * @param busTypeId - Тип автобуса (для поиска в прогрессе)
+   * @returns true если успешно
+   */
+  public removeBusFromRoute(busEntityId: number, busTypeId: string): boolean {
+    // Помечаем автобус как неактивный в прогрессе
+    const purchasedBuses = playerProgressService.getPurchasedBuses();
+    const busIndex = purchasedBuses.findIndex(
+      (b) => b.busTypeId === busTypeId && b.isActive
+    );
+
+    if (busIndex !== -1) {
+      playerProgressService.setBusActive(`bus_${busIndex}`, false);
+    }
+
+    // Удаляем сущность
+    entityManagerService.destroyEntity(busEntityId);
+
+    console.log(`[MapEditor] Bus ${busTypeId} removed from route (returned to garage)`);
+    return true;
   }
 
   /**
