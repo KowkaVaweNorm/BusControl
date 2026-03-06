@@ -33,6 +33,7 @@ export function resetSpawnTimer(): void {
 /**
  * Найти все остановки, которые находятся дальше по маршруту от текущей
  * Возвращает массив ID остановок, до которых можно доехать из текущей точки
+ * Учитывает зацикленные маршруты (loop: true)
  */
 function getFutureStopsFromStop(currentStopId: string): string[] {
   const futureStops = new Set<string>();
@@ -52,6 +53,13 @@ function getFutureStopsFromStop(currentStopId: string): string[] {
     // Добавляем все остановки, которые идут после текущей
     for (let i = currentIndex + 1; i < routeData.stopIds.length; i++) {
       futureStops.add(routeData.stopIds[i]);
+    }
+
+    // Если маршрут зациклен, добавляем остановки от начала до текущей
+    if (routeData.loop) {
+      for (let i = 0; i < currentIndex; i++) {
+        futureStops.add(routeData.stopIds[i]);
+      }
     }
   }
 
@@ -126,9 +134,15 @@ function spawnNPC(stopId: string, x: number, y: number): void {
     // Выбираем случайную остановку из доступных
     const randomIndex = Math.floor(Math.random() * futureStops.length);
     targetStopId = futureStops[randomIndex];
-  } else {
-    // Если нет маршрутов из этой остановки — пассажир не появится (нет спроса)
-    // Или можно выбрать любую другую остановку как fallback
+    
+    // Защита от выбора текущей остановки (на всякий случай)
+    if (targetStopId === stopId) {
+      targetStopId = null;
+    }
+  }
+
+  // Если не удалось выбрать цель из маршрутов — выбираем любую другую остановку
+  if (!targetStopId) {
     const allStops = entityManagerService.getEntitiesWithComponents(
       STOP_COMPONENTS.DATA,
       STOP_COMPONENTS.POSITION
