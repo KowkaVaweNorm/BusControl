@@ -51,7 +51,7 @@ function getBusIncomeMultiplierByBusId(busId: string): number {
 export function initEconomyListener(): void {
   // Подписка на посадку пассажира (оплата проезда)
   unsubscribeBoarded = gameEventBusService.subscribe(GameEventType.NPC_BOARDED_BUS, (event) => {
-    const { npcId, busId, stopId } = event.payload;
+    const { busId } = event.payload;
 
     // Получаем множитель дохода автобуса по busId
     const incomeMultiplier = getBusIncomeMultiplierByBusId(busId);
@@ -60,19 +60,13 @@ export function initEconomyListener(): void {
     const fare = Math.floor(BASE_FARE_PER_PASSENGER * incomeMultiplier);
 
     gameStateStore.addMoney(fare);
-
-    console.log(
-      `[Economy] Passenger ${npcId} boarded bus ${busId} at ${stopId}. ` +
-        `Multiplier: x${incomeMultiplier.toFixed(2)}. Fare: ${fare}₽. ` +
-        `Balance: ${gameStateStore.getState().money}₽`
-    );
   });
 
   // Подписка на прибытие пассажира к цели (бонус)
   unsubscribeArrived = gameEventBusService.subscribe(
     GameEventType.NPC_ARRIVED_AT_DESTINATION,
     (event) => {
-      const { npcId, stopId, busId } = event.payload;
+      const { busId } = event.payload;
 
       // Получаем множитель дохода автобуса по busId
       const incomeMultiplier = getBusIncomeMultiplierByBusId(busId);
@@ -82,12 +76,6 @@ export function initEconomyListener(): void {
 
       gameStateStore.addMoney(reward);
       gameStateStore.addPassengerDelivered();
-
-      console.log(
-        `[Economy] Passenger ${npcId} arrived at ${stopId} via bus ${busId}. ` +
-          `Multiplier: x${incomeMultiplier.toFixed(2)}. Reward: ${reward}₽. ` +
-          `Balance: ${gameStateStore.getState().money}₽`
-      );
     }
   );
 
@@ -96,10 +84,7 @@ export function initEconomyListener(): void {
     const { busId } = event.payload;
 
     if (gameStateStore.spendMoney(BUS_PURCHASE_COST)) {
-      console.log(
-        `[Economy] Bus ${busId} purchased. Cost: ${BUS_PURCHASE_COST}₽. ` +
-          `Balance: ${gameStateStore.getState().money}₽`
-      );
+      // Тихая покупка
     } else {
       console.warn(`[Economy] Not enough money to buy bus ${busId}`);
     }
@@ -125,30 +110,16 @@ export function initEconomyListener(): void {
     gameStateStore.decrementTotalStops();
   });
 
-  // Подписка на изменение денег (для отладки)
-  unsubscribeMoneyChanged = gameEventBusService.subscribe(GameEventType.MONEY_CHANGED, (event) => {
-    // Тихое логирование - только для отладки
-    const { amount, source } = event.payload;
-    console.log(`[Economy] Money changed: ${amount > 0 ? '+' : ''}${amount} (${source})`);
-  });
+  // Подписка на изменение денег (отключено - нет спама)
 
   // Подписка на жалобы (штраф)
   unsubscribeComplaintAdded = gameEventBusService.subscribe(
     GameEventType.COMPLAINT_ADDED,
-    (event) => {
-      const { stopName, totalComplaints } = event.payload;
-
+    (_event) => {
       gameStateStore.addComplaint();
       gameStateStore.spendMoney(COMPLAINT_PENALTY);
-
-      console.warn(
-        `[Economy] Complaint at "${stopName}": ${totalComplaints} total. ` +
-          `Penalty: ${COMPLAINT_PENALTY}₽. Balance: ${gameStateStore.getState().money}₽`
-      );
     }
   );
-
-  console.log('[Economy] Economy listener initialized');
 }
 
 /**

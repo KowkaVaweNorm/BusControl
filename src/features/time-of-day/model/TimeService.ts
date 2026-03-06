@@ -23,7 +23,8 @@ import { TimePeriod, TimeEventType } from './types';
 // Конфигурация по умолчанию
 const DEFAULT_CONFIG: TimeServiceConfig = {
   timeScale: 1, // 1 сек реального = 1 мин игрового
-  startTime: { hours: 8, minutes: 0 }, // 08:00
+  startTime: { hours: 8, minutes: 0 }, // 08:00 (по умолчанию)
+  randomStartTime: false, // Случайное время старта (отключено по умолчанию)
   enableLogging: false,
 };
 
@@ -38,26 +39,64 @@ export class TimeService {
 
   constructor(config?: Partial<TimeServiceConfig>) {
     this.config = { ...DEFAULT_CONFIG, ...config };
+    // Инициализируем время дефолтным (будет перезаписано в initialize)
     this.currentTime = {
-      hours: this.config.startTime.hours,
-      minutes: this.config.startTime.minutes,
+      hours: 8,
+      minutes: 0,
       day: 1,
     };
-    this.currentPeriod = this.calculatePeriod(this.currentTime.hours);
+    this.currentPeriod = TimePeriod.MORNING;
   }
 
   /**
    * Инициализация сервиса (запуск времени)
    */
-  public initialize(): void {
+  public initialize(config?: Partial<TimeServiceConfig>): void {
     if (this.isRunning) {
       console.warn('[TimeService] Already running');
       return;
     }
 
+    // Обновляем конфиг если передан
+    if (config) {
+      this.config = { ...this.config, ...config };
+    }
+    
+    // Определяем начальное время (здесь генерируем случайное!)
+    let startConfig: { hours: number; minutes: number };
+    
+    if (this.config.randomStartTime) {
+      // Генерируем случайное время от 06:00 до 22:59
+      startConfig = this.getRandomStartTime();
+    } else {
+      // Используем заданное время (по умолчанию 08:00)
+      startConfig = this.config.startTime || { hours: 8, minutes: 0 };
+    }
+    
+    // Устанавливаем время
+    this.currentTime = {
+      hours: startConfig.hours,
+      minutes: startConfig.minutes,
+      day: 1,
+    };
+    this.currentPeriod = this.calculatePeriod(this.currentTime.hours);
+
     this.isRunning = true;
     this.startTimer();
-    this.log(`TimeService initialized: ${this.formatTime()}`);
+    
+    // Логируем один раз при старте (даже если enableLogging = false)
+    const randomInfo = this.config.randomStartTime ? ' (random)' : '';
+    console.log(`[TimeService] Initialized${randomInfo}: ${this.formatTime()} (${this.getPeriodName()})`);
+  }
+
+  /**
+   * Сгенерировать случайное время старта (06:00 - 22:59)
+   * @returns Объект { hours, minutes }
+   */
+  private getRandomStartTime(): { hours: number; minutes: number } {
+    const hours = Math.floor(Math.random() * 17) + 6; // 6-22 (17 вариантов)
+    const minutes = Math.floor(Math.random() * 60);   // 0-59
+    return { hours, minutes };
   }
 
   /**
@@ -301,13 +340,23 @@ export class TimeService {
    * Сбросить время к начальному значению
    */
   public reset(): void {
+    // Если randomStartTime — генерируем новое случайное, иначе используем startTime
+    let startConfig: { hours: number; minutes: number };
+    
+    if (this.config.randomStartTime) {
+      startConfig = this.getRandomStartTime();
+      console.log(`[TimeService] Reset to random: ${this.formatTime()} (${this.getPeriodName()})`);
+    } else {
+      startConfig = this.config.startTime || { hours: 8, minutes: 0 };
+      this.log(`Time reset: ${this.formatTime()}`);
+    }
+    
     this.currentTime = {
-      hours: this.config.startTime.hours,
-      minutes: this.config.startTime.minutes,
+      hours: startConfig.hours,
+      minutes: startConfig.minutes,
       day: 1,
     };
     this.currentPeriod = this.calculatePeriod(this.currentTime.hours);
-    this.log(`Time reset: ${this.formatTime()}`);
   }
 
   /**

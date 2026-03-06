@@ -119,8 +119,8 @@ export function initGame(containerId: string, selectedMapId: string | null = nul
     // Запуск автосохранения (каждую минуту)
     mapSaveService.startAutoSave();
 
-    // 7. Инициализация сервиса времени
-    timeService.initialize();
+    // 7. Инициализация сервиса времени (случайное время старта)
+    timeService.initialize({ randomStartTime: true });
 
     // 8. Запуск контроллера камеры
     cameraController.initialize();

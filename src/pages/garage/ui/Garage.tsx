@@ -166,7 +166,7 @@ export const Garage = ({ onBack }: GarageProps) => {
   return (
     <div className={cls.page}>
       <div className={cls.ticket}>
-        {/* Шапка билета */}
+        {/* Шапка билета - всегда видна */}
         <div className={cls.ticketHeader}>
           <div className={cls.routeName}>
             <h1>АВТОПАРК</h1>
@@ -183,7 +183,7 @@ export const Garage = ({ onBack }: GarageProps) => {
           </div>
         </div>
 
-        {/* Сетка автобусов */}
+        {/* Сетка автобусов - скроллится если не помещается */}
         <div className={cls.fleetGrid}>
           {buses.map((bus) => {
             const count = _busCounts.get(bus.busTypeId) || 0;
@@ -200,9 +200,11 @@ export const Garage = ({ onBack }: GarageProps) => {
           })}
         </div>
 
-        {/* Нижняя панель */}
-        <div className={cls.stub}>
-          * покупайте и прокачивайте автобусы для увеличения дохода *
+        {/* Нижняя панель - всегда видна */}
+        <div className={cls.ticketFooter}>
+          <div className={cls.stub}>
+            * покупайте и прокачивайте автобусы для увеличения дохода *
+          </div>
         </div>
       </div>
     </div>

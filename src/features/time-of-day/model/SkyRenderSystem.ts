@@ -79,7 +79,7 @@ function drawStars(ctx: CanvasRenderingContext2D, width: number, height: number)
     // Псевдослучайные координаты на основе seed
     const x = (((Math.sin(seed + i) * 10000) % width) + width) % width;
     const y = (((Math.cos(seed + i * 2) * 10000) % (height / 2)) + height / 2) % (height / 2);
-    const size = Math.sin(seed + i * 3) * 2 + 1;
+    const size = Math.max(0.5, Math.sin(seed + i * 3) * 2 + 1); // Защита от отрицательного радиуса
 
     ctx.beginPath();
     ctx.arc(x, y, size, 0, Math.PI * 2);

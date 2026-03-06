@@ -11,11 +11,16 @@
 .ticket {
   max-width: 1000px;
   width: 100%;
+  max-height: calc(100vh - 4rem); // Ограничиваем высоту (100vh - padding страницы)
   background: var(--theme-paper);
   border: 3px solid var(--theme-border-main);
   box-shadow: 8px 8px 0 var(--theme-shadow-base);
   padding: 2rem 2rem 2.5rem;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; // Скрываем выходящий контент
+  box-sizing: border-box; // Включаем padding в высоту
 
   /* Перфорированные края */
   &::before,
@@ -52,6 +57,7 @@
   margin-bottom: 2rem;
   border-bottom: 2px dashed var(--theme-border-main);
   padding-bottom: 1rem;
+  flex-shrink: 0; // Хедер не сжимается
 }
 
 .routeName {
@@ -122,7 +128,30 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
-  margin: 2rem 0 2.5rem;
+  margin: 1.5rem 0; // Уменьшили margin
+  overflow-y: auto; // Скролл для списка автобусов
+  padding-right: 0.5rem; // Место для скроллбара
+  flex: 1; // Занимает доступное пространство
+  min-height: 0; // Важно для flex-контейнера со скроллом
+
+  // Кастомный скроллбар
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--theme-border-main);
+    border-radius: 4px;
+
+    &:hover {
+      background: var(--theme-border-accent);
+    }
+  }
 }
 
 .ticketFooter {
@@ -131,6 +160,7 @@
   margin-top: 2rem;
   border-top: 2px dashed var(--theme-border-main);
   padding-top: 1.5rem;
+  flex-shrink: 0; // Футер не сжимается
 }
 
 .stub {

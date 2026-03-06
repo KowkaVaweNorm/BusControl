@@ -103,7 +103,6 @@ export class PlayerProgressService {
   public setBalance(amount: number): void {
     this.progress.currentBalance = amount;
     this.saveProgress();
-    console.log(`[PlayerProgressService] Balance updated: ${amount}`);
   }
 
   /**
@@ -112,7 +111,6 @@ export class PlayerProgressService {
   public modifyBalance(delta: number): void {
     this.progress.currentBalance += delta;
     this.saveProgress();
-    console.log(`[PlayerProgressService] Balance modified: ${delta > 0 ? '+' : ''}${delta}`);
   }
 
   // ============================================
@@ -630,16 +628,6 @@ export class PlayerProgressService {
   private saveProgress(): void {
     try {
       localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(this.progress));
-      console.log('[PlayerProgressService] Progress saved:', {
-        balance: this.progress.currentBalance,
-        buses: this.progress.garage.purchasedBuses.length,
-        activeBuses: this.progress.garage.purchasedBuses.filter(b => b.isActive).length,
-        busUpgrades: this.progress.busUpgrades,
-        garage: this.progress.garage.purchasedBuses.map(b => ({
-          id: b.busTypeId,
-          isActive: b.isActive,
-        })),
-      });
     } catch (e) {
       console.error('[PlayerProgressService] Failed to save progress:', e);
     }

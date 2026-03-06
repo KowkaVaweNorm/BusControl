@@ -28,10 +28,12 @@ export interface TimeOfDay {
 export interface TimeServiceConfig {
   /** Скорость течения времени: 1 сек реального = X мин игрового (по умолчанию 1) */
   timeScale: number;
-  /** Начальное время (по умолчанию 08:00) */
-  startTime: { hours: number; minutes: number };
+  /** Начальное время (по умолчанию 08:00). Игнорируется если randomStartTime = true */
+  startTime?: { hours: number; minutes: number };
+  /** Запускать время со случайного момента (06:00 - 22:59) */
+  randomStartTime?: boolean;
   /** Включить ли логирование */
-  enableLogging: boolean;
+  enableLogging?: boolean;
 }
 
 /**

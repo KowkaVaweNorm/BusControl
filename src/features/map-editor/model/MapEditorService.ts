@@ -58,12 +58,10 @@ export class MapEditorService {
   private unsubscribeClick?: () => void;
   private unsubscribeDoubleClick?: () => void;
   private unsubscribeKeyDown?: () => void;
-  private unsubscribeRightClick?: () => void;
 
   private boundHandleMouseClick?: (event: InputEvent<InputEventMap[InputEventType.MOUSE_UP]>) => void;
   private boundHandleMouseDoubleClick?: (event: InputEvent<InputEventMap[InputEventType.MOUSE_DOUBLE_CLICK]>) => void;
   private boundHandleKeyDown?: (event: InputEvent<InputEventMap[InputEventType.KEY_DOWN]>) => void;
-  private boundHandleMouseRightClick?: (event: InputEvent<InputEventMap[InputEventType.MOUSE_DOWN]>) => void;
 
   private mode: EditorMode = EditorMode.IDLE; // По умолчанию режим выделения
   private draftRoute: DraftRoute | null = null;
@@ -81,7 +79,6 @@ export class MapEditorService {
     this.boundHandleMouseClick = this.handleMouseClick.bind(this);
     this.boundHandleMouseDoubleClick = this.handleMouseDoubleClick.bind(this);
     this.boundHandleKeyDown = this.handleKeyDown.bind(this);
-    this.boundHandleMouseRightClick = this.handleMouseRightClick.bind(this);
   }
 
   public initialize(): void {
@@ -96,12 +93,6 @@ export class MapEditorService {
     this.unsubscribeDoubleClick = inputService.subscribe(
       InputEventType.MOUSE_DOUBLE_CLICK,
       this.boundHandleMouseDoubleClick!
-    );
-
-    // Слушаем ПКМ для создания автобуса на маршруте
-    this.unsubscribeRightClick = inputService.subscribe(
-      InputEventType.MOUSE_DOWN,
-      this.boundHandleMouseRightClick!
     );
 
     // Слушаем клавишу Enter или Escape для завершения/отмены маршрута
@@ -284,77 +275,6 @@ export class MapEditorService {
     this.draftRoute = null;
   }
 
-  // --- Обработка ПКМ для создания автобуса ---
-
-  private handleMouseRightClick(_event: InputEvent<InputEventMap[InputEventType.MOUSE_DOWN]>): void {
-    // Реагируем только на ПКМ
-    if (_event.payload.button !== MouseButton.RIGHT) return;
-
-    const { worldX, worldY } = _event.payload;
-
-    // Проверяем, попали ли в маршрут (для создания автобуса)
-    const clickedRouteId = this.findRouteAtPosition(worldX, worldY);
-
-    if (clickedRouteId) {
-      this.createBusOnRoute(clickedRouteId);
-    } else {
-      console.log('[MapEditor] Right click on empty space (no route)');
-    }
-  }
-
-  /**
-   * Создать автобус на конкретный маршрут
-   * @returns ID созданного автобуса
-   */
-  private createBusOnRoute(routeId: string): string | null {
-    const entityId = entityManagerService.createEntity();
-    if (entityId === -1) return null;
-
-    const busId = `bus_${Date.now()}`;
-
-    // Находим первую остановку маршрута, чтобы поставить туда автобус
-    const startPos = this.getFirstStopPosition(routeId);
-
-    const startX = startPos ? startPos.x : 0;
-    const startY = startPos ? startPos.y : 0;
-
-    entityManagerService.addComponent(entityId, BUS_COMPONENTS.POSITION, {
-      x: startX,
-      y: startY,
-      rotation: 0,
-    });
-
-    entityManagerService.addComponent(entityId, BUS_COMPONENTS.VELOCITY, {
-      speed: 0,
-      maxSpeed: 150, // Пикселей в секунду
-      acceleration: 50,
-      isMoving: false,
-    });
-
-    entityManagerService.addComponent(entityId, BUS_COMPONENTS.DATA, {
-      id: busId,
-      routeId: routeId,
-      currentStopIndex: 0, // Стартуем с первой остановки
-      state: BusState.IDLE, // Сразу начнет движение благодаря LogicSystem
-      capacity: 20,
-      passengers: 0,
-      color: '#ffcc00', // Желтый автобус
-      waitTimer: 0,
-      waitTimeRequired: 3.0, // Ждать 3 секунды на остановке
-      busTypeId: 'liaz' as BusTypeId, // Тип автобуса
-      level: 1, // Уровень прокачки
-      incomeMultiplier: 1.0, // Множитель дохода
-    });
-
-    gameEventBusService.publish(GameEventType.BUS_CREATED, { busId, entityId });
-    console.log(`[MapEditor] Bus created on route ${routeId}`);
-
-    // Автосохранение карты (опционально, не сохраняем автобусы)
-    // mapSaveService.saveCurrentMap();
-
-    return busId;
-  }
-
   /**
    * Создать автобус конкретного типа на маршрут
    * Используется при спавне из RouteEditor
@@ -459,76 +379,6 @@ export class MapEditorService {
   }
 
   /**
-   * Поиск маршрута по клику
-   * Проверяет расстояние до линий маршрута (с порогом 20px)
-   */
-  private findRouteAtPosition(x: number, y: number): string | null {
-    const routes = entityManagerService.getEntitiesWithComponents(ROUTE_COMPONENTS.DATA);
-    const threshold = 20; // Радиус клика вокруг линии
-
-    for (const id of routes) {
-      const rData = entityManagerService.getComponent<RouteDataComponent>(
-        id,
-        ROUTE_COMPONENTS.DATA
-      );
-      if (!rData) continue;
-
-      // Проходим по сегментам маршрута
-      for (let i = 0; i < rData.stopIds.length - 1; i++) {
-        const p1 = this.getStopPosById(rData.stopIds[i]);
-        const p2 = this.getStopPosById(rData.stopIds[i + 1]);
-
-        if (p1 && p2) {
-          if (this.pointToSegmentDistance(x, y, p1.x, p1.y, p2.x, p2.y) < threshold) {
-            return rData.id;
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-  /**
-   * Математика: расстояние от точки до отрезка
-   */
-  private pointToSegmentDistance(
-    px: number,
-    py: number,
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number
-  ): number {
-    const A = px - x1;
-    const B = py - y1;
-    const C = x2 - x1;
-    const D = y2 - y1;
-
-    const dot = A * C + B * D;
-    const lenSq = C * C + D * D;
-    let param = -1;
-
-    if (lenSq !== 0) param = dot / lenSq;
-
-    let xx, yy;
-
-    if (param < 0) {
-      xx = x1;
-      yy = y1;
-    } else if (param > 1) {
-      xx = x2;
-      yy = y2;
-    } else {
-      xx = x1 + param * C;
-      yy = y1 + param * D;
-    }
-
-    const dx = px - xx;
-    const dy = py - yy;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
-  /**
    * Поиск координат остановки по ID
    */
   private getStopPosById(stopId: string): { x: number; y: number } | null {
@@ -560,30 +410,6 @@ export class MapEditorService {
       }
     }
     return null;
-  }
-
-  /**
-   * Создать автобус на первый доступный маршрут (публичный метод для UI)
-   * @returns ID созданного автобуса или null если не удалось
-   */
-  public createBusOnFirstRoute(): string | null {
-    const routes = entityManagerService.getEntitiesWithComponents(ROUTE_COMPONENTS.DATA);
-
-    if (routes.length === 0) {
-      console.warn('[MapEditor] No routes available to spawn bus');
-      return null;
-    }
-
-    // Берём первый маршрут
-    const firstRouteId = routes[0];
-    const routeData = entityManagerService.getComponent<RouteDataComponent>(
-      firstRouteId,
-      ROUTE_COMPONENTS.DATA
-    );
-
-    if (!routeData) return null;
-
-    return this.createBusOnRoute(routeData.id);
   }
 
   /**
@@ -622,7 +448,6 @@ export class MapEditorService {
   public cleanup(): void {
     this.unsubscribeClick?.();
     this.unsubscribeDoubleClick?.();
-    this.unsubscribeRightClick?.();
     this.unsubscribeKeyDown?.();
     this.isInitialized = false;
   }
