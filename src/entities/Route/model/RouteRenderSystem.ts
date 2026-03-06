@@ -85,13 +85,13 @@ export const routeRenderSystem: System = {
               opacity,
             });
 
-            // Рисуем белую обводку при наведении (свечение)
+            // Рисуем белую обводку при наведении (аккуратное свечение)
             if (glowEffect) {
               canvasRendererService.drawLine(ctx, startPos.x, startPos.y, endPos.x, endPos.y, {
                 color: '#ffffff',
-                width: baseWidth + 4,
+                width: baseWidth + 3,
                 dashed: false,
-                opacity: 0.3,
+                opacity: 0.5,
               });
             }
 
@@ -120,13 +120,13 @@ export const routeRenderSystem: System = {
               opacity,
             });
 
-            // Белая обводка при наведении
+            // Белая обводка при наведении (аккуратное свечение)
             if (glowEffect) {
               canvasRendererService.drawLine(ctx, lastPos.x, lastPos.y, firstPos.x, firstPos.y, {
                 color: '#ffffff',
-                width: baseWidth + 4,
+                width: baseWidth + 3,
                 dashed: true,
-                opacity: 0.3,
+                opacity: 0.5,
               });
             }
           }
@@ -135,14 +135,22 @@ export const routeRenderSystem: System = {
         // Подпись маршрута — посередине всех сегментов
         const labelPos = calculateRouteLabelPosition(routeData);
         if (labelPos) {
-          // Ручная тень для текста (постоянная, не зависит от наведения)
-          ctx.shadowColor = 'black';
-          ctx.shadowBlur = 4; // Постоянная тень для всех маршрутов
-          ctx.fillStyle = routeData.color;
-          ctx.font = 'bold 16px Arial';
+          if (isHovered) {
+            // Выделенное название: белая тень + жирный шрифт
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+            ctx.shadowBlur = 12;
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 18px Arial';
+          } else {
+            // Обычное название: чёрная тень
+            ctx.shadowColor = 'black';
+            ctx.shadowBlur = 4;
+            ctx.fillStyle = routeData.color;
+            ctx.font = 'bold 16px Arial';
+          }
           ctx.textAlign = 'center';
           ctx.fillText(routeData.name, labelPos.x, labelPos.y - 20);
-          
+
           // Сбрасываем shadowBlur после текста (важно для следующих маршрутов!)
           ctx.shadowBlur = 0;
           ctx.shadowColor = 'transparent';
