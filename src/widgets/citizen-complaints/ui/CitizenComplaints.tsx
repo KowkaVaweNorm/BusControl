@@ -11,7 +11,7 @@ interface RecentComplaint {
 
 // Хранилище последних жалоб (вне компонента для доступа извне)
 let recentComplaintsStore: RecentComplaint[] = [];
-let recentComplaintsListeners: Set<() => void> = new Set();
+const recentComplaintsListeners: Set<() => void> = new Set();
 
 /**
  * Очистить последние жалобы (для рестарта уровня)

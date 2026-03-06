@@ -1,9 +1,9 @@
 {
   "projectName": "Bus Control",
-  "generatedAt": "2026-03-05 (updated)",
+  "generatedAt": "2026-03-06 (updated)",
   "rootDirectory": "d:\\domains\\Pets\\GameStudio\\Bus Control\\ProjectBusControl",
-  "totalFiles": 147,
-  "totalLines": 13240,
+  "totalFiles": 153,
+  "totalLines": 14500,
   "architecture": "Feature-Sliced Design (FSD)",
   "structure": [
     {
@@ -159,7 +159,12 @@
     {
       "path": "src/entities/Bus/model/BusComponents.ts",
       "type": "source",
-      "description": "Компоненты автобуса: POSITION, VELOCITY, DATA"
+      "description": "Компоненты автобуса: POSITION, VELOCITY, DATA (busTypeId, level, incomeMultiplier)"
+    },
+    {
+      "path": "src/entities/Bus/model/BusTypes.ts",
+      "type": "source",
+      "description": "Типы автобусов и система улучшений (BUS_TYPES_CONFIG, UPGRADES_BASE)"
     },
     {
       "path": "src/entities/Bus/model/BusMovementSystem.ts",
@@ -174,7 +179,7 @@
     {
       "path": "src/entities/Bus/model/BusRenderSystem.ts",
       "type": "source",
-      "description": "Рендеринг: жёлтый прямоугольник 40×20 с фарами"
+      "description": "Рендеринг: цвет по типу, размер от вместимости"
     },
     {
       "path": "src/entities/Bus/index.ts",
@@ -504,7 +509,7 @@
     "widgets": {
       "path": "src/widgets",
       "description": "UI-виджеты",
-      "items": ["game-canvas", "stats-panel", "toolbar", "notifications", "map-manager", "stop-occupancy", "citizen-complaints", "time-display", "stop-editor", "game-over", "developer-indicator", "route-editor"]
+      "items": ["game-canvas", "stats-panel", "toolbar", "notifications", "map-manager", "stop-occupancy", "citizen-complaints", "time-display", "stop-editor", "game-over", "developer-indicator", "route-editor", "route-buses-indicator"]
     },
     "pages": {
       "path": "src/pages",
@@ -578,9 +583,19 @@
         "Главное меню: SVG-предпросмотр карты",
         "Главное меню: сохранение выбора в localStorage",
         "Страница автопарка (Garage): стиль билета/чека",
-        "Страница автопарка: 4 мок-автобуса с характеристиками",
-        "Страница автопарка: система прокачки (баланс, уровни)",
-        "Страница автопарка: прогресс-бары уровней",
+        "Страница автопарка: 4 типа автобусов (ЛиАЗ, ПАЗ, Volgabus, КАМАЗ)",
+        "Страница автопарка: покупка неограниченного количества автобусов типа",
+        "Страница автопарка: глобальная прокачка типа (5 уровней, x1.0-x1.5 доход)",
+        "Страница автопарка: кнопка КУПИТЬ и КУПИТЬ ЕЩЁ",
+        "4 типа автобусов с разными характеристиками (вместимость, скорость, цвет)",
+        "Размер автобуса зависит от вместимости",
+        "Скорость автобуса зависит от типа (ПАЗ быстрый, ЛиАЗ медленный)",
+        "Сохранение автобусов в localStorage (garage.purchasedBuses, busUpgrades)",
+        "Маршруты: виджет RouteEditor с кнопками +/−",
+        "Маршруты: отображение \"Доступно: X\" и \"Использовано: Y\"",
+        "Маршруты: склонение слов (1 автобус, 2-4 автобуса, 5-20 автобусов)",
+        "Маршруты: RouteBusesIndicator виджет (справа сверху)",
+        "Экономика: доход с учётом множителя (35₽ × multiplier + 5₽ × multiplier)",
         "Resize: корректное перерисовывание неба и карты",
         "Resize: сохранение позиции камеры при изменении размера",
         "Проверка устройства (PC ≥900px, не тач)",
@@ -599,8 +614,7 @@
       "planned": [
         "Визуальное отображение зацикленности маршрута",
         "Редактирование маршрутов (удаление остановок)",
-        "Система улучшений автобусов (реальная)",
-        "Покупка новых автобусов",
+        "Отзыв автобуса с маршрута (возврат в гараж)",
         "Звуковое сопровождение"
       ]
     }

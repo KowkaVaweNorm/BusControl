@@ -14,7 +14,10 @@ import {
   getIncomeMultiplier,
   getMaxUpgradeLevel,
 } from '@/entities/Bus/model/BusTypes';
+import type { BusDataComponent } from '@/entities/Bus/model/BusComponents';
 import type { SavedBus } from '@/pages/garage/model/types';
+import { entityManagerService } from '@/shared/lib/game-core/EntityManagerService';
+import { BUS_COMPONENTS } from '@/entities/Bus/model/BusComponents';
 
 // События RouteEditor
 export enum RouteEditorEventType {
@@ -66,10 +69,13 @@ class RouteEditorServiceClass {
     // Получаем купленные автобусы из прогресса
     const purchasedBuses = playerProgressService.getPurchasedBuses();
 
-    // Группируем автобусы по типам
-    const groups = this.groupBusesByType(purchasedBuses);
+    // Считаем сколько автобусов каждого типа уже на карте (на всех маршрутах)
+    const busesOnAllRoutes = this.countBusesOnAllRoutes();
 
-    // Инициализируем количество автобусов на маршруте
+    // Группируем автобусы по типам с учётом занятых
+    const groups = this.groupBusesByType(purchasedBuses, busesOnAllRoutes);
+
+    // Инициализируем количество автобусов на этом маршруте
     if (!this.busesOnThisRoute.has(routeId)) {
       this.busesOnThisRoute.set(routeId, 0);
     }
@@ -87,7 +93,34 @@ class RouteEditorServiceClass {
       routeName,
     });
 
-    console.log(`[RouteEditor] Opened: ${routeName} (${routeId})`);
+    console.log(`[RouteEditor] Opened: ${routeName} (${routeId})`, {
+      totalBuses: purchasedBuses.length,
+      busesOnRoutes: busesOnAllRoutes,
+    });
+  }
+
+  /**
+   * Посчитать сколько автобусов каждого типа сейчас на карте (на всех маршрутах)
+   * Синхронная версия - сканирует сущности напрямую
+   */
+  private countBusesOnAllRoutes(): Map<string, number> {
+    const busesCount = new Map<string, number>();
+
+    const busEntities = entityManagerService.getEntitiesWithComponents(BUS_COMPONENTS.DATA);
+
+    for (const entityId of busEntities) {
+      const busData = entityManagerService.getComponent<BusDataComponent>(
+        entityId,
+        BUS_COMPONENTS.DATA
+      );
+
+      if (busData && busData.routeId) {
+        const current = busesCount.get(busData.busTypeId) || 0;
+        busesCount.set(busData.busTypeId, current + 1);
+      }
+    }
+
+    return busesCount;
   }
 
   /**
@@ -173,10 +206,10 @@ class RouteEditorServiceClass {
       import('@/entities/Bus/model/BusComponents').then(({ BUS_COMPONENTS }) => {
         // Находим все автобусы на карте
         const busEntities = entityManagerService.getEntitiesWithComponents(BUS_COMPONENTS.DATA);
-        
+
         // Ищем первый активный автобус этого типа
         for (const entityId of busEntities) {
-          const busData = entityManagerService.getComponent<any>(entityId, BUS_COMPONENTS.DATA);
+          const busData = entityManagerService.getComponent<BusDataComponent>(entityId, BUS_COMPONENTS.DATA);
           if (busData && busData.busTypeId === busTypeId) {
             // Удаляем через MapEditorService
             import('@/features/map-editor/model/MapEditorService').then(({ mapEditorService }) => {
@@ -185,7 +218,7 @@ class RouteEditorServiceClass {
             return;
           }
         }
-        
+
         console.warn('[RouteEditor] No active bus found to remove');
       });
     });
@@ -205,15 +238,16 @@ class RouteEditorServiceClass {
   private spawnBusOnRoute(busTypeId: string, routeId: string): void {
     // Получаем данные автобуса из прогресса
     const purchasedBuses = playerProgressService.getPurchasedBuses();
-    
+
     // Находим первый неактивный автобус этого типа
     let targetBusIndex = -1;
-    let busLevel = 1;
     
+    // Получаем глобальный уровень типа
+    const busLevel = playerProgressService.getBusTypeLevel(busTypeId);
+
     for (let i = 0; i < purchasedBuses.length; i++) {
       if (purchasedBuses[i].busTypeId === busTypeId && !purchasedBuses[i].isActive) {
         targetBusIndex = i;
-        busLevel = purchasedBuses[i].level;
         break;
       }
     }
@@ -225,21 +259,26 @@ class RouteEditorServiceClass {
 
     // Импортируем mapEditorService для спавна
     import('@/features/map-editor/model/MapEditorService').then(({ mapEditorService }) => {
-      // Спавним автобуса с учётом уровня
+      // Спавним автобуса с учётом глобального уровня типа
       const result = mapEditorService.spawnBusByType(busTypeId, routeId, busLevel);
-      
+
       if (result) {
-        // Помечаем автобус как активный
-        playerProgressService.setBusActive(`bus_${targetBusIndex}`, true);
-        console.log(`[RouteEditor] Bus ${busTypeId} (Lvl ${busLevel}) spawned on route ${routeId}`);
+        // Помечаем автобус как активный (передаём индекс напрямую)
+        playerProgressService.setBusActiveByIndex(targetBusIndex, true);
+        console.log(`[RouteEditor] Bus ${busTypeId} (Lvl ${busLevel}, index ${targetBusIndex}) spawned on route ${routeId}`);
       }
     });
   }
 
   /**
    * Сгруппировать автобусы по типам
+   * @param buses - купленные автобусы
+   * @param busesOnAllRoutes - сколько автобусов каждого типа уже на карте
    */
-  private groupBusesByType(buses: SavedBus[]): BusGroup[] {
+  private groupBusesByType(
+    buses: SavedBus[],
+    busesOnAllRoutes: Map<string, number>
+  ): BusGroup[] {
     const groups = new Map<string, BusGroup>();
 
     for (const bus of buses) {
@@ -247,21 +286,25 @@ class RouteEditorServiceClass {
       if (!config) continue;
 
       if (!groups.has(bus.busTypeId)) {
+        const onAllRoutes = busesOnAllRoutes.get(bus.busTypeId) || 0;
+        const totalOfType = buses.filter((b) => b.busTypeId === bus.busTypeId).length;
+
+        // Получаем глобальный уровень типа
+        const typeLevel = playerProgressService.getBusTypeLevel(bus.busTypeId);
+
         groups.set(bus.busTypeId, {
           typeId: bus.busTypeId,
           typeName: config.name,
           name: config.name,
-          level: bus.level,
+          level: typeLevel,
           maxLevel: getMaxUpgradeLevel(),
           capacity: config.baseCapacity,
           speed: config.baseSpeed,
-          incomeMultiplier: getIncomeMultiplier(bus.busTypeId, bus.level),
-          total: 0,
-          onRoute: 0,
+          incomeMultiplier: getIncomeMultiplier(bus.busTypeId, typeLevel),
+          total: totalOfType, // ВСЕГО автобусов этого типа
+          onRoute: onAllRoutes, // Сколько УЖЕ на всех маршрутах
         });
       }
-      const group = groups.get(bus.busTypeId)!;
-      group.total++;
     }
 
     return Array.from(groups.values());

@@ -34,9 +34,9 @@ export interface BusVelocityComponent extends Component {
 
 /**
  * Игровые данные автобуса
- * 
+ *
  * @property busTypeId - ID типа автобуса (liaz, paz, volgabus, kamaz)
- * @property level - Уровень прокачки (1-5), влияет на доход
+ * @property level - Уровень прокачки типа (0-5), 0 = без улучшений, влияет на доход
  * @property incomeMultiplier - Множитель дохода (1.0-1.5), вычисляется из уровня
  */
 export interface BusDataComponent extends Component {
@@ -50,7 +50,7 @@ export interface BusDataComponent extends Component {
   waitTimer: number; // Таймер ожидания на остановке (сек)
   waitTimeRequired: number; // Сколько нужно ждать (сек)
   busTypeId: BusTypeId; // Тип автобуса
-  level: number; // Уровень прокачки (1-5)
+  level: number; // Уровень прокачки типа (0-5)
   incomeMultiplier: number; // Множитель дохода (1.0-1.5)
 }
 

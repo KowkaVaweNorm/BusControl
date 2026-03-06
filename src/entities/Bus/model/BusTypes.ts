@@ -192,14 +192,17 @@ export function getAllBusTypeIds(): BusTypeId[] {
 
 /**
  * Получить улучшение для уровня
- * 
+ *
  * @param busTypeId - ID типа автобуса
- * @param level - уровень (1-5)
+ * @param level - уровень (0-5), 0 = без улучшений
  * @returns Конфигурация улучшения или undefined
  */
 export function getUpgradeForLevel(busTypeId: BusTypeId, level: number): UpgradeConfig | undefined {
   const config = getBusTypeConfig(busTypeId);
   if (!config) return undefined;
+
+  // level = 0 не имеет улучшения, возвращаем undefined
+  if (level === 0) return undefined;
 
   return config.upgrades.find((upgrade) => upgrade.level === level);
 }

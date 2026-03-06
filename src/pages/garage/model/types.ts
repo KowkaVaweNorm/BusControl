@@ -49,10 +49,17 @@ export interface GarageState {
 
 /**
  * Данные для сохранения автобуса в PlayerProgress
+ * 
+ * @property busTypeId - ID типа автобуса
+ * @property purchasedAt - время покупки (timestamp)
+ * @property totalIncome - общий доход этим автобусом
+ * @property isActive - находится ли на маршруте
+ * 
+ * ПРИМЕЧАНИЕ: level больше не хранится в SavedBus!
+ * Уровень прокачки хранится глобально в busUpgrades для типа.
  */
 export interface SavedBus {
   busTypeId: BusTypeId;
-  level: number;
   purchasedAt: number;
   totalIncome: number;
   isActive: boolean;

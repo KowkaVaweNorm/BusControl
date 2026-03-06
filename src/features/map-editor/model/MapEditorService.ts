@@ -13,6 +13,8 @@ import {
   inputService,
   InputEventType,
   MouseButton,
+  type InputEvent,
+  type InputEventMap,
 } from '../../../shared/lib/game-core/InputService';
 import {
   entityManagerService,
@@ -30,6 +32,7 @@ import {
   DEFAULT_SPAWN_RATES,
 } from '@/entities/stop/model/StopComponents';
 import { BUS_COMPONENTS, BusState } from '@/entities/Bus/model/BusComponents';
+import type { BusTypeId } from '@/entities/Bus/model/BusTypes';
 import { clearMovementCache } from '@/entities/Bus/model/BusMovementSystem';
 import { stopEditorService } from '@/features/stop-editor';
 import { playerProgressService } from '@/features/player-progress/model/PlayerProgressService';
@@ -57,10 +60,10 @@ export class MapEditorService {
   private unsubscribeKeyDown?: () => void;
   private unsubscribeRightClick?: () => void;
 
-  private boundHandleMouseClick?: (event: any) => void;
-  private boundHandleMouseDoubleClick?: (event: any) => void;
-  private boundHandleKeyDown?: (event: any) => void;
-  private boundHandleMouseRightClick?: (event: any) => void;
+  private boundHandleMouseClick?: (event: InputEvent<InputEventMap[InputEventType.MOUSE_UP]>) => void;
+  private boundHandleMouseDoubleClick?: (event: InputEvent<InputEventMap[InputEventType.MOUSE_DOUBLE_CLICK]>) => void;
+  private boundHandleKeyDown?: (event: InputEvent<InputEventMap[InputEventType.KEY_DOWN]>) => void;
+  private boundHandleMouseRightClick?: (event: InputEvent<InputEventMap[InputEventType.MOUSE_DOWN]>) => void;
 
   private mode: EditorMode = EditorMode.IDLE; // По умолчанию режим выделения
   private draftRoute: DraftRoute | null = null;
@@ -128,7 +131,7 @@ export class MapEditorService {
     return this.mode;
   }
 
-  private handleMouseClick(event: any): void {
+  private handleMouseClick(event: InputEvent<InputEventMap[InputEventType.MOUSE_UP]>): void {
     if (this.mode === EditorMode.IDLE) {
       // В режиме выделения ЛКМ по остановке открывает редактор
       if (event.payload.button !== MouseButton.LEFT) return;
@@ -155,13 +158,13 @@ export class MapEditorService {
     }
   }
 
-  private handleMouseDoubleClick(_event: any): void {
+  private handleMouseDoubleClick(_event: InputEvent<InputEventMap[InputEventType.MOUSE_DOUBLE_CLICK]>): void {
     if (this.mode === EditorMode.DRAWING_ROUTE) {
       this.finishDraftRoute();
     }
   }
 
-  private handleKeyDown(event: any): void {
+  private handleKeyDown(event: InputEvent<InputEventMap[InputEventType.KEY_DOWN]>): void {
     if (this.mode === EditorMode.DRAWING_ROUTE) {
       // Escape - отмена
       if (event.payload.key === 'Escape') {
@@ -283,7 +286,7 @@ export class MapEditorService {
 
   // --- Обработка ПКМ для создания автобуса ---
 
-  private handleMouseRightClick(_event: any): void {
+  private handleMouseRightClick(_event: InputEvent<InputEventMap[InputEventType.MOUSE_DOWN]>): void {
     // Реагируем только на ПКМ
     if (_event.payload.button !== MouseButton.RIGHT) return;
 
@@ -338,7 +341,7 @@ export class MapEditorService {
       color: '#ffcc00', // Желтый автобус
       waitTimer: 0,
       waitTimeRequired: 3.0, // Ждать 3 секунды на остановке
-      busTypeId: 'liaz' as any, // Тип автобуса
+      busTypeId: 'liaz' as BusTypeId, // Тип автобуса
       level: 1, // Уровень прокачки
       incomeMultiplier: 1.0, // Множитель дохода
     });
@@ -355,13 +358,13 @@ export class MapEditorService {
   /**
    * Создать автобус конкретного типа на маршрут
    * Используется при спавне из RouteEditor
-   * 
+   *
    * @param busTypeId - ID типа автобуса
    * @param routeId - ID маршрута
-   * @param level - Уровень прокачки
+   * @param level - Уровень прокачки типа (0 = без улучшений)
    * @returns ID созданного автобуса
    */
-  public spawnBusByType(busTypeId: string, routeId: string, level: number = 1): string | null {
+  public spawnBusByType(busTypeId: string, routeId: string, level: number = 0): string | null {
     // Импортируем типы автобусов
     import('@/entities/Bus/model/BusTypes').then(({
       BUS_TYPES_CONFIG,
@@ -385,10 +388,11 @@ export class MapEditorService {
       const startY = startPos ? startPos.y : 0;
 
       // Расчёт характеристик с учётом прокачки
-      const speedBonus = (level - 1) * 0.05; // +5% за каждый уровень
+      // level = 0 → без бонусов, level = 1 → +5%, level = 5 → +25%
+      const speedBonus = level * 0.05; // +5% за каждый уровень прокачки
       const maxSpeed = busType.baseSpeed * (1 + speedBonus);
 
-      const incomeMultiplier = getIncomeMultiplier(busTypeId as any, level);
+      const incomeMultiplier = getIncomeMultiplier(busTypeId as BusTypeId, level);
 
       entityManagerService.addComponent(entityId, BUS_COMPONENTS.POSITION, {
         x: startX,
@@ -413,7 +417,7 @@ export class MapEditorService {
         color: busType.color,
         waitTimer: 0,
         waitTimeRequired: 3.0,
-        busTypeId: busTypeId as any,
+        busTypeId: busTypeId,
         level: level,
         incomeMultiplier: incomeMultiplier,
       });

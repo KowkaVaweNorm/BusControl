@@ -1,9 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { routeEditorService, type BusGroup } from '@/features/route-editor';
 import { gameEventBusService, GameEventType } from '@/shared/lib/game-core/GameEventBusService';
 import { entityManagerService } from '@/shared/lib/game-core/EntityManagerService';
 import { BUS_COMPONENTS, type BusDataComponent } from '@/entities/Bus/model/BusComponents';
 import cls from './RouteEditor.module.scss';
+
+/**
+ * Склонение слов для числительных
+ * @param count - количество
+ * @param one - форма для 1 (автобус)
+ * @param two - форма для 2-4 (автобуса)
+ * @param five - форма для 5-20 (автобусов)
+ */
+function declension(count: number, one: string, two: string, five: string): string {
+  const lastDigit = count % 10;
+  const lastTwoDigits = count % 100;
+
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
+    return five;
+  }
+
+  if (lastDigit === 1) {
+    return one;
+  }
+
+  if (lastDigit >= 2 && lastDigit <= 4) {
+    return two;
+  }
+
+  return five;
+}
 
 export const RouteEditor = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,7 +39,7 @@ export const RouteEditor = () => {
   const [actualBusesOnRoute, setActualBusesOnRoute] = useState<Map<string, number>>(new Map());
 
   // Функция подсчёта автобусов на маршруте напрямую из сущностей
-  const countBusesOnRoute = () => {
+  const countBusesOnRoute = useCallback(() => {
     if (!routeId) return;
 
     const busEntities = entityManagerService.getEntitiesWithComponents(BUS_COMPONENTS.DATA);
@@ -32,7 +58,7 @@ export const RouteEditor = () => {
     }
 
     setActualBusesOnRoute(busesCount);
-  };
+  }, [routeId]);
 
   useEffect(() => {
     // Подписка на открытие редактора маршрута
@@ -45,8 +71,8 @@ export const RouteEditor = () => {
           setRouteName(data.routeName);
           setRouteId(data.routeId);
           setBusGroups(data.busGroups);
-          // Сразу считаем автобусы на маршруте
-          setTimeout(countBusesOnRoute, 100);
+          // СРАЗУ считаем автобусы на маршруте (без задержки)
+          countBusesOnRoute();
         }
       }
     );
@@ -61,7 +87,7 @@ export const RouteEditor = () => {
       }
     );
 
-    // Таймер для обновления состояния
+    // Таймер для обновления состояния (проверка открытия/закрытия)
     const interval = setInterval(() => {
       const nowOpen = routeEditorService.getIsOpen();
       if (nowOpen !== isOpen) {
@@ -72,36 +98,36 @@ export const RouteEditor = () => {
             setRouteName(data.routeName);
             setRouteId(data.routeId);
             setBusGroups(data.busGroups);
-            // Сразу считаем автобусы на маршруте
-            setTimeout(countBusesOnRoute, 100);
+            // СРАЗУ считаем автобусы на маршруте (без задержки)
+            countBusesOnRoute();
           }
         }
       }
-    }, 200);
+    }, 100); // Увеличили частоту проверки до 100мс
 
     return () => {
       unsubscribeOpened();
       unsubscribeClosed();
       clearInterval(interval);
     };
-  }, [isOpen]);
+  }, [isOpen, countBusesOnRoute]);
 
-  // Обновление счётчика автобусов на маршруте каждую секунду
+  // Обновление счётчика автобусов на маршруте каждые 200мс
   useEffect(() => {
     if (!isOpen || !routeId) return;
 
     const updateInterval = setInterval(() => {
       countBusesOnRoute();
-      
+
       // Также обновляем данные из RouteEditorService
       const data = routeEditorService.getRouteData();
       if (data) {
         setBusGroups(data.busGroups);
       }
-    }, 1000);
+    }, 200); // Увеличили частоту обновления до 200мс (было 1000мс)
 
     return () => clearInterval(updateInterval);
-  }, [isOpen, routeId]);
+  }, [isOpen, routeId, countBusesOnRoute]);
 
   const handleClose = () => {
     routeEditorService.close();
@@ -129,6 +155,7 @@ export const RouteEditor = () => {
 
   // Считаем общее количество автобусов на маршруте из реальных сущностей
   const totalBuses = Array.from(actualBusesOnRoute.values()).reduce((sum, count) => sum + count, 0);
+  const busWord = declension(totalBuses, 'автобус', 'автобуса', 'автобусов');
 
   return (
     <div className={cls.container}>
@@ -146,7 +173,7 @@ export const RouteEditor = () => {
         <div className={cls.routeInfo}>
           <div className={cls.routeName}>{routeName}</div>
           <div className={cls.busCount}>
-            🚌 {totalBuses} автобус(ов) на маршруте
+            🚌 {totalBuses} {busWord} на маршруте
           </div>
         </div>
 
@@ -156,20 +183,23 @@ export const RouteEditor = () => {
           {busGroups.length > 0 ? (
             <div className={cls.busList}>
               {busGroups.map((group) => {
-                // Берём реальное количество автобусов этого типа на маршруте
+                // Берём реальное количество автобусов этого типа на ЭТОМ маршруте
                 const actualCount = actualBusesOnRoute.get(group.typeId) || 0;
-                
+                // Доступно = все автобусы типа - занято на всех маршрутах
+                const available = group.total - group.onRoute;
+
                 return (
                   <div key={group.typeId} className={cls.busGroupItem}>
                     <div className={cls.busGroupInfo}>
                       <div className={cls.busGroupHeader}>
                         <span className={cls.busName}>{group.typeName}</span>
-                        <span className={cls.busCountBadge}>
-                          {actualCount} / {group.total}
-                        </span>
                       </div>
                       <div className={cls.busGroupStats}>
                         👥 {group.capacity} | ⚡ {group.speed} | 🔼 Lvl {group.level} | 💰 x{group.incomeMultiplier.toFixed(1)}
+                      </div>
+                      <div className={cls.busGroupAvailability}>
+                        <span className={cls.available}>Доступно: {available}</span>
+                        <span className={cls.used}>Использовано: {group.onRoute}</span>
                       </div>
                     </div>
                     <div className={cls.busGroupControls}>
@@ -184,7 +214,7 @@ export const RouteEditor = () => {
                       <button
                         className={`${cls.controlButton} ${cls.addButton}`}
                         onClick={() => handleAddBus(group.typeId)}
-                        disabled={actualCount >= group.total}
+                        disabled={available <= 0}
                         title="Добавить 1 автобус"
                       >
                         +

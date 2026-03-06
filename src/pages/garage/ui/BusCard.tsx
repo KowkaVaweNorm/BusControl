@@ -5,14 +5,15 @@ import cls from './BusCard.module.scss';
 interface BusCardProps {
   bus: BusData;
   balance: number;
+  count: number; // Количество автобусов этого типа
   onBuy: () => void;
-  onUpgrade: () => void;
+  onUpgradeType: () => void; // Прокачка типа (глобально)
 }
 
 /**
  * Карточка автобуса в автопарке
  */
-export const BusCard = ({ bus, balance, onBuy, onUpgrade }: BusCardProps) => {
+export const BusCard = ({ bus, balance, count, onBuy, onUpgradeType }: BusCardProps) => {
   const progressPercent = (bus.level / bus.maxLevel) * 100;
   const progressBarClass = cls[`progressFill${bus.level <= 2 ? 'Easy' : bus.level <= 4 ? 'Medium' : 'Hard'}`];
   
@@ -29,12 +30,12 @@ export const BusCard = ({ bus, balance, onBuy, onUpgrade }: BusCardProps) => {
 
   const handleUpgrade = () => {
     if (canUpgrade) {
-      onUpgrade();
+      onUpgradeType();
     }
   };
 
   const handleBuy = () => {
-    if (canAfford && !bus.isPurchased) {
+    if (canAfford) {
       onBuy();
     }
   };
@@ -60,15 +61,21 @@ export const BusCard = ({ bus, balance, onBuy, onUpgrade }: BusCardProps) => {
           <span className={cls.detailValue}>{bus.comfort}</span>
         </div>
         {bus.isPurchased && (
-          <div className={cls.detailRow}>
-            <span className={cls.detailLabel}>Доход</span>
-            <span className={cls.detailValue}>x{currentMultiplier.toFixed(1)}</span>
-          </div>
+          <>
+            <div className={cls.detailRow}>
+              <span className={cls.detailLabel}>Доход</span>
+              <span className={cls.detailValue}>x{currentMultiplier.toFixed(1)}</span>
+            </div>
+            <div className={cls.detailRow}>
+              <span className={cls.detailLabel}>Количество</span>
+              <span className={cls.detailValue}>{count} шт.</span>
+            </div>
+          </>
         )}
       </div>
 
       {!bus.isPurchased ? (
-        // Кнопка КУПИТЬ
+        // Кнопка КУПИТЬ (первый автобус типа)
         <button
           className={`${cls.buyBtn} ${!canAfford ? cls.disabled : ''}`}
           onClick={handleBuy}
@@ -78,10 +85,25 @@ export const BusCard = ({ bus, balance, onBuy, onUpgrade }: BusCardProps) => {
         </button>
       ) : (
         <>
+          {/* Информация о количестве */}
+          <div className={cls.ownedInfo}>
+            <span className={cls.ownedLabel}>В автопарке:</span>
+            <span className={cls.ownedCount}>{count} шт.</span>
+          </div>
+
+          {/* Кнопка КУПИТЬ ЕЩЁ */}
+          <button
+            className={`${cls.buyMoreBtn} ${!canAfford ? cls.disabled : ''}`}
+            onClick={handleBuy}
+            disabled={!canAfford}
+          >
+            💰 КУПИТЬ ЕЩЁ ({bus.basePrice}₽)
+          </button>
+
           {/* Прогресс прокачки */}
           <div className={cls.progress}>
             <div className={cls.progressLabel}>
-              <span>Прокачка</span>
+              <span>Прокачка типа</span>
               <span className={cls.levelText}>
                 {bus.level}/{bus.maxLevel}
               </span>
@@ -102,7 +124,7 @@ export const BusCard = ({ bus, balance, onBuy, onUpgrade }: BusCardProps) => {
             <span className={cls.upgradeName}>{upgradeDesc}</span>
           </div>
 
-          {/* Кнопка ПРОКАЧАТЬ */}
+          {/* Кнопка ПРОКАЧАТЬ ТИП */}
           {!isMaxLevel && (
             <button
               className={`${cls.upgradeBtn} ${!canUpgrade ? cls.disabled : ''}`}

@@ -136,7 +136,7 @@ export const DEFAULT_SETTINGS: GameSettings = {
 /**
  * Текущая версия сохранения (для миграции)
  */
-export const CURRENT_SAVE_VERSION = '1.1.0';
+export const CURRENT_SAVE_VERSION = '1.2.0';
 
 /**
  * Пустой прогресс (для новой игры)

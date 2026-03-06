@@ -63,6 +63,96 @@
   padding: 0.2rem 0.6rem;
 }
 
+/* Кнопка КУПИТЬ — в том же стиле что и ПРОКАЧАТЬ */
+.buyBtn {
+  background: transparent;
+  border: 3px solid var(--theme-border-main);
+  color: var(--theme-text-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.4rem 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: 0.1s;
+  font-family: inherit;
+  margin-top: 0.5rem;
+  width: 100%;
+
+  &:hover:not(.disabled) {
+    background: var(--theme-border-main);
+    color: var(--theme-text-inverse);
+  }
+
+  &:active:not(.disabled) {
+    transform: translateY(1px);
+  }
+
+  &.disabled {
+    opacity: 0.3;
+    border-color: var(--theme-border-disabled);
+    cursor: not-allowed;
+  }
+}
+
+/* Информация о количестве автобусов */
+.ownedInfo {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  padding: 0.5rem;
+  margin-bottom: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px dashed var(--theme-border-main);
+
+  .ownedLabel {
+    font-weight: 600;
+    color: var(--theme-text-secondary);
+    font-size: 0.85rem;
+  }
+
+  .ownedCount {
+    font-weight: 700;
+    background: var(--theme-border-main);
+    color: var(--theme-text-inverse);
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+  }
+}
+
+/* Кнопка КУПИТЬ ЕЩЁ — в том же стиле что и ПРОКАЧАТЬ */
+.buyMoreBtn {
+  background: transparent;
+  border: 3px solid var(--theme-border-main);
+  color: var(--theme-text-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.4rem 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: 0.1s;
+  font-family: inherit;
+  margin-bottom: 0.8rem;
+  width: 100%;
+
+  &:hover:not(.disabled) {
+    background: var(--theme-border-main);
+    color: var(--theme-text-inverse);
+  }
+
+  &:active:not(.disabled) {
+    transform: translateY(1px);
+  }
+
+  &.disabled {
+    opacity: 0.3;
+    border-color: var(--theme-border-disabled);
+    cursor: not-allowed;
+  }
+}
+
 .progress {
   margin-top: 0.5rem;
   border-top: 2px dashed var(--theme-border-main);

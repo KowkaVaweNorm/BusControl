@@ -57,6 +57,7 @@ function convertToBusData(
 export const Garage = ({ onBack }: GarageProps) => {
   const [balance, setBalance] = useState(playerProgressService.getBalance());
   const [buses, setBuses] = useState<BusData[]>([]);
+  const [_busCounts, setBusCounts] = useState<Map<string, number>>(new Map());
   const [reloadTrigger, setReloadTrigger] = useState(0);
 
   // Загрузка данных при монтировании и при изменении reloadTrigger
@@ -66,26 +67,29 @@ export const Garage = ({ onBack }: GarageProps) => {
       setBalance(currentBalance);
 
       const purchasedBuses = playerProgressService.getPurchasedBuses();
+      const counts = playerProgressService.getBusCountsByType();
+      setBusCounts(counts);
 
       // Генерируем список всех типов автобусов (купленные + доступные для покупки)
       const allBuses: BusData[] = BUS_TYPES_CONFIG.map((config, index) => {
         const purchasedBus = purchasedBuses.find((b) => b.busTypeId === config.id);
+        const typeLevel = playerProgressService.getBusTypeLevel(config.id);
 
         if (purchasedBus) {
-          // Купленный автобус
+          // Купленный автобус (показываем один раз для типа)
           return convertToBusData(
             config.id,
-            purchasedBus.level,
+            typeLevel,
             true,
-            purchasedBus.isActive,
-            purchasedBus.totalIncome,
+            false,
+            0,
             index
           );
         } else {
           // Не куплен — показываем как доступный для покупки
           return convertToBusData(
             config.id,
-            1,
+            0,
             false,
             false,
             0,
@@ -126,7 +130,7 @@ export const Garage = ({ onBack }: GarageProps) => {
 
     // Покупаем через PlayerProgressService (он сам изменит баланс и сохранит)
     playerProgressService.buyBus(busTypeId as BusTypeId, config.basePrice);
-    
+
     // Синхронизируем gameStateStore с playerProgressService
     gameStateStore.setBalance(playerProgressService.getBalance());
 
@@ -135,31 +139,25 @@ export const Garage = ({ onBack }: GarageProps) => {
   };
 
   /**
-   * Прокачать автобус
+   * Прокачать тип автобуса (глобально для всех автобусов этого типа)
    */
-  const handleUpgrade = (busIndex: number) => {
-    const bus = buses[busIndex];
-    if (!bus || bus.level >= bus.maxLevel) return;
+  const handleUpgradeType = (busTypeId: string) => {
+    const currentLevel = playerProgressService.getBusTypeLevel(busTypeId);
+    const upgradeCost = getBaseUpgradeCost(currentLevel + 1);
 
     const currentBalance = playerProgressService.getBalance();
-    if (currentBalance < bus.upgradeCost) {
+    if (currentBalance < upgradeCost) {
       alert('❌ Недостаточно средств!');
       return;
     }
 
-    // Находим индекс в purchasedBuses
-    const purchasedBuses = playerProgressService.getPurchasedBuses();
-    const purchasedIndex = purchasedBuses.findIndex((b) => b.busTypeId === bus.busTypeId);
-
-    if (purchasedIndex === -1) return;
-
-    // Прокачиваем через PlayerProgressService
-    const success = playerProgressService.upgradeBus(purchasedIndex, bus.upgradeCost);
+    // Прокачиваем тип через PlayerProgressService
+    const success = playerProgressService.upgradeBusType(busTypeId, upgradeCost);
 
     if (success) {
       // Синхронизируем gameStateStore с playerProgressService
       gameStateStore.setBalance(playerProgressService.getBalance());
-      
+
       // Триггерим перезагрузку данных
       setReloadTrigger(prev => prev + 1);
     }
@@ -187,15 +185,19 @@ export const Garage = ({ onBack }: GarageProps) => {
 
         {/* Сетка автобусов */}
         <div className={cls.fleetGrid}>
-          {buses.map((bus, index) => (
-            <BusCard
-              key={bus.id}
-              bus={bus}
-              balance={balance}
-              onBuy={() => handleBuyBus(bus.busTypeId)}
-              onUpgrade={() => handleUpgrade(index)}
-            />
-          ))}
+          {buses.map((bus) => {
+            const count = _busCounts.get(bus.busTypeId) || 0;
+            return (
+              <BusCard
+                key={bus.id}
+                bus={bus}
+                balance={balance}
+                count={count}
+                onBuy={() => handleBuyBus(bus.busTypeId)}
+                onUpgradeType={() => handleUpgradeType(bus.busTypeId)}
+              />
+            );
+          })}
         </div>
 
         {/* Нижняя панель */}
