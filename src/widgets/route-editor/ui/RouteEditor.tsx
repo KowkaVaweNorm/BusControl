@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { routeEditorService, type BusGroup } from '@/features/route-editor';
+import { routeEditorService, type BusGroup, RouteEditorEventType } from '@/features/route-editor';
+import { gameEventBusService } from '@/shared/lib/game-core/GameEventBusService';
 import cls from './RouteEditor.module.scss';
 
 export const RouteEditor = () => {
@@ -8,26 +9,47 @@ export const RouteEditor = () => {
   const [busGroups, setBusGroups] = useState<BusGroup[]>([]);
 
   useEffect(() => {
-    // Подписка на открытие редактора
-    const interval = setInterval(() => {
-      const wasOpen = isOpen;
-      const nowOpen = routeEditorService.getIsOpen();
-
-      if (nowOpen && !wasOpen) {
-        // Открыли
+    // Подписка на открытие редактора маршрута
+    const unsubscribeOpened = gameEventBusService.subscribe(
+      RouteEditorEventType.OPENED as any,
+      () => {
         setIsOpen(true);
         const data = routeEditorService.getRouteData();
         if (data) {
           setRouteName(data.routeName);
           setBusGroups(data.busGroups);
         }
-      } else if (!nowOpen && wasOpen) {
-        // Закрыли
+      }
+    );
+
+    // Подписка на закрытие редактора маршрута
+    const unsubscribeClosed = gameEventBusService.subscribe(
+      RouteEditorEventType.CLOSED as any,
+      () => {
         setIsOpen(false);
+      }
+    );
+
+    // Таймер для обновления состояния
+    const interval = setInterval(() => {
+      const nowOpen = routeEditorService.getIsOpen();
+      if (nowOpen !== isOpen) {
+        setIsOpen(nowOpen);
+        if (nowOpen) {
+          const data = routeEditorService.getRouteData();
+          if (data) {
+            setRouteName(data.routeName);
+            setBusGroups(data.busGroups);
+          }
+        }
       }
     }, 200);
 
-    return () => clearInterval(interval);
+    return () => {
+      unsubscribeOpened();
+      unsubscribeClosed();
+      clearInterval(interval);
+    };
   }, [isOpen]);
 
   const handleClose = () => {

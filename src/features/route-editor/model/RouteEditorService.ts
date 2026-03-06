@@ -23,6 +23,17 @@ export interface MockBus {
   upgradeCost: number;
 }
 
+// События RouteEditor
+export enum RouteEditorEventType {
+  OPENED = 'route_editor:opened',
+  CLOSED = 'route_editor:closed',
+}
+
+export interface RouteEditorOpenedEvent {
+  routeId: string;
+  routeName: string;
+}
+
 // Автобусы одного типа с количеством
 export interface BusGroup {
   typeId: string;
@@ -169,7 +180,7 @@ class RouteEditorServiceClass {
     this.isOpen = true;
 
     // Публикуем событие открытия
-    gameEventBusService.publish(GameEventType.STOP_EDITOR_OPENED as any, {
+    gameEventBusService.publish(GameEventType.ROUTE_EDITOR_OPENED as any, {
       routeId,
       routeName,
     });

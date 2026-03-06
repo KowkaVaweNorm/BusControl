@@ -1,1 +1,1 @@
-export { routeEditorService, type MockBus, type BusGroup } from './model/RouteEditorService';
+export { routeEditorService, type MockBus, type BusGroup, RouteEditorEventType } from './model/RouteEditorService';

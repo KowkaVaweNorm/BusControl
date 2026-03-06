@@ -189,14 +189,14 @@ function App() {
       {/* Виджеты доступные только в режиме разработчика */}
       {gameMode === GameMode.DEVELOPER && (
         <>
-          <Toolbar />
-          <StopEditor />
-          <MapManager />
+          <Toolbar key="toolbar" />
+          <StopEditor key="stop-editor" />
+          <MapManager key="map-manager" />
         </>
       )}
 
       {/* Редактор маршрута (доступен всем, открывается кликом по маршруту) */}
-      <RouteEditor />
+      <RouteEditor key="route-editor" />
 
       {/* Уведомления (всегда доступны) */}
       <Notifications />

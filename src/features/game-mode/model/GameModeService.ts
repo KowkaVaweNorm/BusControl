@@ -55,7 +55,8 @@ export class GameModeService {
       return;
     }
 
-    // 2. Проверка переменной окружения (приоритет 2 - только для первой инициализации)
+    // 2. Проверка переменной окружения (приоритет 2)
+    // VITE_DEVELOPER_MODE=true только для DEV сборок
     const envMode = import.meta.env.VITE_DEVELOPER_MODE;
     if (envMode === 'true') {
       this.mode = GameMode.DEVELOPER;
@@ -73,9 +74,9 @@ export class GameModeService {
       return;
     }
 
-    // По умолчанию - viewer режим
+    // По умолчанию - viewer режим (для production)
     this.mode = GameMode.VIEWER;
-    console.log('[GameModeService] Viewer mode (default)');
+    console.log('[GameModeService] Viewer mode (default for production)');
     this.isInitialized = true;
   }
 

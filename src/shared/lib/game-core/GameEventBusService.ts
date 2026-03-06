@@ -79,6 +79,10 @@ export enum GameEventType {
   STOP_EDITOR_CLOSED = 'stop_editor:closed',
   STOP_EDITOR_UPDATED = 'stop_editor:updated',
 
+  // === Редактор маршрутов ===
+  ROUTE_EDITOR_OPENED = 'route_editor:opened',
+  ROUTE_EDITOR_CLOSED = 'route_editor:closed',
+
   // === UI ===
   UI_NOTIFICATION = 'ui:notification',
   UI_ERROR = 'ui:error',
@@ -135,6 +139,9 @@ export interface GameEventMap {
   [GameEventType.STOP_EDITOR_OPENED]: { stopId: string };
   [GameEventType.STOP_EDITOR_CLOSED]: undefined;
   [GameEventType.STOP_EDITOR_UPDATED]: { stopId: string; changes: Record<string, unknown> };
+
+  [GameEventType.ROUTE_EDITOR_OPENED]: { routeId: string; routeName: string };
+  [GameEventType.ROUTE_EDITOR_CLOSED]: undefined;
 
   [GameEventType.UI_NOTIFICATION]: { message: string; type: 'info' | 'success' | 'warning' };
   [GameEventType.UI_ERROR]: { message: string; code: string };
