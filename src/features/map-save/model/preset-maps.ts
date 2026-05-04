@@ -12,7 +12,7 @@
 import type { PresetMap } from './types';
 
 // Общие настройки спавна для всех остановок
-const DEFAULT_SPAWN = { morning: 20, day: 20, evening: 20, night: 20 }; // 3 пасс/мин
+const DEFAULT_SPAWN = { morning: 5, day: 5, evening: 5, night: 5 };
 
 /**
  * Уровень 1: "Учебный круг" (4 остановки, 1 маршрут)
@@ -438,7 +438,7 @@ const megapolisMap: PresetMap = {
         name: 'Главный вокзал',
         x: 400,
         y: 300,
-        spawnRates: { ...DEFAULT_SPAWN, morning: 7, evening: 7 },
+        spawnRates: { ...DEFAULT_SPAWN, morning: 1, evening: 1, day: 1, night: 10 },
       },
       { id: 'stop_p2', name: 'Северный порт', x: 400, y: 100, spawnRates: DEFAULT_SPAWN },
       {
@@ -446,21 +446,21 @@ const megapolisMap: PresetMap = {
         name: 'Аэропорт',
         x: 750,
         y: 100,
-        spawnRates: { ...DEFAULT_SPAWN, morning: 6 },
+        spawnRates: { ...DEFAULT_SPAWN },
       },
       {
         id: 'stop_p4',
         name: 'Технопарк',
         x: 750,
         y: 250,
-        spawnRates: { ...DEFAULT_SPAWN, morning: 6, day: 5 },
+        spawnRates: { ...DEFAULT_SPAWN },
       },
       {
         id: 'stop_p5',
         name: 'Бизнес-квартал',
         x: 750,
         y: 400,
-        spawnRates: { ...DEFAULT_SPAWN, morning: 7, evening: 7 },
+        spawnRates: { ...DEFAULT_SPAWN, morning: 120, evening: 120 },
       },
       { id: 'stop_p6', name: 'Южный терминал', x: 750, y: 550, spawnRates: DEFAULT_SPAWN },
       {
@@ -468,7 +468,7 @@ const megapolisMap: PresetMap = {
         name: 'Пляжный район',
         x: 400,
         y: 550,
-        spawnRates: { ...DEFAULT_SPAWN, day: 7, evening: 6 },
+        spawnRates: { ...DEFAULT_SPAWN, day: 10, evening: 60, night: 10 },
       },
       { id: 'stop_p8', name: 'Старый город', x: 100, y: 550, spawnRates: DEFAULT_SPAWN },
       {
@@ -476,21 +476,21 @@ const megapolisMap: PresetMap = {
         name: 'Западный рынок',
         x: 100,
         y: 400,
-        spawnRates: { ...DEFAULT_SPAWN, day: 6 },
+        spawnRates: { ...DEFAULT_SPAWN, evening: 80 },
       },
       {
         id: 'stop_p10',
         name: 'Больница',
         x: 100,
         y: 250,
-        spawnRates: { ...DEFAULT_SPAWN, day: 6 },
+        spawnRates: { ...DEFAULT_SPAWN },
       },
       {
         id: 'stop_p11',
         name: 'Университет',
         x: 100,
         y: 100,
-        spawnRates: { ...DEFAULT_SPAWN, morning: 6 },
+        spawnRates: { ...DEFAULT_SPAWN, day: 70 },
       },
       { id: 'stop_p12', name: 'Парк культуры', x: 250, y: 200, spawnRates: DEFAULT_SPAWN },
       {
@@ -498,14 +498,14 @@ const megapolisMap: PresetMap = {
         name: 'Стадион',
         x: 600,
         y: 200,
-        spawnRates: { ...DEFAULT_SPAWN, evening: 8 },
+        spawnRates: { ...DEFAULT_SPAWN },
       },
       {
         id: 'stop_p14',
         name: 'Концертный зал',
         x: 600,
         y: 450,
-        spawnRates: { ...DEFAULT_SPAWN, evening: 7 },
+        spawnRates: { ...DEFAULT_SPAWN },
       },
       { id: 'stop_p15', name: 'Выставочный центр', x: 250, y: 450, spawnRates: DEFAULT_SPAWN },
       { id: 'stop_p16', name: 'Олимпийская деревня', x: 550, y: 325, spawnRates: DEFAULT_SPAWN },
